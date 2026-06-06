@@ -27,9 +27,8 @@ pipeline {
       steps {
         dir('automatizacion-main/automatizacion-main/java-app') {
     // Forzamos a Maven a ignorar la validación estricta de SSL para este paso
-                sh 'mvn clean package --settings ../jenkins/settings.xml'
-           //sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
-            }
+            sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'           //sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
+        }
         //dir('automatizacion-main/automatizacion-main/java-app') {
           //  sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'  //sh 'mvn clean package'
             //}
