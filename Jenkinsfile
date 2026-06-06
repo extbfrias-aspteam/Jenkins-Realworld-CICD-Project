@@ -7,8 +7,8 @@ def COLOR_MAP = [
 pipeline {
   agent any
   environment {
-    WORKSPACE = "${env.WORKSPACE}"
-    // WORKSPACE = "${env.WORKSPACE}/realworld-cicd-pipeline-project-main"
+    //WORKSPACE = "${env.WORKSPACE}"
+    WORKSPACE = "${env.WORKSPACE}/realworld-cicd-pipeline-project-main"
     NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
     NEXUS_USER = "$NEXUS_CREDS_USR"
     NEXUS_PASSWORD = "$NEXUS_CREDS_PSWD"
