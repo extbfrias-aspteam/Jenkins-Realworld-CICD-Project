@@ -26,8 +26,12 @@ pipeline {
     stage('Build') {
       steps {
         dir('automatizacion-main/automatizacion-main/java-app') {
-            sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'  //sh 'mvn clean package'
+    // Forzamos a Maven a ignorar la validación estricta de SSL para este paso
+           sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
             }
+        //dir('automatizacion-main/automatizacion-main/java-app') {
+          //  sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'  //sh 'mvn clean package'
+            //}
         //dir('realworld-cicd-pipeline-project-main/') {
         
         //sh 'mvn clean package'
