@@ -26,10 +26,10 @@ pipeline {
     stage('Build') {
       steps {
         dir('automatizacion-main/automatizacion-main/java-app') {
-          sh 'mvn clean package'
-        }
+            sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'  //sh 'mvn clean package'
+            }
         //dir('realworld-cicd-pipeline-project-main/') {
-        //sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'
+        
         //sh 'mvn clean package'
        // }
       }
