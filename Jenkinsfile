@@ -26,7 +26,8 @@ pipeline {
     stage('Build') {
       steps {
         //dir('realworld-cicd-pipeline-project-main/') {
-        sh 'mvn clean package'
+        sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'
+        //sh 'mvn clean package'
        // }
       }
       post {
