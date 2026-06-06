@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  settings.xml - Configuración Maven para proyectos Mule ESB
+  =========================================================
+  INSTRUCCIONES:
+    1. Copiar a ~/.m2/settings.xml (reemplaza el settings.xml de Java si es Mule puro)
+    2. Si el developer trabaja con Java Y Mule, usar el settings.xml de java-maven
+       y agregar solo el perfil mule y las credenciales mulesoft
+    3. Reemplazar NEXUS_HOST, NEXUS_PORT, MULESOFT_USER, MULESOFT_PASS
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0
+                              https://maven.apache.org/xsd/settings-1.2.0.xsd">
+
+  <servers>
+    <!-- Nexus interno -->
+    <server>
+      <id>nexus-mule-releases</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+    <server>
+      <id>nexus-mule-snapshots</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+    <!-- Anypoint Exchange (solo si se despliega en CloudHub/Anypoint) -->
+    <server>
+      <id>anypoint-exchange</id>
+      <username>${env.MULESOFT_USER}</username>
+      <password>${env.MULESOFT_PASS}</password>
+    </server>
+    <!-- Proxy para descargar dependencias MuleSoft EE (requiere cuenta) -->
+    <server>
+      <id>mulesoft-ee</id>
+      <username>${env.MULESOFT_EE_USER}</username>
+      <password>${env.MULESOFT_EE_PASS}</password>
+    </server>
+  </servers>
+
+  <mirrors>
+    <!-- Todo el tráfico de dependencias pasa por Nexus corporativo -->
+    <mirror>
+      <id>nexus-public</id>
+      <name>Nexus Corporate Mirror</name>
+      <url>http://NEXUS_HOST:NEXUS_PORT/repository/maven-public/</url>
+      <mirrorOf>central,mulesoft-proxy</mirrorOf>
+    </mirror>
+  </mirrors>
+
+  <profiles>
+
+    <profile>
+      <id>mule</id>
+      <repositories>
+        <!-- Nexus interno para releases Mule -->
+        <repository>
+          <id>nexus-mule-releases</id>
+          <name>Nexus Mule Releases</name>
+          <url>http://NEXUS_HOST:NEXUS_PORT/repository/mule-releases/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>nexus-mule-snapshots</id>
+          <name>Nexus Mule Snapshots</name>
+          <url>http://NEXUS_HOST:NEXUS_PORT/repository/mule-snapshots/</url>
+          <releases><enabled>false</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <!-- Proxy MuleSoft vía Nexus (evita ir directo a internet) -->
+        <repository>
+          <id>mulesoft-proxy</id>
+          <name>MuleSoft via Nexus</name>
+          <url>http://NEXUS_HOST:NEXUS_PORT/repository/mulesoft-proxy/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+      </repositories>
+
+      <pluginRepositories>
+        <pluginRepository>
+          <id>nexus-mule-releases</id>
+          <name>Nexus Mule Releases</name>
+          <url>http://NEXUS_HOST:NEXUS_PORT/repository/mule-releases/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </pluginRepository>
+        <pluginRepository>
+          <id>mulesoft-proxy</id>
+          <name>MuleSoft via Nexus</name>
+          <url>http://NEXUS_HOST:NEXUS_PORT/repository/mulesoft-proxy/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>mule</activeProfile>
+  </activeProfiles>
+
+</settings>

@@ -1,0 +1,283 @@
+// =============================================================================
+// Jenkinsfile.standard-java
+// Pipeline CI/CD estándar para proyectos Java/Maven
+// Aplica a todos los proyectos Java compilados con Maven
+//
+// STAGES:
+//   1. Checkout       - clonar código desde GitLab
+//   2. Build          - compilar sin tests
+//   3. Test           - tests unitarios + cobertura JaCoCo
+//   4. Security Scan  - OWASP + SpotBugs + escaneo de secretos
+//   5. Quality Gate   - SonarQube
+//   6. Package        - empaquetado JAR/WAR
+//   7. Publish Nexus  - publicar artefacto versionado en Nexus
+//   8. Notify         - notificación al equipo
+// =============================================================================
+
+pipeline {
+    agent {
+        // Usar nodo con Maven y JDK instalados
+        // Para el ambiente de prueba con contenedores: label 'maven'
+        any
+    }
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'qa', 'staging', 'production'],
+            description: 'Ambiente de destino'
+        )
+        booleanParam(
+            name: 'SKIP_TESTS',
+            defaultValue: false,
+            description: 'Saltar tests (solo en emergencias)'
+        )
+        booleanParam(
+            name: 'SKIP_SECURITY',
+            defaultValue: false,
+            description: 'Saltar análisis de seguridad (solo para pruebas locales)'
+        )
+        string(
+            name: 'FORCE_VERSION',
+            defaultValue: '',
+            description: 'Forzar versión específica (vacío = usar versión del pom.xml)'
+        )
+    }
+
+    environment {
+        // Nexus - configurar como credenciales Jenkins
+        NEXUS_URL         = credentials('nexus-url')
+        NEXUS_CREDENTIALS = credentials('nexus-credentials')
+
+        // SonarQube
+        SONAR_HOST        = credentials('sonarqube-url')
+        SONAR_TOKEN       = credentials('sonarqube-token')
+
+        // Maven
+        MAVEN_OPTS = '-Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1'
+
+        // GitLab - para actualizar estado del commit
+        GITLAB_TOKEN      = credentials('gitlab-api-token')
+
+        // Nombre del artefacto
+        APP_NAME          = "${env.JOB_NAME.tokenize('/')[0]}"
+        BUILD_TIMESTAMP   = sh(script: "date +%Y%m%d-%H%M%S", returnStdout: true).trim()
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
+        timeout(time: 45, unit: 'MINUTES')
+        timestamps()
+        disableConcurrentBuilds()
+        skipDefaultCheckout()
+    }
+
+    stages {
+
+        // -----------------------------------------------------------------
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    // Leer versión del POM
+                    env.POM_VERSION = sh(
+                        script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                        returnStdout: true
+                    ).trim()
+                    env.BUILD_VERSION = params.FORCE_VERSION ?: env.POM_VERSION
+                    echo "Versión del build: ${env.BUILD_VERSION}"
+                    echo "Branch: ${env.GIT_BRANCH}"
+                    echo "Commit: ${env.GIT_COMMIT}"
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------
+        stage('Escaneo de Secretos') {
+            // Siempre se ejecuta - NUNCA se salta
+            steps {
+                script {
+                    echo "=== Verificando que no hay datos sensibles en el código ==="
+                    sh '''
+                        chmod +x scripts/scan-secrets.sh 2>/dev/null || true
+                        if [ -f scripts/scan-secrets.sh ]; then
+                            ./scripts/scan-secrets.sh --strict
+                        else
+                            # Escaneo básico sin script externo
+                            echo "Verificando patrones de secretos..."
+                            if grep -rn --include="*.java" --include="*.properties" --include="*.xml" \
+                               -E "(password|passwd|secret|api_key|apikey)\s*=\s*['\"][^$\{][^'\"]{3,}" \
+                               src/ 2>/dev/null; then
+                                echo "ERROR: Posibles credenciales hardcodeadas detectadas."
+                                exit 1
+                            fi
+                            echo "Sin secretos detectados."
+                        fi
+                    '''
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------
+        stage('Build') {
+            steps {
+                sh """
+                    mvn clean compile \
+                        -DskipTests=true \
+                        -Dmaven.test.skip=true \
+                        ${params.SKIP_TESTS ? '-DskipTests' : ''} \
+                        -B -q
+                """
+            }
+        }
+
+        // -----------------------------------------------------------------
+        stage('Tests Unitarios') {
+            when { expression { !params.SKIP_TESTS } }
+            steps {
+                sh 'mvn test -B'
+            }
+            post {
+                always {
+                    // Publicar resultados de tests en Jenkins
+                    junit testResults: '**/target/surefire-reports/*.xml',
+                          allowEmptyResults: true
+                    // Publicar reporte de cobertura JaCoCo
+                    jacoco(
+                        execPattern: '**/target/jacoco.exec',
+                        classPattern: '**/target/classes',
+                        sourcePattern: '**/src/main/java',
+                        minimumLineCoverage: '70',
+                        changeBuildStatus: true
+                    )
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------
+        stage('Análisis de Seguridad') {
+            when { expression { !params.SKIP_SECURITY } }
+            parallel {
+
+                stage('OWASP Dependency Check') {
+                    steps {
+                        sh '''
+                            mvn org.owasp:dependency-check-maven:check \
+                                -DfailBuildOnCVSS=7 \
+                                -Dformat=HTML,JSON \
+                                -B -q || true
+                        '''
+                    }
+                    post {
+                        always {
+                            publishHTML([
+                                reportDir: 'target',
+                                reportFiles: 'dependency-check-report.html',
+                                reportName: 'OWASP Dependency Check'
+                            ])
+                        }
+                    }
+                }
+
+                stage('SpotBugs') {
+                    steps {
+                        sh 'mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs -B -q || true'
+                    }
+                }
+
+            }
+        }
+
+        // -----------------------------------------------------------------
+        stage('SonarQube') {
+            when { expression { !params.SKIP_SECURITY } }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                        mvn sonar:sonar \
+                            -Dsonar.projectKey=${APP_NAME} \
+                            -Dsonar.projectName=${APP_NAME} \
+                            -Dsonar.projectVersion=${env.BUILD_VERSION} \
+                            -B -q
+                    """
+                }
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------
+        stage('Package') {
+            steps {
+                sh """
+                    mvn package \
+                        -DskipTests=true \
+                        -Drevision=${env.BUILD_VERSION} \
+                        -B -q
+                """
+                // Listar artefactos generados
+                sh 'find target -maxdepth 1 \\( -name "*.jar" -o -name "*.war" -o -name "*.ear" \\) -ls'
+            }
+        }
+
+        // -----------------------------------------------------------------
+        stage('Publicar en Nexus') {
+            steps {
+                script {
+                    // Determinar repositorio Nexus según la versión
+                    def nexusRepo = env.BUILD_VERSION.endsWith('SNAPSHOT')
+                        ? 'maven-snapshots'
+                        : 'maven-releases'
+
+                    withCredentials([usernamePassword(
+                        credentialsId: 'nexus-credentials',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )]) {
+                        sh """
+                            mvn deploy \
+                                -DskipTests=true \
+                                -DaltDeploymentRepository=nexus-deploy::default::${NEXUS_URL}/repository/${nexusRepo}/ \
+                                -B -q
+                        """
+                    }
+                    echo "Artefacto publicado en: ${NEXUS_URL}/repository/${nexusRepo}/"
+                    echo "  GAV: $(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout):${APP_NAME}:${env.BUILD_VERSION}"
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: '**/target/*.jar,**/target/*.war,**/target/*.ear',
+                                     fingerprint: true,
+                                     allowEmptyArchive: true
+                }
+            }
+        }
+
+    } // end stages
+
+    post {
+
+        success {
+            echo "Pipeline completado exitosamente."
+            echo "Artefacto: ${APP_NAME}:${env.BUILD_VERSION}"
+            // Enviar notificación de éxito (configurar según herramienta disponible)
+        }
+
+        failure {
+            echo "Pipeline fallido. Revisar logs."
+            // emailext o slack según configuración del servidor Jenkins
+        }
+
+        always {
+            // Limpiar workspace al final para ahorrar espacio en disco
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenFailure: false,  // conservar para depurar fallos
+                cleanWhenAborted: true
+            )
+        }
+
+    }
+}

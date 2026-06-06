@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  settings.xml - Configuración Maven estándar apuntando a Nexus
+  =====================================================================
+  INSTRUCCIONES:
+    1. Copiar este archivo a: ~/.m2/settings.xml
+    2. Reemplazar NEXUS_HOST con la IP/hostname del servidor Nexus
+    3. Reemplazar las credenciales de nexus-user y nexus-password
+    4. NO subir este archivo con credenciales al repositorio git
+
+  Rutas:
+    Linux/Mac : ~/.m2/settings.xml
+    Windows   : C:\Users\<usuario>\.m2\settings.xml
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0
+                              https://maven.apache.org/xsd/settings-1.2.0.xsd">
+
+  <!-- ================================================================
+       SERVIDORES - credenciales para autenticarse contra Nexus
+       El id debe coincidir exactamente con el <repository>/<id> del POM
+       ================================================================ -->
+  <servers>
+    <server>
+      <id>nexus-releases</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+    <server>
+      <id>nexus-snapshots</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+    <server>
+      <id>nexus-mule-releases</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+    <server>
+      <id>nexus-mule-snapshots</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+    <!-- Servidor legacy para migración inicial -->
+    <server>
+      <id>nexus-legacy</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+  </servers>
+
+  <!-- ================================================================
+       MIRRORS - todo el tráfico Maven pasa por Nexus (caché corporativa)
+       Esto evita descargas directas de Internet desde las laptops
+       ================================================================ -->
+  <mirrors>
+    <mirror>
+      <id>nexus-public</id>
+      <name>Nexus Public Group - Punto único de resolución de dependencias</name>
+      <!--
+        CAMBIAR: reemplazar NEXUS_HOST:NEXUS_PORT con los datos reales
+        Ejemplo: http://192.168.1.100:8081
+      -->
+      <url>http://149.56.241.64:8081/repository/maven-public/</url>
+      <!-- Intercepta CUALQUIER repositorio Maven -->
+      <mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
+
+  <!-- ================================================================
+       PROFILES - configuración de repositorios por perfil
+       ================================================================ -->
+  <profiles>
+    <profile>
+      <id>nexus</id>
+
+      <!-- Repositorios para resolución de dependencias -->
+      <repositories>
+        <repository>
+          <id>nexus-public</id>
+          <name>Nexus Public</name>
+          <url>http://149.56.241.64:8081/repository/maven-public/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+          </snapshots>
+        </repository>
+      </repositories>
+
+      <!-- Repositorios de plugins Maven -->
+      <pluginRepositories>
+        <pluginRepository>
+          <id>nexus-public</id>
+          <name>Nexus Public</name>
+          <url>http://149.56.241.64:8081/repository/maven-public/</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+
+    <!-- Perfil específico para proyectos Mule -->
+    <profile>
+      <id>mule</id>
+      <repositories>
+        <repository>
+          <id>nexus-mule-releases</id>
+          <name>Nexus Mule Releases</name>
+          <url>http://149.56.241.64:8081/repository/mule-releases/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>nexus-mule-snapshots</id>
+          <name>Nexus Mule Snapshots</name>
+          <url>http://149.56.241.64:8081/repository/mule-snapshots/</url>
+          <releases><enabled>false</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <!-- Activar el perfil nexus por defecto siempre -->
+  <activeProfiles>
+    <activeProfile>nexus</activeProfile>
+  </activeProfiles>
+
+</settings>

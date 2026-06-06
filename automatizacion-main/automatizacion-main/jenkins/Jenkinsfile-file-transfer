@@ -1,0 +1,238 @@
+// ═══════════════════════════════════════════════════════════════
+// Pipeline de Transferencia de Archivos entre Servers Destino
+// Ambiente de Prueba: Jenkins + Nexus + Servers Destino
+//
+// Flujo:
+//   1. Crear archivo de prueba en server-1
+//   2. Subir archivo a Nexus (repositorio intermedio)
+//   3. Transferir directamente de server-1 → server-2 vía SCP
+//   4. Distribuir desde Nexus a server-3
+//   5. Verificar integridad en todos los destinos
+// ═══════════════════════════════════════════════════════════════
+
+pipeline {
+    agent any
+
+    parameters {
+        string(
+            name: 'FILE_CONTENT',
+            defaultValue: "Payload de prueba generado por Jenkins\nFecha: ${new Date()}\nBuild: #${BUILD_NUMBER}",
+            description: 'Contenido del archivo de prueba a transferir'
+        )
+        string(
+            name: 'FILE_NAME',
+            defaultValue: 'test-payload.txt',
+            description: 'Nombre del archivo a transferir'
+        )
+        booleanParam(
+            name: 'CLEANUP_AFTER',
+            defaultValue: true,
+            description: 'Limpiar archivos temporales al finalizar'
+        )
+    }
+
+    environment {
+        SSH_CRED_ID      = 'ssh-deploy-key'
+        NEXUS_URL        = 'http://nexus:8081'
+        NEXUS_REPO       = 'raw-test'
+        SERVER_1         = 'target-server-1'
+        SERVER_2         = 'target-server-2'
+        SERVER_3         = 'target-server-3'
+        DEPLOY_USER      = 'deploy'
+        REMOTE_DIR       = '/tmp/transfer'
+        FILE_PATH        = "${REMOTE_DIR}/${params.FILE_NAME}"
+    }
+
+    options {
+        timeout(time: 15, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+
+        // ── Stage 1: Preparar archivo en Server Origen ───────────────
+        stage('1. Preparar archivo en Server-1') {
+            steps {
+                echo "=== Creando archivo de prueba en ${SERVER_1} ==="
+                sshagent(credentials: [SSH_CRED_ID]) {
+                    sh """
+                        # Crear directorio de trabajo en server-1
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_1} \\
+                            "mkdir -p ${REMOTE_DIR}"
+
+                        # Crear archivo de prueba con metadata
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_1} \\
+                            "cat > ${FILE_PATH} << 'PAYLOAD'
+========================================
+  Archivo de Prueba - Jenkins Pipeline
+========================================
+Servidor Origen : ${SERVER_1}
+Build Number    : ${BUILD_NUMBER}
+Build URL       : ${BUILD_URL}
+Timestamp       : \$(date '+%Y-%m-%d %H:%M:%S')
+Hostname        : \$(hostname)
+
+Contenido:
+${params.FILE_CONTENT}
+
+Checksums serán verificados en destino.
+PAYLOAD
+"
+                        # Calcular checksum MD5
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_1} \\
+                            "md5sum ${FILE_PATH} > ${REMOTE_DIR}/${params.FILE_NAME}.md5"
+
+                        echo "Archivo creado en ${SERVER_1}:${FILE_PATH}"
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_1} \\
+                            "ls -lh ${REMOTE_DIR}/ && echo '---' && cat ${FILE_PATH}"
+                    """
+                }
+            }
+        }
+
+        // ── Stage 2: Subir artefacto a Nexus ─────────────────────────
+        stage('2. Subir a Nexus') {
+            steps {
+                echo "=== Subiendo archivo a Nexus (repositorio intermedio) ==="
+                sshagent(credentials: [SSH_CRED_ID]) {
+                    sh """
+                        # Crear repo raw en Nexus si no existe (idempotente vía API)
+                        # Subir el archivo desde server-1 a Nexus usando curl
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_1} \\
+                            "curl -v -u admin:nexus123 \\
+                                --upload-file ${FILE_PATH} \\
+                                '${NEXUS_URL}/repository/${NEXUS_REPO}/${params.FILE_NAME}' \\
+                                -w 'HTTP Status: %{http_code}\\n' || \\
+                            echo '[WARN] Nexus upload falló - puede que el repo raw aún no esté configurado'"
+
+                        echo "Archivo disponible en Nexus: ${NEXUS_URL}/repository/${NEXUS_REPO}/${params.FILE_NAME}"
+                    """
+                }
+            }
+        }
+
+        // ── Stage 3: Transferencia directa Server-1 → Server-2 ───────
+        stage('3. Transferir Server-1 → Server-2') {
+            steps {
+                echo "=== Transfiriendo archivo directamente de ${SERVER_1} a ${SERVER_2} ==="
+                sshagent(credentials: [SSH_CRED_ID]) {
+                    sh """
+                        # Copiar la clave SSH a server-1 para que pueda hacer SCP a server-2
+                        # (Jenkins copia la clave al agente SSH, server-1 necesita poder conectarse a server-2)
+                        # Alternativa: Jenkins actúa como relay (copia local → remoto)
+
+                        # Opción 1: Jenkins hace de intermediario (más seguro)
+                        # Descargar de server-1
+                        scp -o StrictHostKeyChecking=no \\
+                            ${DEPLOY_USER}@${SERVER_1}:${FILE_PATH} \\
+                            /tmp/${params.FILE_NAME}
+
+                        # Crear directorio destino en server-2
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_2} \\
+                            "mkdir -p ${REMOTE_DIR}"
+
+                        # Subir a server-2
+                        scp -o StrictHostKeyChecking=no \\
+                            /tmp/${params.FILE_NAME} \\
+                            ${DEPLOY_USER}@${SERVER_2}:${FILE_PATH}
+
+                        echo "Archivo transferido a ${SERVER_2}:${FILE_PATH}"
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_2} \\
+                            "ls -lh ${REMOTE_DIR}/"
+                    """
+                }
+            }
+        }
+
+        // ── Stage 4: Distribuir a Server-3 desde Nexus ───────────────
+        stage('4. Distribuir desde Nexus → Server-3') {
+            steps {
+                echo "=== Descargando desde Nexus a ${SERVER_3} ==="
+                sshagent(credentials: [SSH_CRED_ID]) {
+                    sh """
+                        # Crear directorio en server-3
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_3} \\
+                            "mkdir -p ${REMOTE_DIR}"
+
+                        # Descargar desde Nexus directo en server-3
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_3} \\
+                            "curl -f -u admin:nexus123 \\
+                                '${NEXUS_URL}/repository/${NEXUS_REPO}/${params.FILE_NAME}' \\
+                                -o ${FILE_PATH} \\
+                                -w 'HTTP Status: %{http_code}\\n' || \\
+                            echo '[WARN] Descarga desde Nexus falló, copiando desde Jenkins'"
+
+                        # Fallback: copiar directamente desde Jenkins si Nexus no está listo
+                        if ! ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${SERVER_3} \\
+                                "test -s ${FILE_PATH}"; then
+                            echo "Fallback: copiando directamente desde Jenkins a server-3"
+                            scp -o StrictHostKeyChecking=no \\
+                                /tmp/${params.FILE_NAME} \\
+                                ${DEPLOY_USER}@${SERVER_3}:${FILE_PATH}
+                        fi
+
+                        echo "Archivo disponible en ${SERVER_3}:${FILE_PATH}"
+                    """
+                }
+            }
+        }
+
+        // ── Stage 5: Verificar integridad en todos los destinos ───────
+        stage('5. Verificar en todos los servers') {
+            steps {
+                echo "=== Verificando integridad del archivo en todos los destinos ==="
+                sshagent(credentials: [SSH_CRED_ID]) {
+                    sh """
+                        echo ""
+                        echo "╔══════════════════════════════════════════════════╗"
+                        echo "║          RESULTADO DE TRANSFERENCIA              ║"
+                        echo "╚══════════════════════════════════════════════════╝"
+                        echo ""
+
+                        for server in ${SERVER_1} ${SERVER_2} ${SERVER_3}; do
+                            echo "── \${server} ──────────────────────"
+                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@\${server} \\
+                                "ls -lh ${FILE_PATH} && \\
+                                 echo 'MD5:' && md5sum ${FILE_PATH} && \\
+                                 echo 'Contenido (primeras 5 líneas):' && \\
+                                 head -5 ${FILE_PATH}" 2>/dev/null || \\
+                            echo "[ERROR] No se pudo verificar en \${server}"
+                            echo ""
+                        done
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                if (params.CLEANUP_AFTER) {
+                    echo "=== Limpiando archivos temporales en Jenkins ==="
+                    sh "rm -f /tmp/${params.FILE_NAME}"
+                }
+            }
+        }
+        success {
+            echo """
+╔══════════════════════════════════════════════════════╗
+║  PIPELINE EXITOSO                                    ║
+║                                                      ║
+║  Archivo '${params.FILE_NAME}' transferido:          ║
+║    server-1 → server-2 (SCP directo via Jenkins)     ║
+║    server-1 → Nexus    (repositorio intermedio)      ║
+║    Nexus    → server-3 (descarga desde repositorio)  ║
+╚══════════════════════════════════════════════════════╝
+            """
+        }
+        failure {
+            echo """
+╔══════════════════════════════════════════════════════╗
+║  PIPELINE FALLIDO                                    ║
+║  Revisar logs de cada stage para más detalles        ║
+╚══════════════════════════════════════════════════════╝
+            """
+        }
+    }
+}

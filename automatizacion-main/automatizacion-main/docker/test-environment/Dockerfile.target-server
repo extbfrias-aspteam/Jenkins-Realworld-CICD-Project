@@ -1,0 +1,44 @@
+FROM ubuntu:22.04
+
+ARG SERVER_NAME=target-server
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    curl \
+    rsync \
+    wget \
+    vim \
+    net-tools \
+    iputils-ping \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configurar SSH
+RUN mkdir -p /var/run/sshd \
+    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config \
+    && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config \
+    && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+
+# Crear usuario deploy
+RUN useradd -m -s /bin/bash deploy \
+    && mkdir -p /home/deploy/.ssh \
+    && chmod 700 /home/deploy/.ssh \
+    && chown -R deploy:deploy /home/deploy/.ssh
+
+# Crear directorio de trabajo
+RUN mkdir -p /opt/deploy /tmp/transfer \
+    && chown -R deploy:deploy /opt/deploy /tmp/transfer
+
+# Copiar clave pública SSH (generada por setup/generate-ssh-keys.sh)
+COPY setup/ssh-keys/jenkins_rsa.pub /home/deploy/.ssh/authorized_keys
+RUN chmod 600 /home/deploy/.ssh/authorized_keys \
+    && chown deploy:deploy /home/deploy/.ssh/authorized_keys
+
+# Script de entrypoint
+COPY setup/entrypoint-target.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 22
+
+ENTRYPOINT ["/entrypoint.sh"]

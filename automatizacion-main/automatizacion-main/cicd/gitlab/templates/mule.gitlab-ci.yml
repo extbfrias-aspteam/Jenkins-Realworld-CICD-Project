@@ -1,0 +1,130 @@
+# =============================================================================
+# mule.gitlab-ci.yml
+# Template GitLab CI/CD para proyectos Mule ESB
+#
+# USO - en el .gitlab-ci.yml de cada proyecto Mule:
+#   include:
+#     - project: 'infra-neo/automatizacion'
+#       ref: main
+#       file: '/cicd/gitlab/templates/mule.gitlab-ci.yml'
+# =============================================================================
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Xmx1024m"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end"
+  MULE_VERSION: "4.4.0"
+
+cache:
+  key:
+    files:
+      - pom.xml
+  paths:
+    - .m2/repository/
+  policy: pull-push
+
+stages:
+  - validate
+  - build
+  - test
+  - security
+  - package
+  - publish
+
+# ---------------------------------------------------------------------------
+secret-scan-mule:
+  stage: validate
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache grep findutils
+  script:
+    - |
+      echo "=== Escaneo de secretos en proyecto Mule ==="
+      FOUND=0
+      # Detectar credenciales en flows XML de Mule
+      if grep -rn --include="*.xml" \
+         -E '(password|username|api\.key|client\.secret|client_id)\s*=\s*[^$\{&%]' \
+         src/main/mule/ src/main/resources/ 2>/dev/null; then
+        echo "ERROR: Credenciales hardcodeadas en flows Mule."
+        echo "Usar: <secure-properties:config file='...' key='...' />"
+        echo "      o variables de entorno: \${env.MY_SECRET}"
+        FOUND=1
+      fi
+      if find . -not -path './.git/*' \
+         \( -name "*.pem" -o -name "*.key" -o -name "*.jks" -o -name "*.p12" \) \
+         2>/dev/null | grep -q .; then
+        echo "ERROR: Certificados/claves en el repositorio."
+        FOUND=1
+      fi
+      [ "$FOUND" -eq 0 ] && echo "OK: Sin secretos detectados."
+      exit $FOUND
+  rules:
+    - when: always
+
+# ---------------------------------------------------------------------------
+build-mule:
+  stage: build
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - mvn $MAVEN_CLI_OPTS clean compile -DskipTests=true
+  artifacts:
+    paths:
+      - target/classes/
+    expire_in: 1 hour
+
+# ---------------------------------------------------------------------------
+munit-tests:
+  stage: test
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - mvn $MAVEN_CLI_OPTS test
+  artifacts:
+    reports:
+      junit: target/surefire-reports/TEST-*.xml
+    paths:
+      - target/surefire-reports/
+      - target/site/munit/
+    expire_in: 1 week
+  rules:
+    - if: '$SKIP_TESTS != "true"'
+
+# ---------------------------------------------------------------------------
+owasp-mule:
+  stage: security
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - |
+      mvn $MAVEN_CLI_OPTS org.owasp:dependency-check-maven:check \
+        -DfailBuildOnCVSS=7 -Dformat=HTML || true
+  artifacts:
+    paths:
+      - target/dependency-check-report.html
+    expire_in: 1 week
+
+# ---------------------------------------------------------------------------
+package-mule:
+  stage: package
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - mvn $MAVEN_CLI_OPTS package -DskipTests=true -Dapp.runtime=${MULE_VERSION}
+    - ls -lh target/*.jar 2>/dev/null || ls -lh target/*.zip 2>/dev/null
+  artifacts:
+    paths:
+      - target/*.jar
+      - target/*.zip
+    expire_in: 1 week
+
+# ---------------------------------------------------------------------------
+publish-mule-nexus:
+  stage: publish
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - |
+      APP_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+      NEXUS_REPO=$(echo "$APP_VERSION" | grep -q "SNAPSHOT" && echo "mule-snapshots" || echo "mule-releases")
+      echo "Publicando Mule app ${APP_VERSION} en ${NEXUS_REPO}"
+      mvn $MAVEN_CLI_OPTS deploy -DskipTests=true \
+        -DaltDeploymentRepository="nexus-mule::default::${NEXUS_URL}/repository/${NEXUS_REPO}/" \
+        -s <(echo "<settings><servers><server><id>nexus-mule</id><username>${NEXUS_USER}</username><password>${NEXUS_PASS}</password></server></servers></settings>")
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_TAG'

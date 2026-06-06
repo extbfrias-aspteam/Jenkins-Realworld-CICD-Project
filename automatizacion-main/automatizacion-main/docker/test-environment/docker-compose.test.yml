@@ -1,0 +1,137 @@
+services:
+
+  # ─────────────────────────────────────────
+  # ORQUESTADOR: Jenkins
+  # ─────────────────────────────────────────
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    image: jenkins-test:local
+    container_name: jenkins-test
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jenkins-config/init.groovy.d:/var/jenkins_home/init.groovy.d:ro
+      - ./jenkins-config/casc.yaml:/var/jenkins_home/casc.yaml:ro
+      - ../../jenkins:/var/jenkins_home/pipelines:ro
+      - ./setup/ssh-keys:/var/jenkins_home/ssh-keys:ro
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc.yaml
+      - SSH_PRIVATE_KEY
+      # GitHub: requerido si el repo es privado. Exportar en el host antes de
+      # ejecutar start-test-env.sh:  export GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+      # Si el repo es público, dejar vacío (el job funciona sin credenciales).
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_USER=${GITHUB_USER:-git}
+    networks:
+      test-network:
+        aliases:
+          - jenkins
+    depends_on:
+      - nexus
+
+  # ─────────────────────────────────────────
+  # ORQUESTADOR: Nexus (repositorio de artefactos)
+  # ─────────────────────────────────────────
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus-test
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    volumes:
+      - nexus_data:/nexus-data
+    environment:
+      # -Dnexus.onboarding.enabled=false deshabilita el wizard de onboarding
+      # que bloquea uploads hasta que se acepta el EULA (problema en Nexus ≥ 3.68)
+      - INSTALL4J_ADD_VM_PARAMS=-Xms512m -Xmx1g -XX:MaxDirectMemorySize=1g -Dnexus.onboarding.enabled=false
+    networks:
+      test-network:
+        aliases:
+          - nexus
+
+  # ─────────────────────────────────────────
+  # SERVER DESTINO 1
+  # ─────────────────────────────────────────
+  target-server-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.target-server
+      args:
+        SERVER_NAME: target-server-1
+    container_name: target-server-1
+    restart: unless-stopped
+    hostname: target-server-1
+    ports:
+      - "2221:22"
+    networks:
+      test-network:
+        aliases:
+          - target-server-1
+    volumes:
+      - target1_data:/opt/deploy
+
+  # ─────────────────────────────────────────
+  # SERVER DESTINO 2
+  # ─────────────────────────────────────────
+  target-server-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.target-server
+      args:
+        SERVER_NAME: target-server-2
+    container_name: target-server-2
+    restart: unless-stopped
+    hostname: target-server-2
+    ports:
+      - "2222:22"
+    networks:
+      test-network:
+        aliases:
+          - target-server-2
+    volumes:
+      - target2_data:/opt/deploy
+
+  # ─────────────────────────────────────────
+  # SERVER DESTINO 3
+  # ─────────────────────────────────────────
+  target-server-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.target-server
+      args:
+        SERVER_NAME: target-server-3
+    container_name: target-server-3
+    restart: unless-stopped
+    hostname: target-server-3
+    ports:
+      - "2223:22"
+    networks:
+      test-network:
+        aliases:
+          - target-server-3
+    volumes:
+      - target3_data:/opt/deploy
+
+volumes:
+  jenkins_home:
+    driver: local
+  nexus_data:
+    driver: local
+  target1_data:
+    driver: local
+  target2_data:
+    driver: local
+  target3_data:
+    driver: local
+
+networks:
+  test-network:
+    name: test-network
+    driver: bridge
