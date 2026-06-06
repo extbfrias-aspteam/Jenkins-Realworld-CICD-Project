@@ -40,7 +40,7 @@ pipeline {
       post {
         success {
           echo ' now Archiving '
-          archiveArtifacts artifacts: '**/*.war'
+          archiveArtifacts artifacts: '**/*.jar'
         }
       }
     }
@@ -110,8 +110,8 @@ pipeline {
               artifacts: [
                   [artifactId: 'webapp',
                   classifier: '',
-                  file: "${WORKSPACE}/webapp/target/webapp.war",
-                  type: 'war']
+                  file: "${WORKSPACE}/webapp/target/webapp.jar",
+                  type: 'jar']
               ]
            )
         //}
