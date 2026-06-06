@@ -25,7 +25,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        dir('java-app') {
+        dir('automatizacion-main/automatizacion-main/java-app') {
           sh 'mvn clean package'
         }
         //dir('realworld-cicd-pipeline-project-main/') {
