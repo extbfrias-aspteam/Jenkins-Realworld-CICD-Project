@@ -8,7 +8,7 @@ pipeline {
   agent any
   environment {
     //WORKSPACE = "${env.WORKSPACE}"
-    WORKSPACE = "${env.WORKSPACE}/realworld-cicd-pipeline-project-main"
+    WORKSPACE = "${env.WORKSPACE}/automatizacion-main/automatizacion-main"
     NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
     NEXUS_USER = "$NEXUS_CREDS_USR"
     NEXUS_PASSWORD = "$NEXUS_CREDS_PSWD"
@@ -25,8 +25,11 @@ pipeline {
   stages {
     stage('Build') {
       steps {
+        dir('java-app') {
+          sh 'mvn clean package'
+        }
         //dir('realworld-cicd-pipeline-project-main/') {
-        sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'
+        //sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'
         //sh 'mvn clean package'
        // }
       }
