@@ -1,0 +1,15 @@
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\bin\Debug\net7.0\Asp.Api.Azul.Infrastructure.deps.json
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\bin\Debug\net7.0\Asp.Api.Azul.Infrastructure.dll
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\bin\Debug\net7.0\Asp.Api.Azul.Infrastructure.pdb
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\bin\Debug\net7.0\Asp.Api.Azul.Core.dll
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\bin\Debug\net7.0\Asp.Api.Azul.Core.pdb
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\Asp.Api.Azul.Infrastructure.csproj.AssemblyReference.cache
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\Asp.Api.Azul.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\Asp.Api.Azul.Infrastructure.AssemblyInfoInputs.cache
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\Asp.Api.Azul.Infrastructure.AssemblyInfo.cs
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\Asp.Api.Azul.Infrastructure.csproj.CoreCompileInputs.cache
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\Asp.Api..0B71BAB0.Up2Date
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\Asp.Api.Azul.Infrastructure.dll
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\refint\Asp.Api.Azul.Infrastructure.dll
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\Asp.Api.Azul.Infrastructure.pdb
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Infrastructure\obj\Debug\net7.0\ref\Asp.Api.Azul.Infrastructure.dll

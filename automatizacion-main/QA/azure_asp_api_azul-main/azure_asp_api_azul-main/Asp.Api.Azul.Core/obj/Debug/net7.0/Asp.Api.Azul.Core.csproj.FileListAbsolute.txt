@@ -1,0 +1,11 @@
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\bin\Debug\net7.0\Asp.Api.Azul.Core.deps.json
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\bin\Debug\net7.0\Asp.Api.Azul.Core.dll
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\bin\Debug\net7.0\Asp.Api.Azul.Core.pdb
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\obj\Debug\net7.0\Asp.Api.Azul.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\obj\Debug\net7.0\Asp.Api.Azul.Core.AssemblyInfoInputs.cache
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\obj\Debug\net7.0\Asp.Api.Azul.Core.AssemblyInfo.cs
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\obj\Debug\net7.0\Asp.Api.Azul.Core.csproj.CoreCompileInputs.cache
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\obj\Debug\net7.0\Asp.Api.Azul.Core.dll
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\obj\Debug\net7.0\refint\Asp.Api.Azul.Core.dll
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\obj\Debug\net7.0\Asp.Api.Azul.Core.pdb
+C:\PROYECTOS GIT\Git_asp_api_azul\hotfix_retornos_abonos\asp_api_azul\Asp.Api.Azul.Core\obj\Debug\net7.0\ref\Asp.Api.Azul.Core.dll

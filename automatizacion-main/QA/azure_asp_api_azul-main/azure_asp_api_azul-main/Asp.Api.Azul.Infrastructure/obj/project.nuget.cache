@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "dgSpecHash": "2u/LkUZRgRY=",
+  "success": true,
+  "projectFilePath": "C:\\PROYECTOS GIT\\Git_asp_api_azul\\hotfix_retornos_abonos\\asp_api_azul\\Asp.Api.Azul.Infrastructure\\Asp.Api.Azul.Infrastructure.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\confluent.kafka\\2.8.0\\confluent.kafka.2.8.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\librdkafka.redist\\2.8.0\\librdkafka.redist.2.8.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\6.0.0\\microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.bcl.timeprovider\\8.0.0\\microsoft.bcl.timeprovider.8.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\9.0.5\\microsoft.extensions.caching.abstractions.9.0.5.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\9.0.5\\microsoft.extensions.configuration.abstractions.9.0.5.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\7.0.0\\microsoft.extensions.dependencyinjection.7.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\7.0.0\\microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.http\\7.0.0\\microsoft.extensions.http.7.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.http.polly\\7.0.0\\microsoft.extensions.http.polly.7.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.logging\\7.0.0\\microsoft.extensions.logging.7.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\7.0.0\\microsoft.extensions.logging.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.options\\7.0.0\\microsoft.extensions.options.7.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.5\\microsoft.extensions.primitives.9.0.5.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\npgsql\\7.0.9\\npgsql.7.0.9.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\polly\\8.6.4\\polly.8.6.4.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\polly.core\\8.6.4\\polly.core.8.6.4.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\polly.extensions.http\\3.0.0\\polly.extensions.http.3.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\system.memory\\4.5.5\\system.memory.4.5.5.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
+    "C:\\Users\\ACARRIZALEZ\\.nuget\\packages\\microsoft.net.sdk.compilers.toolset\\9.0.301\\microsoft.net.sdk.compilers.toolset.9.0.301.nupkg.sha512"
+  ],
+  "logs": []
+}
