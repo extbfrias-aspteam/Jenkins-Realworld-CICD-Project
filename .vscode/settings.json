@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "SonarQube local",
+        "projectKey": "JavaWebApp-Project"
+    }
+}
