@@ -75,11 +75,12 @@ pipeline {
             dir('automatizacion-main/automatizacion-main/java-app') {
             withSonarQubeEnv('SonarQube') { 
                 withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
+                    
                     sh """
                     mvn clean verify sonar:sonar \
                     -Dsonar.projectKey=JavaWebApp-Project \
                     -Dsonar.host.url=http://sonarqube:9000 \
-                    -Dsonar.login=${SONAR_TOKEN}
+                    -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
@@ -125,7 +126,7 @@ pipeline {
               artifacts: [
                   [artifactId: 'webapp',
                   classifier: '',
-                  file: "${WORKSPACE}/java-app/src/main/resources/webapp.war",
+                  file: "${WORKSPACE}/webapp/target/webapp.war",
                   type: 'war']
               ]
            )
