@@ -125,8 +125,8 @@ pipeline {
               artifacts: [
                   [artifactId: 'webapp',
                   classifier: '',
-                  file: "${WORKSPACE}/webapp/target/webapp.jar",
-                  type: 'jar']
+                  file: "${WORKSPACE}/java-app/src/main/resources/webapp.war",
+                  type: 'war']
               ]
            )
         //}
@@ -179,7 +179,7 @@ pipeline {
   post {
     always {
         echo 'Slack Notifications.'
-        slackSend channel: '#prestigious-channel', //update and provide your channel name
+        slackSend channel: 'apc-cicd-2026', //update and provide your channel name
         color: COLOR_MAP[currentBuild.currentResult],
         message: "*${currentBuild.currentResult}:* Job Name '${env.JOB_NAME}' build ${env.BUILD_NUMBER} \n Build Timestamp: ${env.BUILD_TIMESTAMP} \n Project Workspace: ${env.WORKSPACE} \n More info at: ${env.BUILD_URL}"
     }
