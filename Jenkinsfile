@@ -12,8 +12,8 @@ pipeline {
     NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
     NEXUS_USER = "$NEXUS_CREDS_USR"
     NEXUS_PASSWORD = "$NEXUS_CREDS_PSWD"
-    NEXUS_URL = "149.56.241.64:8081"
-    NEXUS_REPOSITORY = "maven_project"
+    NEXUS_URL = "nexus:8081"
+    NEXUS_REPOSITORY = "maven-project-releases"
     NEXUS_REPO_ID    = "maven_project"
     ARTVERSION = "${env.BUILD_ID}"
   }
@@ -118,10 +118,10 @@ pipeline {
            nexusArtifactUploader(
               nexusVersion: 'nexus3',
               protocol: 'http',
-              nexusUrl: '149.56.241.64:8081',
+              nexusUrl: 'nexus:8081',
               groupId: 'webapp',
-              version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-              repository: 'maven-releases',  //"${NEXUS_REPOSITORY}",
+              version: "${BUILD_ID}",
+              repository: "${NEXUS_REPOSITORY}",
               credentialsId: "${NEXUS_CREDENTIAL_ID}",
               artifacts: [
                   [artifactId: 'webapp',
