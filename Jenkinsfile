@@ -86,7 +86,7 @@ pipeline {
             steps {
                 echo '=== Ejecutando JUnit Tests sobre el codigo fuente real ==='
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    sh 'mvn test-compile test -f serviciosstd_ws/pom.xml -U -B -q'
+                    sh 'mvn test-compile test -f serviciosstd_ws/pom.xml -o -B -q'
                 }
             }
             post {
