@@ -88,7 +88,7 @@ pipeline {
             // Forzamos a Jenkins a usar tus herramientas configuradas
             tools {
                 jdk "JDK-${params.JAVA_VERSION}"
-                maven "Maven-3.9"
+                maven "localMaven"
             }
             steps {
                 echo '=== Ejecutando JUnit Tests sobre el codigo fuente real ==='
@@ -108,7 +108,7 @@ pipeline {
             when { expression { !params.SKIP_TESTS } }
             tools {
                 jdk "JDK-${params.JAVA_VERSION}"
-                maven "Maven-3.9"
+                maven "localMaven"
             }
             steps {
                 echo '=== Ejecutando Pruebas de Integración Reales ==='
@@ -123,7 +123,7 @@ pipeline {
             when { expression { !params.SKIP_SECURITY } }
             tools {
                 jdk "JDK-${params.JAVA_VERSION}"
-                maven "Maven-3.9"
+                maven "localMaven"
             }
             parallel {
                 stage('OWASP Dependency Check') {
