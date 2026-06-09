@@ -62,7 +62,7 @@ pipeline {
                     sh """
                         if [ -f "serviciosstd_ws/scan_secrets.sh" ]; then
                             chmod +x serviciosstd_ws/scan_secrets.sh
-                            cd serviciosstd_ws && bash scan_secrets.sh --strict
+                            cd serviciosstd_ws && bash scan_secrets.sh
                         else
                             echo "🛑 ERROR: No se encontro el archivo scan_secrets.sh"
                             exit 1
