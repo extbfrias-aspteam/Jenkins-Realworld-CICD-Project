@@ -1,0 +1,94 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="leerAreaEmiteSpei" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+			       ID_AREA_EMITE,
+			       DESCRIPCION_AREA
+			       FROM PUBLIC.SPEI_AREA_EMITE WHERE DESCRIPCION_AREA = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="leerTipoPagoSpei" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+			       ID_TIPO_PAGO,
+			       DESCRIPCION,
+			       ACEPTACION,
+			       ACTIVAR
+			       FROM PUBLIC.SPEI_TIPO_PAGO WHERE DESCRIPCION = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="leerInstitucionSpei" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+			       ID_INSTITUCION,
+			       DESCRIPCION,
+			       STATUS,
+			       CANT_CERT_AUT,
+			       STATUS_RECEPCION, 
+			       INDICE,
+			       CAST(ULTIMA_ACTUALIZACION AS DATE) AS ACTUALIZACION
+			       FROM PUBLIC.SPEI_INSTITUCIONES
+			       WHERE RIGHT(CAST(ID_INSTITUCION AS VARCHAR),3) = SUBSTRING(?,1,3) LIMIT 1"/>
+	</bean>
+	
+	<bean id="leerInstitucionSpeiByID" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+			       ID_INSTITUCION,
+			       DESCRIPCION,
+			       STATUS,
+			       CANT_CERT_AUT,
+			       STATUS_RECEPCION, 
+			       INDICE,
+			       CAST(ULTIMA_ACTUALIZACION AS DATE) AS ACTUALIZACION
+			       FROM PUBLIC.SPEI_INSTITUCIONES
+			       WHERE CAST(ID_INSTITUCION AS VARCHAR) = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="leerInstitucionSpeiDescripcion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+			       ID_INSTITUCION,
+			       RIGHT(CAST(ID_INSTITUCION AS VARCHAR),3) AS BANCO,
+			       DESCRIPCION,
+			       STATUS,
+			       CANT_CERT_AUT,
+			       STATUS_RECEPCION, 
+			       INDICE,
+			       CAST(ULTIMA_ACTUALIZACION AS DATE) AS ACTUALIZACION
+			       FROM PUBLIC.SPEI_INSTITUCIONES
+			       WHERE DESCRIPCION = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="leerTipoCuentaSpei" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+			       ID_TIPO_PAGO,
+			       DESCRIPCION
+			       FROM PUBLIC.SPEI_TIPO_CUENTA WHERE DESCRIPCION = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="leerTipoCuentaSpeiByID" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+			       ID_TIPO_PAGO,
+			       DESCRIPCION
+			       FROM PUBLIC.SPEI_TIPO_CUENTA WHERE cast(ID_TIPO_PAGO as varchar) = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="BancosStdDAO" class="net.std.dao.BancosStdDAO">
+		<property name="jdbcTemplateSti" ref="jdbcTemplateSti"/>
+		<property name="leerTipoPagoSpei" ref="leerTipoPagoSpei"/>
+		<property name="leerInstitucionSpei" ref="leerInstitucionSpei"/>
+		<property name="leerInstitucionSpeiByID" ref="leerInstitucionSpeiByID"/>
+		<property name="leerTipoCuentaSpei" ref="leerTipoCuentaSpei"/>
+		<property name="leerTipoCuentaSpeiByID" ref="leerTipoCuentaSpeiByID"/>
+		<property name="leerAreaEmiteSpei" ref="leerAreaEmiteSpei"/>
+		<property name="leerInstitucionSpeiDescripcion" ref="leerInstitucionSpeiDescripcion"/>
+	</bean>
+	
+</beans>

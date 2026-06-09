@@ -1,0 +1,40 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="INSERT_AltaCuentaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORRO.AHCUENTAS_ALTAS_TERCEROS (IDENTIFICADOR, PRODUCTO_AHORRO, DATOS_JSON, FECHA_REGISTRO, USUARIO_CREACION, FECHA_CREACION)                                             
+					VALUES( ?, ?, ?, CURRENT_DATE, ?, CURRENTE_TIMESTAMP)"/>
+	</bean>
+	
+	<bean id="UPDATE_AltaCuentaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.AHCUENTAS_ALTAS_TERCEROS SET
+					PROCESADO = ?,
+					OBSERVACIONES = ?,
+					USUARIO_MODIFICACION = ?,
+					FECHA_MODIFICACION = CURRENT_TIMESTAMP
+					WHERE PROCESADO IS NULL 
+					AND FECHA_REGISTRO = CURRENT_DATE
+					AND ID = ?"/>
+	</bean>
+	
+	<bean id="READ_AltaCuentaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT ID, IDENTIFICADOR, PRODUCTO_AHORRO, DATOS_JSON, FECHA_REGISTRO, PROCESADO, OBSERVACIONES
+					FROM AHORRO.AHCUENTAS_ALTAS_TERCEROS
+					WHERE PROCESADO IS NULL
+					AND FECHA_REGISTRO = CURRENT_DATE
+ 					LIMIT 1"/>
+	</bean>
+	
+	<bean id="AltaCuentasVolumenStdDAO" class="net.std.dao.AltaCuentasVolumenStdDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="READ_AltaCuentaStd" ref="READ_AltaCuentaStd"/>
+		<property name="UPDATE_AltaCuentaStd" ref="UPDATE_AltaCuentaStd"/>
+		<property name="INSERT_AltaCuentaStd" ref="INSERT_AltaCuentaStd"/>
+	</bean>
+	
+</beans>

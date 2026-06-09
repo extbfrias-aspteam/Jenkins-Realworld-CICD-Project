@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="insertarBitacoraPStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO BLU.BLBITACORA_PStd( USER_ID, LOG_DATE, LOGGER, LOG_LEVEL, LOG_MESSAGE )
+			       VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?)"/>
+	</bean>	
+	
+	<bean id="insertSpeiBitacora" class="java.lang.String">
+  		<constructor-arg type="java.lang.String" 
+  		 value =  "INSERT INTO SPEI_BITACORA (APLICACION,DESCRIPCION,CLAVE_RASTREO)
+					SELECT ?,?,? 
+					FROM SPEI_CONTROL CTL WHERE 
+					CTL.PROCESO = 'SPEI_BITACORA' AND COALESCE(CTL.EJECUTA) = 'S';" />
+  	</bean>	
+	
+	<bean id="BitacoraStdDAO" class="net.std.dao.BitacoraStdDAO">
+		<property name="jdbcTemplateSti" ref="jdbcTemplateSti"/>
+		<property name="insertarBitacoraPStd" ref="insertarBitacoraPStd"/>
+		<property name="insertSpeiBitacora" ref="insertSpeiBitacora"/>
+	</bean>
+	
+</beans>
