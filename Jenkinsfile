@@ -30,11 +30,9 @@ pipeline {
         NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
         NEXUS_URL           = "nexus:8081"
         NEXUS_REPOSITORY    = "maven-project-releases"
-        //MAVEN_OPTS          = '-Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1'
-        //APP_NAME            = "ServiciosSTD_WS"
-        MAVEN_OPTS          = '-Xmx1024m -Dmaven.repo.local=/var/jenkins_home/.m2/repository'
-        APP_NAME            = "${env.JOB_NAME.tokenize('/')[0]}"
-        DEPLOY_USER         = 'deploy'
+        MAVEN_OPTS          = '-Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1'
+        APP_NAME            = "ServiciosSTD_WS"
+        
     }
 
     tools {
@@ -83,18 +81,13 @@ pipeline {
         //        sh 'touch serviciosstd_ws/target/ServiciosSTD_WS.war'
         //    }
         //}
+
         stage('Tests Unitarios (REAL)') {
             when { expression { !params.SKIP_TESTS } }
-            // Forzamos a Jenkins a usar tus herramientas configuradas
-            tools {
-                jdk "localJdk8"
-                maven "localMaven"
-            }
             steps {
                 echo '=== Ejecutando JUnit Tests sobre el codigo fuente real ==='
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    // Quitamos la -q para ver el log real en la consola de Jenkins
-                    sh 'mvn test-compile test -f serviciosstd_ws/pom.xml -U -B'
+                    sh 'mvn test-compile test -f serviciosstd_ws/pom.xml -U -B -q ${env.MAVEN_OPTS}'
                 }
             }
             post {
@@ -106,32 +99,22 @@ pipeline {
 
         stage('Integration Test (REAL)') {
             when { expression { !params.SKIP_TESTS } }
-            tools {
-                jdk "localJdk8"
-                maven "localMaven"
-            }
             steps {
                 echo '=== Ejecutando Pruebas de Integración Reales ==='
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    // Quitamos la -q
-                    sh 'mvn verify -f serviciosstd_ws/pom.xml -B'
+                    sh 'mvn verify -f serviciosstd_ws/pom.xml -DskipUnitTests -B -q'
                 }
             }
         }
 
         stage('Análisis de Seguridad (REAL)') {
             when { expression { !params.SKIP_SECURITY } }
-            tools {
-                jdk "localJdk8"
-                maven "localMaven"
-            }
             parallel {
                 stage('OWASP Dependency Check') {
                     steps {
                         echo '=== Analizando vulnerabilidades en librerias externas ==='
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            // Quitamos la -q para ver si se traba descargando la BD de vulnerabilidades
-                            sh 'mvn org.owasp:dependency-check-maven:check -f serviciosstd_ws/pom.xml -Dformat=HTML -B'
+                            sh 'mvn org.owasp:dependency-check-maven:check -f serviciosstd_ws/pom.xml -Dformat=HTML -B -q'
                         }
                     }
                 }
@@ -139,26 +122,25 @@ pipeline {
                     steps {
                         echo '=== Analizando Bugs Estáticos en Código ==='
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            sh 'mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs -f serviciosstd_ws/pom.xml -B'
+                            sh 'mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs -f serviciosstd_ws/pom.xml -B -q'
                         }
                     }
                 }
             }
         }
+
         stage('SonarQube Quality Gate (MANDATORIO)') {
             when { expression { !params.SKIP_SECURITY } }
             steps {
                 echo '=== Ejecutando Analisis Mandatorio de SonarQube sobre codigo fuente real ==='
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
-                        // Se corrigen las variables de Jenkins utilizando la sintaxis ${env.VARIABLE} 
-                        // y manteniendo la variable de entorno pura $SONAR_TOKEN para el Shell
                         sh """
                         mvn sonar:sonar -f serviciosstd_ws/pom.xml \
-                            -Dsonar.projectKey=${env.APP_NAME} \
-                            -Dsonar.projectName=${env.APP_NAME} \
+                            -Dsonar.projectKey=${APP_NAME} \
+                            -Dsonar.projectName=${APP_NAME} \
                             -Dsonar.host.url=http://sonarqube:9000 \
-                            -Dsonar.login=\$SONAR_TOKEN \
+                            -Dsonar.login=$SONAR_TOKEN \
                             -Dmaven.test.failure.ignore=true \
                             -U -B -q
                         """
@@ -170,6 +152,7 @@ pipeline {
                 }
             }
         }
+
         stage('Publicar Reporte en Nexus') {
             steps {
                 echo '=== Guardando trazabilidad en Sonatype Nexus ==='
