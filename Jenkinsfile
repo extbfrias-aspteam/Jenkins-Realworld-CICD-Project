@@ -27,17 +27,24 @@ pipeline {
   }
   
   stages {
+    stage('Clean Workspace') {
+        steps {
+            echo '=== Limpiando residuos del espacio de trabajo antes de iniciar ==='
+            cleanWs()
+        }
+    }
+
     stage('Build') {
       steps {
-        echo '=== Iniciando Compilación con Maven 3.9.6 y Java 8 ==='
-        // Compila el proyecto ServiciosSTD_WS usando el pom.xml de la raíz
-        sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
+        echo '=== Iniciando Compilación apuntando al subdirectorio serviciosstd_ws ==='
+        // Forzamos a Maven a leer el pom.xml correcto usando el flag -f
+        sh 'mvn clean package -f serviciosstd_ws/pom.xml -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
       }
       post {
         success {
           echo '=== Archivando el Artefacto .war Generado ==='
-          // Guarda el binario Web de la carpeta target para auditorías en Jenkins
-          archiveArtifacts artifacts: 'target/ServiciosSTD_WS.war'
+          // Modificado para guardar el binario desde la subcarpeta target correcta
+          archiveArtifacts artifacts: 'serviciosstd_ws/target/ServiciosSTD_WS.war'
         }
       }
     }
@@ -45,32 +52,31 @@ pipeline {
     stage('Unit Test'){
         steps {
           echo '=== Ejecutando Pruebas Unitarias ==='
-          sh 'mvn test'
+          sh 'mvn test -f serviciosstd_ws/pom.xml'
         }
     }
     
     stage('Integration Test'){
         steps {
           echo '=== Ejecutando Pruebas de Integración ==='
-          sh 'mvn verify -DskipUnitTests'
+          sh 'mvn verify -f serviciosstd_ws/pom.xml -DskipUnitTests'
         }
     }
     
     stage('Checkstyle Code Analysis'){
         steps {
           echo '=== Analizando Calidad de Código con Checkstyle ==='
-          sh 'mvn checkstyle:checkstyle'
+          sh 'mvn checkstyle:checkstyle -f serviciosstd_ws/pom.xml'
         }
     }
     
     stage('SonarQube Inspection') {
         steps {
             echo '=== Lanzando Análisis hacia el Servidor SonarQube ==='
-            // Usa el plugin de Maven para enviar el análisis al servidor central
             withSonarQubeEnv('SonarQube') { 
                 withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
                     sh """
-                    mvn clean verify sonar:sonar \
+                    mvn clean verify sonar:sonar -f serviciosstd_ws/pom.xml \
                     -Dsonar.projectKey=JavaWebApp-Project \
                     -Dsonar.host.url=http://sonarqube:9000 \
                     -Dsonar.login=$SONAR_TOKEN
@@ -103,7 +109,7 @@ pipeline {
               artifacts: [
                   [artifactId: 'ServiciosSTD_WS',
                   classifier: '',
-                  file: "target/ServiciosSTD_WS.war", // Apunta al archivo exacto del pom.xml
+                  file: "serviciosstd_ws/target/ServiciosSTD_WS.war", // Ruta corregida apuntando a la subcarpeta
                   type: 'war']
               ]
             )
@@ -136,7 +142,6 @@ pipeline {
     
     stage('Quality Assurance Approval') {
         steps {
-            // Pausa el pipeline esperando que un humano haga clic en "Continuar" para ir a producción
             input('¿Deseas proceder con el despliegue al entorno de Producción?')
         }
     }
