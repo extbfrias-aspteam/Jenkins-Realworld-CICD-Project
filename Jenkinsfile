@@ -8,7 +8,7 @@ pipeline {
   agent any
   environment {
     //WORKSPACE = "${env.WORKSPACE}"
-    WORKSPACE = "${env.WORKSPACE}/automatizacion-main/automatizacion-main"
+    WORKSPACE = "${env.WORKSPACE}/serviciosstd_ws"
     NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
     NEXUS_USER = "$NEXUS_CREDS_USR"
     NEXUS_PASSWORD = "$NEXUS_CREDS_PSWD"
@@ -25,7 +25,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        dir('automatizacion-main/automatizacion-main/java-app') {
+        dir('serviciosstd_ws/') {
     // Forzamos a Maven a ignorar la validación estricta de SSL para este paso
             sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'           //sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
         }
@@ -40,7 +40,7 @@ pipeline {
       post {
         success {
           echo ' now Archiving '
-          archiveArtifacts artifacts: '**/*.jar'
+          archiveArtifacts artifacts: '**/*.war'
         }
       }
     }
@@ -72,7 +72,7 @@ pipeline {
     }
     stage('SonarQube Inspection') {
         steps {
-            dir('automatizacion-main/automatizacion-main/java-app') {
+            dir('serviciosstd_ws/') {
             withSonarQubeEnv('SonarQube') { 
                 withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
                     
