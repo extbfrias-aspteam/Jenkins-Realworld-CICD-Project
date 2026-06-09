@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="Inserta_AutorizacionStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORRO.AHAUTORIZACION_TERCEROS (FECHA, CLAVE_RASTREO, CUENTA_ORD, CUENTA_DES, MONTO, FECHA_OPERACION, 
+                                            OBSERVACIONES, USUARIO_CREACION, FECHA_CREACION)                                             
+					VALUES(CAST(? AS DATE), ?, ?, ?, ?, ?, CAST(? AS DATE), ?, CURRENTE_TIMESTAMP)"/>
+	</bean>
+	
+	<bean id="Actualiza_AutorizacionStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.AHAUTORIZACION_TERCEROS SET
+					AUTORIZADO = ?,
+					FECHA_RESPUESTA = CURRENT_TIMESTAMP,
+					OBSERVACIONES = COALESCE(OBSERVACIONES,'')||' : '||?,
+					USUARIO_MODIFICACION = ?,
+					FECHA_MODIFICACION = CURRENT_TIMESTAMP
+					WHERE PROCESADO IS NULL 
+					AND CAST(FECHA AS DATE) = CURRENT_DATE
+					AND CLAVE_RASTREO = ?"/>
+	</bean>
+	
+	<bean id="Lista_AutorizacionStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					ID, FECHA, CLAVE_RASTREO, CUENTA_ORD, CUENTA_DES, MONTO, FECHA_OPERACION, AUTORIZADO, FECHA_RESPUESTA, OBSERVACIONES
+					FROM AHORRO.AHAUTORIZACION_TERCEROS
+					WHERE CLAVE_RASTREO = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="AutorizacionStdDAO" class="net.std.dao.AutorizacionStdDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="Actualiza_AutorizacionStd" ref="Actualiza_AutorizacionStd"/>
+	</bean>
+	
+</beans>

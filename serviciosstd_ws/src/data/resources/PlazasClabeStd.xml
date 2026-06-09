@@ -1,0 +1,50 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="LIST_PlazaClabeStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					ID,
+					CLAVE,
+					DESCRIPCION AS PLAZA,
+					PROPIAS,
+					DISPONIBLE,
+					ESTATUS_ID
+					FROM AHORRO.AHPLAZAS_CLABE 
+					WHERE ESTATUS_ID = (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'ALTA' LIMIT 1)
+					AND DISPONIBLE = 0 ORDER BY CLAVE ASC"/>
+	</bean>
+	
+	<bean id="UPDATE_PlazaClabeStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.AHPLAZAS_CLABE SET
+			       DISPONIBLE = ?,
+			       USUARIO_MODIFICACION = ?,
+			       FECHA_MODIFICACION = CURRENT_TIMESTAMP
+			       WHERE CLAVE = ?"/>
+	</bean>
+	
+	<!-- BASE DE DATOS IZEL STI -->
+	<bean id="LIST_PlazasPropiasClabeStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					AA AS ID,
+					AH AS CLAVE,
+					AI AS PLAZA
+					FROM PUBLIC.EB5932AF68CC951DB51EB5B0C8782F
+					WHERE AB = 100000000004  ORDER BY AH ASC"/>
+	</bean>
+	
+	<bean id="PlazasClabeStdDAO" class="net.std.dao.PlazasClabeStdDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="LIST_PlazaClabeStd" ref="LIST_PlazaClabeStd"/>
+		<property name="UPDATE_PlazaClabeStd" ref="UPDATE_PlazaClabeStd"/>
+		
+		<property name="jdbcTemplateSti" ref="jdbcTemplateSti"/>
+		<property name="LIST_PlazasPropiasClabeStd" ref="LIST_PlazasPropiasClabeStd"/>
+	
+	</bean>
+	
+</beans>

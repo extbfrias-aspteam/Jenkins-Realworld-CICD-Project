@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<import resource="Spring-Datasource.xml"/>
+	<import resource="BancosStd.xml"/>
+	<import resource="BitacoraStd.xml"/>
+	<import resource="BitacoraLogStd.xml"/>
+	<import resource="ParamsStd.xml"/>
+	<import resource="TokenStd.xml"/>
+	<import resource="AhorroStd.xml"/>
+	<import resource="SolicitanteStd.xml"/>
+	<import resource="AhorroProcreaStd.xml"/>
+	<import resource="TransaccionesStd.xml"/>
+	<import resource="ProductosAhorroCeroStd.xml"/>
+	<import resource="CatalogoCeroStd.xml"/>
+	<import resource="CatalogoProcreaStd.xml"/>
+	<import resource="Expediente.xml"/>
+	<import resource="AutorizacionStd.xml"/>
+	<import resource="DevolucionesSpeiStd.xml"/>
+	<import resource="AltaCuentaRefStd.xml"/>
+	<import resource="PlazasClabeStd.xml"/>
+	<import resource="SpeiStd.xml"/>
+	<import resource="SaldoAcumFacil.xml"/>
+</beans>

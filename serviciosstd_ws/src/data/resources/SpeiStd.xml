@@ -1,0 +1,67 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="READ_IncomingDatosCuentaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+					  ID_SPEI_INCOMING,
+					  CVE_RASTREO,
+					  CUENTA_ORDENANTE,
+					  NOMBRE_ORDENANTE,
+					  CUENTA_BENEFICIARIO,
+					  NOMBRE_BENEFICIARIO,
+					  ID_INSTITUCION_ORD,
+					  ID_INSTITUCION_BEN,
+					  MONTO,
+					  TIPO_PAGO,
+					  TO_CHAR(FECHA_CAPTURA, 'YYYY-MM-DD HH:MM:SS') AS STR_FECHA_CAPTURA,
+  					  TO_CHAR(FH_OPERACION,'YYYY-MM-DD') AS STR_FECHA_OPERACION
+					  FROM PUBLIC.SPEI_INCOMING
+					  WHERE CVE_RASTREO = ?
+					  AND CUENTA_ORDENANTE = ?
+					  AND CUENTA_BENEFICIARIO = ?
+					  AND MONTO = ?
+					  AND TIPO_PAGO NOT IN (0)
+					  AND STATUS = '1' 
+					  LIMIT 1"/>								  
+	</bean>
+	
+	<bean id="READ_OutgoingDatosCuentaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+					  ID_SPEI_OUTGOING,
+					  CLAVE_RASTREO,
+					  CUENTA_ORDENANTE,
+					  NOMBRE_ORDENANTE,
+					  CUENTA_BENEFICIARIO,
+					  NOMBRE_BENEFICIARIO,
+					  ID_INSTITUCION_BEN,
+					  MONTO,
+					  ID_TIPO_PAGO,
+					  STATUS_OPERACION,
+					  TO_CHAR(FECHA_CAPTURA, 'YYYY-MM-DD HH:MM:SS') AS STR_FECHA_CAPTURA,
+  					  TO_CHAR(FH_OPERACION,'YYYY-MM-DD') AS STR_FECHA_OPERACION
+					  FROM PUBLIC.SPEI_OUTGOING
+					  WHERE CLAVE_RASTREO = ?
+					  AND CUENTA_ORDENANTE = ?
+					  AND CUENTA_BENEFICIARIO = ?
+					  AND MONTO = ?
+					  LIMIT 1"/>								  
+	</bean>
+
+	<bean id="ObtenerTipoPago" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select tipo_pago from spei_incoming where id_spei_incoming = ?"
+		/>
+	</bean>
+	
+	<bean id="SpeiStdDAO" class="net.std.dao.SpeiStdDAO">
+		<property name="jdbcTemplateSti" ref="jdbcTemplateSti"/>
+		<property name="READ_IncomingDatosCuentaStd" ref="READ_IncomingDatosCuentaStd"/>
+		<property name="READ_OutgoingDatosCuentaStd" ref="READ_OutgoingDatosCuentaStd"/>
+		<property name="ObtenerTipoPago" ref="ObtenerTipoPago"/>
+	</bean>
+	
+</beans>

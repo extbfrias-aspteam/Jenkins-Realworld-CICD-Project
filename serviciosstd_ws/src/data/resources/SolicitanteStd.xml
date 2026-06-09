@@ -1,0 +1,130 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="solicitanteStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					SO.NUMERO,
+				 	SO.NOMBRE,
+				 	SO.CORREO,
+				 	SO.CELULAR,
+				 	SO.T_PERSONA,
+				 	(COALESCE(SO.RFC1,'')||COALESCE(SO.RFC2,'')||COALESCE(SO.RFC3,'')) AS RFC
+				  FROM PUBLIC.SOLICITANTE SO
+				  WHERE SO.NUMERO = ?
+				  LIMIT 1"/>
+	</bean>
+	
+	<bean id="solicitanteMoralStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+					SO.NUMERO AS CLIENTE_ID, 
+				 	SO.NOMBRE,
+				 	(COALESCE(SO.RFC1,'')||COALESCE(SO.RFC2,'')||COALESCE(SO.RFC3,'')) AS RFC,
+				 	SO.T_PERSONA, SO.BLOQUEADO
+				  FROM PUBLIC.SOLICITANTE SO
+				  WHERE (COALESCE(SO.RFC1,'')||COALESCE(SO.RFC2,'')||COALESCE(SO.RFC3,'')) = ? 
+				  AND T_PERSONA = 'M'
+				  LIMIT 1"/>
+	</bean>
+	
+	<bean id="solicitanteFisicaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  SO.NUMERO AS CLIENTE_ID,
+					  SO.NOMBRE,
+					  (COALESCE(SO.RFC1,'')||COALESCE(SO.RFC2,'')||COALESCE(SO.RFC3,'')) AS RFC,
+					  SO.CURP,
+					  SO.T_PERSONA
+					FROM PUBLIC.SOLICITANTE SO
+					WHERE (COALESCE(SO.RFC1,'')||COALESCE(SO.RFC2,'')||COALESCE(SO.RFC3,'')) = ?
+					AND SO.CURP = ?
+					AND SO.T_PERSONA = 'F'
+					LIMIT 1"/>
+	</bean>
+	
+	<bean id="solicitanteFisicaRFCStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  SO.NUMERO AS CLIENTE_ID,
+					  SO.NOMBRE,
+					  (COALESCE(SO.RFC1,'')||COALESCE(SO.RFC2,'')||COALESCE(SO.RFC3,'')) AS RFC,
+					  SO.CURP,
+					  SO.T_PERSONA
+					FROM PUBLIC.SOLICITANTE SO
+					WHERE (COALESCE(SO.RFC1,'')||COALESCE(SO.RFC2,'')||COALESCE(SO.RFC3,'')) = ?
+					AND SO.T_PERSONA = 'F'
+					LIMIT 1"/>
+	</bean>
+	
+	<bean id="solicitanteFisicaCURPStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  SO.NUMERO AS CLIENTE_ID,
+					  SO.NOMBRE,
+					  (COALESCE(SO.RFC1,'')||COALESCE(SO.RFC2,'')||COALESCE(SO.RFC3,'')) AS RFC,
+					  SO.CURP,
+					  SO.T_PERSONA, SO.BLOQUEADO
+					FROM PUBLIC.SOLICITANTE SO
+					WHERE SO.CURP = ?
+					AND SO.T_PERSONA = 'F'
+					LIMIT 1"/>
+	</bean>
+	
+	<bean id="domicilioCompletoSolStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select c.cp, c.descripcion as colonia, l.descripcion as localidad, m.descripcion as municipio, e.nombre as estado
+					from colonia_sepomex c 
+					left join localidad_sepomex l on l.id = c.localidad_id
+					left join municipio_sepomex m on m.id = l.municipio_id
+					left join estatal e on e.clave = m.estado_id
+					where c.cp = ?
+					and c.descripcion = ? limit 1"/>
+	</bean>
+	
+	
+	
+	
+	
+	
+	<!-- CONCEPTOS SOLICITANTE -->
+	<bean id="insertaPaisSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO public.conceptos_solicitantes(id_solicitante, cat_conceptos_id, valor, opctext1, usuario_creacion, fecha_creacion) 
+			VALUES (:solId,(select id from cat_conceptos where clave = 'PAIS_SOL'), :pais, (select descripcion from paises where id = :pais), :user,CURRENT_TIMESTAMP)"/>
+	</bean>
+	
+	<bean id="actualizaCamposSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update solicitante set edo_nac_id = ?, ubicacion_geografica = ?, ingresos = ?, monto_max_ahorro = ? where numero = ?"/>
+	</bean>
+
+	<bean id="insertaDenominacionSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update solicitante set tipo_sociedad_id = ? where numero = ?"/>
+	</bean>
+	
+	
+	<bean id="SolicitanteStdDAO" class="net.std.dao.SolicitanteStdDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="solicitanteStd" ref="solicitanteStd"/>
+		
+		<property name="solicitanteMoralStd" ref="solicitanteMoralStd"/>
+		<property name="solicitanteFisicaStd" ref="solicitanteFisicaStd"/>
+		
+		<property name="solicitanteFisicaRFCStd" ref="solicitanteFisicaRFCStd"/>
+		<property name="solicitanteFisicaCURPStd" ref="solicitanteFisicaCURPStd"/>
+		
+		
+		
+		
+		<property name="insertaPaisSolicitante" ref="insertaPaisSolicitante"/>
+		<property name="actualizaCamposSolicitante" ref="actualizaCamposSolicitante"/>
+		<property name="insertaDenominacionSolicitante" ref="insertaDenominacionSolicitante"/>
+		<property name="domicilioCompletoSolStd" ref="domicilioCompletoSolStd"/>
+		<property name="namedJdbcTemplatePr" ref="namedJdbcTemplatePr"/>
+	</bean>
+	
+</beans>

@@ -1,0 +1,335 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="READ_TipoCuentaIDReferenciadaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT ID FROM AHORRO.AHTIPO_CUENTA WHERE CLAVE = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="READ_CuentaConcentradoraReferenciadaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+					CR.ID,
+					CR.CUENTA_ID,
+					CT.CUENTA,
+					CT.CLABE_INTERBANCARIA,
+					CT.TIPO_CLIENTE,
+					CR.CUENTA_REFERENCIA,
+					CR.NOMBRE_REFERENCIA,
+					CR.RFC_REFERENCIA,
+					CR.CURP_REFERENCIA,
+					CR.CORREO_REFERENCIA,
+					CR.TELEFONO_REFERENCIA,
+					CR.ESTATUS_ID AS ESTATUS_REF_ID,
+					(SELECT DESCRIPCION FROM NUCLEOCENTRAL.NCESTATUS WHERE ID = CR.ESTATUS_ID LIMIT 1) AS ESTATUS_REF,
+					CR.OBSERVACIONES,
+					TO_CHAR(CR.FECHA, 'YYYY-MM-DD') AS FECHA,
+					CR.CONTROL
+					FROM AHORRO.AHCUENTAS CT
+					LEFT JOIN AHORRO.AHCUENTAS_REFERENCIADAS CR ON CR.CUENTA_ID = CT.ID
+					LEFT JOIN AHORRO.AHTIPO_CUENTA TC ON TC.ID = CR.TIPO_CUENTA_ID
+					WHERE CT.ESTATUS_ID = (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'ALTA' LIMIT 1)
+					AND CT.CLABE_INTERBANCARIA = ? 
+					AND CR.CUENTA_REFERENCIA = ? 
+					AND TC.CLAVE = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="READ_CuentaReferenciadaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+					CR.ID,
+					CR.CUENTA_ID,
+					CT.CUENTA,
+					CT.CLABE_INTERBANCARIA,
+					CT.TIPO_CLIENTE,
+					CR.CUENTA_REFERENCIA,
+					CR.NOMBRE_REFERENCIA,
+					CR.RFC_REFERENCIA,
+					CR.CURP_REFERENCIA,
+					CR.CORREO_REFERENCIA,
+					CR.TELEFONO_REFERENCIA,
+					CR.ESTATUS_ID AS ESTATUS_REF_ID,
+					(SELECT DESCRIPCION FROM NUCLEOCENTRAL.NCESTATUS WHERE ID = CR.ESTATUS_ID LIMIT 1) AS ESTATUS_REF,
+					CR.OBSERVACIONES,
+					TO_CHAR(CR.FECHA, 'YYYY-MM-DD') AS FECHA,
+					CR.CONTROL
+					FROM AHORRO.AHCUENTAS CT
+					LEFT JOIN AHORRO.AHCUENTAS_REFERENCIADAS CR ON CR.CUENTA_ID = CT.ID
+					LEFT JOIN AHORRO.AHTIPO_CUENTA TC ON TC.ID = CR.TIPO_CUENTA_ID
+					WHERE TC.CLAVE = ? 
+					AND CR.ESTATUS_ID = (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'ALTA' LIMIT 1) 
+					AND CR.CUENTA_REFERENCIA = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="READ_CuentaReferenciadaMasivaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					CONTROL, 
+					CONSECUTIVO, 
+					CUENTA_CONCENTRADORA, 
+					CUENTA_REFERENCIA, 
+					NOMBRE_REFERENCIA,
+					RFC_REFERENCIA, 
+					CURP_REFERENCIA, 
+					CORREO_REFERENCIA, 
+					TELEFONO_REFERENCIA,
+					TO_CHAR(FECHA, 'YYYY-MM-DD') AS FECHA,
+					PROCESADO, 
+					ERROR, 
+					OBSERVACIONES 
+					FROM AHORRO.AHCUENTAS_REF_MASIVAS 
+					WHERE CONTROL = ?
+					AND CUENTA_REFERENCIA = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="LIST_CuentaReferenciadaMasivaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					CONTROL, 
+					CONSECUTIVO, 
+					CUENTA_CONCENTRADORA, 
+					CUENTA_REFERENCIA, 
+					NOMBRE_REFERENCIA,
+					RFC_REFERENCIA, 
+					CURP_REFERENCIA, 
+					CORREO_REFERENCIA, 
+					TELEFONO_REFERENCIA,
+					TO_CHAR(FECHA, 'YYYY-MM-DD') AS FECHA,
+					PROCESADO, 
+					ERROR, 
+					OBSERVACIONES,
+					TIPO_CUENTA,
+					VALOR,
+					ACCION 
+					FROM AHORRO.AHCUENTAS_REF_MASIVAS 
+					WHERE CONTROL = ?"/>
+	</bean>
+	
+	<bean id="INSERT_CuentaReferenciadaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORRO.AHCUENTAS_REFERENCIADAS (CUENTA_ID, CUENTA_REFERENCIA, NOMBRE_REFERENCIA, 
+					RFC_REFERENCIA, CURP_REFERENCIA, CORREO_REFERENCIA, TELEFONO_REFERENCIA, ESTATUS_ID, OBSERVACIONES,
+					FECHA, CONTROL, USUARIO_CREACION, TIPO_CUENTA_ID, TIPO_CUENTA, VALOR,FECHA_CREACION, 
+					PERSONA_ID, TIPO_CUENTA_AHORRO_CLAVE, UNIDAD_NEGOCIO )
+				   SELECT ?,?,?,?,?,?,?,
+				   (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'ALTA' LIMIT 1),
+				   ?,
+				   CURRENT_TIMESTAMP,
+				   ?,
+				   ?,
+				   (SELECT ID FROM AHORRO.AHTIPO_CUENTA WHERE CLAVE = ? LIMIT 1),
+				   ?,
+				   ?,
+				   CURRENT_TIMESTAMP, 
+				   ?, ?, ?
+					WHERE NOT EXISTS 
+                    (SELECT ID FROM AHORRO.AHCUENTAS_REFERENCIADAS WHERE CUENTA_REFERENCIA = ?)"/>
+	</bean>
+	
+	<bean id="INSERT_CuentaReferenciadaMasivasStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORRO.AHCUENTAS_REF_MASIVAS(
+		            CONTROL, CONSECUTIVO, CUENTA_CONCENTRADORA, CUENTA_REFERENCIA, NOMBRE_REFERENCIA,
+		            RFC_REFERENCIA, CURP_REFERENCIA, CORREO_REFERENCIA, TELEFONO_REFERENCIA,
+		            PROCESADO, ERROR, OBSERVACIONES, TIPO_CUENTA, VALOR, ACCION, FECHA)
+				  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, CURRENT_TIMESTAMP)"/>
+	</bean>
+	
+	<bean id="READ_CuentaReferenciadaSolicitanteStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT CR.CUENTA_REFERENCIA, CR.TIPO_CUENTA_AHORRO_CLAVE, 
+						COALESCE(CR.PERSONA_ID,'') AS SOLICITANTE_ID, COALESCE(CRR.REPRESENTANTE_ID,'') as REPLEGAL_ID
+					FROM AHORRO.AHCUENTAS_REFERENCIADAS CR
+					LEFT JOIN AHORRO.AHCUENTAS_REFERENCIADAS_REPRESENTANTES CRR ON CRR.CUENTA_REFERENCIA_ID = CR.ID
+					WHERE CR.CUENTA_REFERENCIA = ? AND COALESCE(CR.PERSONA_ID,'') NOT IN ('');"/>
+	</bean>
+	
+	<bean id="INSERT_DatosSolicitanteCuentaReferenciadaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORRO.AHCUENTAS_REFERENCIADAS_DATOS(CUENTA_REFERENCIA,FECHA_CREACION, 
+					nombre_cuenta,tipo_persona_cuenta,pr_apellido_cuenta,sg_apellido_cuenta,denominacion_cuenta,rfc_cuenta,curp_cuenta,calle_principal_cuenta,calle_secundaria_cuenta,
+					calle_secundaria2_cuenta,no_interior_cuenta,no_exterior_cuenta,
+					coloniaId_cuenta,colonia_cuenta,cp_cuenta,ciudad_cuenta,celular_cuenta,correo_cuenta,genero_cuenta,tipo_identId_cuenta,num_ident_cuenta,fecha_nac_cuenta,
+					entidad_nacId_cuenta,pais_nacId_cuenta,pais_nac_cuenta,nacionalidadId_cuenta,nacionalidad_cuenta,serie_firma_elect_cuenta,ocupacionId_cuenta,ocupacion_cuenta,
+					telefono_cuenta,geolocalizacion_cuenta,unidad_negocio_cuenta,monto_max_aho_cuenta,ingresos_cuenta,nivel_cuenta,nombre_cuenta_replegal,
+					tipo_persona_cuenta_replegal,pr_apellido_cuenta_replegal,sg_apellido_cuenta_replegal,denominacion_cuenta_replegal,rfc_cuenta_replegal,curp_cuenta_replegal,
+					calle_principal_cuenta_replegal,calle_secundaria_cuenta_replegal,calle_secundaria2_cuenta_replegal,no_interior_cuenta_replegal,no_exterior_cuenta_replegal,
+					coloniaId_cuenta_replegal,colonia_cuenta_replegal,cp_cuenta_replegal,ciudad_cuenta_replegal,celular_cuenta_replegal,correo_cuenta_replegal,
+					genero_cuenta_replegal,tipo_identId_cuenta_replegal,num_ident_cuenta_replegal,fecha_nac_cuenta_replegal,entidad_nacId_cuenta_replegal,pais_nacId_cuenta_replegal,
+					pais_nac_cuenta_replegal,nacionalidadId_cuenta_replegal,nacionalidad_cuenta_replegal,serie_firma_elect_cuenta_replegal,ocupacionId_cuenta_replegal,
+					ocupacion_cuenta_replegal,telefono_cuenta_replegal,geolocalizacion_cuenta_replegal,unidad_negocio_cuenta_replegal,monto_max_aho_cuenta_replegal,
+					ingresos_cuenta_replegal,nivel_cuenta_replegal)
+					SELECT :cuenta_referencia,CURRENT_TIMESTAMP,
+					:nombre_cuenta,:tipo_persona_cuenta,:pr_apellido_cuenta,:sg_apellido_cuenta,:denominacion_cuenta,:rfc_cuenta,:curp_cuenta,:calle_principal_cuenta,:calle_secundaria_cuenta,
+					:calle_secundaria2_cuenta,:no_interior_cuenta,:no_exterior_cuenta,
+					:coloniaId_cuenta,:colonia_cuenta,:cp_cuenta,:ciudad_cuenta,:celular_cuenta,:correo_cuenta,:genero_cuenta,:tipo_identId_cuenta,:num_ident_cuenta,:fecha_nac_cuenta,
+					:entidad_nacId_cuenta,:pais_nacId_cuenta,:pais_nac_cuenta,:nacionalidadId_cuenta,:nacionalidad_cuenta,:serie_firma_elect_cuenta,:ocupacionId_cuenta,:ocupacion_cuenta,
+					:telefono_cuenta,:geolocalizacion_cuenta,:unidad_negocio_cuenta,:monto_max_aho_cuenta,:ingresos_cuenta,:nivel_cuenta,:nombre_cuenta_replegal,
+					:tipo_persona_cuenta_replegal,:pr_apellido_cuenta_replegal,:sg_apellido_cuenta_replegal,:denominacion_cuenta_replegal,:rfc_cuenta_replegal,:curp_cuenta_replegal,
+					:calle_principal_cuenta_replegal,:calle_secundaria_cuenta_replegal,:calle_secundaria2_cuenta_replegal,:no_interior_cuenta_replegal,:no_exterior_cuenta_replegal,
+					:coloniaId_cuenta_replegal,:colonia_cuenta_replegal,:cp_cuenta_replegal,:ciudad_cuenta_replegal,:celular_cuenta_replegal,:correo_cuenta_replegal,
+					:genero_cuenta_replegal,:tipo_identId_cuenta_replegal,:num_ident_cuenta_replegal,:fecha_nac_cuenta_replegal,:entidad_nacId_cuenta_replegal,:pais_nacId_cuenta_replegal,
+					:pais_nac_cuenta_replegal,:nacionalidadId_cuenta_replegal,:nacionalidad_cuenta_replegal,:serie_firma_elect_cuenta_replegal,:ocupacionId_cuenta_replegal,
+					:ocupacion_cuenta_replegal,:telefono_cuenta_replegal,:geolocalizacion_cuenta_replegal,:unidad_negocio_cuenta_replegal,:monto_max_aho_cuenta_replegal,
+					:ingresos_cuenta_replegal,:nivel_cuenta_replegal;"/>
+	</bean>
+	
+	<bean id="INSERT_CuentaReferenciadaRepresentanteStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORRO.AHCUENTAS_REFERENCIADAS_REPRESENTANTES(CUENTA_REFERENCIA_ID, 
+					SOLICITANTE_ID, REPRESENTANTE_ID, 
+				    ESTATUS_ID, 
+				    PRINCIPAL,USUARIO_CREACION,FECHA_CREACION)
+				VALUES(
+					(SELECT ID FROM AHORRO.AHCUENTAS_REFERENCIADAS WHERE CUENTA_REFERENCIA = ?),
+				    ?, ?, 
+				    (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'ALTA' LIMIT 1),
+				    ?, ?, CURRENT_TIMESTAMP)"/>
+	</bean>
+	
+	
+	<bean id="UPDATE_CuentaReferenciadaSolicitanteStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.AHCUENTAS_REFERENCIADAS SET
+					PERSONA_ID = ?
+					WHERE CUENTA_REFERENCIA = ?"/>
+	</bean>
+	
+	<bean id="UPDATE_CuentaReferenciadaMasivasStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.AHCUENTAS_REF_MASIVAS SET
+					PROCESADO = ?,
+					ERROR = ?,
+					OBSERVACIONES = ?
+					WHERE CONTROL = ?"/>
+	</bean>
+	
+	<bean id="UPDATE_CuentaReferenciadaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.AHCUENTAS_REFERENCIADAS SET 
+			 		ESTATUS_ID = (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = ? LIMIT 1)
+					WHERE ESTATUS_ID = (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS DESCRIPCION = 'ALTA' LIMIT 1) 
+					AND CUENTA_ID = ? AND CUENTA_REFERENCIA = ? AND TIPO_CUENTA_ID = ?"/>
+	</bean>
+	
+	<bean id="LIST_TipoCuentaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					ID,
+					CLAVE,
+					DESCRIPCION,
+					MOSTRAR
+					FROM AHORRO.AHTIPO_CUENTA 
+					WHERE ESTATUS_ID = (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'ALTA' LIMIT 1)"/>
+	</bean>
+	
+	
+	<!--  		BASE DE DATOS DE IZE STI	 -->
+	
+	<bean id="READ_IzelCuentaClabeStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					AA AS ID,
+					AB AS ESTATUS_ID,
+					TO_CHAR(AC,'YYYY-MM-DD') AS FECHA_BAJA,
+					AD AS MOTIVO_BAJA_ID,
+					TO_CHAR(AE,'YYYY-MM-DD') AS FECHA_CREACION,
+					AF AS EMPRESA_ID,
+					AG AS CUENTA_CLABE,
+					AH AS APLICACION_ID,
+					AI AS CLABE_2,
+					AJ AS TARJETA,
+					AK AS TELEFONO
+					FROM PUBLIC.F48FC9873893C5C025F655D47EBA6081 
+					WHERE AG = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="INSERT_IzelCuentaClabeStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO PUBLIC.F48FC9873893C5C025F655D47EBA6081 (AA, AB, AE, AF, AG, AH)
+				  VALUES(
+						  ?,
+						  ?, 
+						  CURRENT_TIMESTAMP,
+						  ?, 
+						  ?, 
+						  (SELECT AA FROM PUBLIC.E50FE194635DB97778AE7A827AB48B WHERE AH = ? LIMIT 1)
+						 )"/>
+	</bean>
+	
+	<bean id="READ_IzelCuentaClabeCorrelativoStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT N_NUMCOR FROM PUBLIC.CBTGENC 
+			       WHERE C_CODEMP = ?
+			       AND C_NOMTAB = ? LIMIT 1"/>
+	</bean>
+	
+	<bean id="UPDATE_IzelCuentaClabeCorrelativoStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE PUBLIC.CBTGENC SET
+			        N_NUMCOR  = ?
+			       WHERE C_CODEMP = ?
+			       AND C_NOMTAB = ?"/>
+	</bean>
+	
+	<bean id="DELETE_CuentaReferenciadaMasivasStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="DELETE FROM AHORRO.AHCUENTAS_REF_MASIVAS"/>
+	</bean>
+	<bean id="DELETE_CuentaReferenciadaCeroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="DELETE FROM AHORRO.AHCUENTAS_REFERENCIADAS WHERE CUENTA_REFERENCIA = ?"/>
+	</bean>
+	<bean id="DELETE_CuentaReferenciadaIzelStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="DELETE FROM PUBLIC.F48FC9873893C5C025F655D47EBA6081 WHERE AG = ?"/>
+	</bean>
+	
+	<bean id="READ_TiposCuentasAhorroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select clave,descripcion, monto_min, monto_max from ahorro.ahnivel_cuenta_ahorro
+			where ESTATUS_ID = (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'ALTA' LIMIT 1)"/>
+	</bean>
+	
+	<bean id="READ_BanderaValidaStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT * FROM nucleocentral.NCVARIABLES_PARAMETRO where descripcion = 'VALIDA_EXPEDIENTES' and valor = 'S';"/>
+	</bean>
+	
+	
+	
+	<bean id="CuentasReferenciadasStdDAO" class="net.std.dao.CuentasReferenciadasStdDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="namedJdbcTemplate" ref="namedJdbcTemplate"/>
+		<property name="READ_TipoCuentaIDReferenciadaStd" ref="READ_TipoCuentaIDReferenciadaStd"/>
+		<property name="READ_CuentaReferenciadaStd" ref="READ_CuentaReferenciadaStd"/>
+		<property name="READ_CuentaReferenciadaMasivaStd" ref="READ_CuentaReferenciadaMasivaStd"/>
+		<property name="LIST_CuentaReferenciadaMasivaStd" ref="LIST_CuentaReferenciadaMasivaStd"/>
+		<property name="INSERT_CuentaReferenciadaStd" ref="INSERT_CuentaReferenciadaStd"/>
+		<property name="INSERT_CuentaReferenciadaMasivasStd" ref="INSERT_CuentaReferenciadaMasivasStd"/>
+		<property name="INSERT_CuentaReferenciadaRepresentanteStd" ref="INSERT_CuentaReferenciadaRepresentanteStd"/>
+		<property name="UPDATE_CuentaReferenciadaMasivasStd" ref="UPDATE_CuentaReferenciadaMasivasStd"/>
+		<property name="DELETE_CuentaReferenciadaMasivasStd" ref="DELETE_CuentaReferenciadaMasivasStd"/>
+		<property name="UPDATE_CuentaReferenciadaStd" ref="UPDATE_CuentaReferenciadaStd"/>
+		<property name="READ_CuentaConcentradoraReferenciadaStd" ref="READ_CuentaConcentradoraReferenciadaStd"/>
+		<property name="LIST_TipoCuentaStd" ref="LIST_TipoCuentaStd"/>
+		<property name="DELETE_CuentaReferenciadaCeroStd" ref="DELETE_CuentaReferenciadaCeroStd"/>
+		<property name="READ_TiposCuentasAhorroStd" ref="READ_TiposCuentasAhorroStd"/>
+		<property name="READ_BanderaValidaStd" ref="READ_BanderaValidaStd"/>
+		<property name="INSERT_DatosSolicitanteCuentaReferenciadaStd" ref="INSERT_DatosSolicitanteCuentaReferenciadaStd"/>
+		<property name="UPDATE_CuentaReferenciadaSolicitanteStd" ref="UPDATE_CuentaReferenciadaSolicitanteStd"/>
+		<property name="READ_CuentaReferenciadaSolicitanteStd" ref="READ_CuentaReferenciadaSolicitanteStd"/>
+		
+		<property name="jdbcTemplateSti" ref="jdbcTemplateSti"/>
+		<property name="READ_IzelCuentaClabeStd" ref="READ_IzelCuentaClabeStd"/>
+		<property name="INSERT_IzelCuentaClabeStd" ref="INSERT_IzelCuentaClabeStd"/>
+		<property name="DELETE_CuentaReferenciadaIzelStd" ref="DELETE_CuentaReferenciadaIzelStd"/>
+		
+		<property name="READ_IzelCuentaClabeCorrelativoStd" ref="READ_IzelCuentaClabeCorrelativoStd"/>
+		<property name="UPDATE_IzelCuentaClabeCorrelativoStd" ref="UPDATE_IzelCuentaClabeCorrelativoStd"/>
+	
+	</bean>
+	
+</beans>

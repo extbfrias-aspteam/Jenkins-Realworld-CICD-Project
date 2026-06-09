@@ -1,0 +1,82 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="leerCuentaAhorroClabeStdPr" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+				  CO.CUENTA AS CUENTA,
+				  CO.CONTRATO,
+				  CO.MONTO_APERTURA AS MONTO_APERTURA,
+				  CO.SOLICITANTE_ID AS NUMERO,
+				  CO.REFERENCIA,
+				  CO.ESTATUS,
+				  TO_CHAR(CO.FECHA_APERTURA, 'YYYY-MM-DD') AS FECHA_INICIO,
+				  TO_CHAR(CO.FECHA_CANCELACION, 'YYYY-MM-DD') AS FECHA_LIQUIDACION,
+				  TO_CHAR(CO.FECHA_CANCELACION, 'YYYY-MM-DD') AS FECHA_TERMINO,
+				  CO.SUCURSAL_APERTURA AS SUCURSAL,
+				  CO.TIPO_AHORRO_ID AS PRODUCTO_ID,
+				  CCR.DESCRIPCION AS DES_PRODUCTO,
+				  SO.NOMBRE AS NOMBRE_CLIENTE,
+				  SO.T_PERSONA AS PERSONALIDAD,
+				  SO.RFC2 AS FECHA_NACIMIENTO,
+				  (COALESCE(SO.RFC1,'') || COALESCE(SO.RFC2,'') || COALESCE(SO.RFC3,'')) AS RFC,
+				  SO.CURP,
+				  SO.CELULAR,
+				  SO.CORREO,
+				  SO.BLOQUEADO,
+				  CO.CUENTA_CLABE,
+				  PUBLIC.AHORRO_SALDODISPONIBLE(CO.CUENTA) AS SALDO,
+				  round(SAL.INTERESES,2) AS IVA,
+				  ROUND(SAL.ISR,2) AS ISR,
+				  'AHOPRO' AS BASE
+				FROM PUBLIC.AHORRO_CONTRATO CO
+				  LEFT JOIN PUBLIC.SOLICITANTE SO ON SO.NUMERO = CO.SOLICITANTE_ID
+				  LEFT JOIN PUBLIC.TIPOS_AHORRO CCR ON CCR.TIPO_AHORRO_ID = CO.TIPO_AHORRO_ID
+				  LEFT JOIN PUBLIC.AHORRO_SALDOS SAL ON SAL.CUENTA = CO.CUENTA
+				WHERE TRUE
+				AND PUBLIC.AHORRO_TIPOCUENTA(CO.RENDIMIENTO_ID) = 0
+				AND NOT (COALESCE(CO.ESTATUS,'') = 'C')
+				AND COALESCE(SO.BLOQUEADO,0) = 0 
+				AND CO.CUENTA_CLABE = ?
+				ORDER BY SO.NOMBRE ASC, CO.CUENTA ASC LIMIT 1"/>
+	</bean>
+	
+	<bean id="leerSaldoDisponibleStdPr" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT PUBLIC.AHORRO_SALDODISPONIBLE(?) AS SALDO, round(INTERESES,2) AS IVA,  ROUND(ISR,2) AS ISR
+			       FROM PUBLIC.AHORRO_SALDOS WHERE CUENTA = ?"/>
+	</bean>
+	
+	<bean id="cajaDisposicionAhorroStdPr" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT PUBLIC.AHORRO_RETIRO_CERO(?, ?, CAST(? AS DATE), CAST(? AS DOUBLE PRECISION), CAST(? AS INTEGER), CAST(? AS INTEGER), ?) AS VIDMOV2"/>
+	</bean>
+	
+	<bean id="cajaDepositoAhorroStdPr" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT PUBLIC.AHORRO_DEPOSITO_CERO(?, ?, CAST(? AS DATE), CAST(? AS DOUBLE PRECISION), CAST(? AS INTEGER), CAST(? AS INTEGER), ?) AS VIDMOV2"/>
+	</bean>
+	
+	<bean id="speiDevolucionAhorroStdPr" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT PUBLIC.AHORRO_DEPOSITO_SPEI(?, ?, CAST(? AS DATE), CAST(? AS DOUBLE PRECISION), CAST(? AS INTEGER), CAST(? AS INTEGER), ?, CAST(? AS INTEGER)) AS VIDMOV2"/>
+	</bean>
+	
+	<bean id="speiClabeObtenBanco" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="Select ID,NOMBRE From spei_clabe_obten_banco(?) as tb(id varchar, nombre varchar)"/>
+	</bean>
+	
+	<bean id="AhorroProcreaStdDAO" class="net.std.dao.AhorroProcreaStdDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="leerCuentaAhorroClabeStdPr" ref="leerCuentaAhorroClabeStdPr"/>
+		<property name="leerSaldoDisponibleStdPr" ref="leerSaldoDisponibleStdPr"/>
+		<property name="cajaDisposicionAhorroStdPr" ref="cajaDisposicionAhorroStdPr"/>
+		<property name="cajaDepositoAhorroStdPr" ref="cajaDepositoAhorroStdPr"/>
+		<property name="speiDevolucionAhorroStdPr" ref="speiDevolucionAhorroStdPr"/>
+		<property name="speiClabeObtenBanco" ref="speiClabeObtenBanco"/>
+	</bean>
+	
+</beans>

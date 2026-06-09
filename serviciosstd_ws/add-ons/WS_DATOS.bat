@@ -1,0 +1,1 @@
+mvn install:install-file -DgroupId=org -DartifactId=WS_DATOS -Dversion=1.0 -Dpackaging=jar -Dfile=WS_DATOS.jar
