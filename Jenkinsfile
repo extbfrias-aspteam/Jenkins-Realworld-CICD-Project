@@ -85,11 +85,16 @@ pipeline {
         //}
         stage('Tests Unitarios (REAL)') {
             when { expression { !params.SKIP_TESTS } }
+            // Forzamos a Jenkins a usar tus herramientas configuradas
+            tools {
+                jdk "JDK-${params.JAVA_VERSION}"
+                maven "Maven-3.9"
+            }
             steps {
                 echo '=== Ejecutando JUnit Tests sobre el codigo fuente real ==='
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    // Comillas simples para evitar Bad Substitution
-                    sh 'mvn test-compile test -f serviciosstd_ws/pom.xml -U -B -q'
+                    // Quitamos la -q para ver el log real en la consola de Jenkins
+                    sh 'mvn test-compile test -f serviciosstd_ws/pom.xml -U -B'
                 }
             }
             post {
@@ -101,23 +106,32 @@ pipeline {
 
         stage('Integration Test (REAL)') {
             when { expression { !params.SKIP_TESTS } }
+            tools {
+                jdk "JDK-${params.JAVA_VERSION}"
+                maven "Maven-3.9"
+            }
             steps {
                 echo '=== Ejecutando Pruebas de Integración Reales ==='
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    // Removido -DskipUnitTests para que corra TODO sin saltar nada
-                    sh 'mvn verify -f serviciosstd_ws/pom.xml -B -q'
+                    // Quitamos la -q
+                    sh 'mvn verify -f serviciosstd_ws/pom.xml -B'
                 }
             }
         }
 
         stage('Análisis de Seguridad (REAL)') {
             when { expression { !params.SKIP_SECURITY } }
+            tools {
+                jdk "JDK-${params.JAVA_VERSION}"
+                maven "Maven-3.9"
+            }
             parallel {
                 stage('OWASP Dependency Check') {
                     steps {
                         echo '=== Analizando vulnerabilidades en librerias externas ==='
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            sh 'mvn org.owasp:dependency-check-maven:check -f serviciosstd_ws/pom.xml -Dformat=HTML -B -q'
+                            // Quitamos la -q para ver si se traba descargando la BD de vulnerabilidades
+                            sh 'mvn org.owasp:dependency-check-maven:check -f serviciosstd_ws/pom.xml -Dformat=HTML -B'
                         }
                     }
                 }
@@ -125,13 +139,12 @@ pipeline {
                     steps {
                         echo '=== Analizando Bugs Estáticos en Código ==='
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            sh 'mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs -f serviciosstd_ws/pom.xml -B -q'
+                            sh 'mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs -f serviciosstd_ws/pom.xml -B'
                         }
                     }
                 }
             }
         }
-
         stage('SonarQube Quality Gate (MANDATORIO)') {
             when { expression { !params.SKIP_SECURITY } }
             steps {
