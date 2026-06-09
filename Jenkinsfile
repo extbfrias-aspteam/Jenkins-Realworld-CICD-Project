@@ -59,6 +59,7 @@ pipeline {
             steps {
                 echo "=== Iniciando Analisis con scan_secrets.sh ==="
                 script {
+                    // Ejecuta tu escáner nativo. Si deseas auditar el reporte completo sin romper el build en esta fase, puedes quitar el '--strict'
                     sh """
                         if [ -f "serviciosstd_ws/scan_secrets.sh" ]; then
                             chmod +x serviciosstd_ws/scan_secrets.sh
@@ -77,7 +78,6 @@ pipeline {
                 echo '=== [BYPASS] Saltando la creacion del binario WAR pesado ==='
                 echo '=== [BYPASS] Preparando carpetas de salida en caliente para reportes ==='
                 sh 'mkdir -p serviciosstd_ws/target'
-                // Creamos un dummy para que el plugin de Nexus no se caiga al final del flujo
                 sh 'touch serviciosstd_ws/target/ServiciosSTD_WS.war'
             }
         }
@@ -86,8 +86,10 @@ pipeline {
             when { expression { !params.SKIP_TESTS } }
             steps {
                 echo '=== Ejecutando JUnit Tests sobre el codigo fuente real ==='
-                // Compila solo el codigo de prueba necesario para validar la salud
-                sh 'mvn test-compile test -f serviciosstd_ws/pom.xml -U -B -q'
+                // catchError evita que el pipeline muera aquí y garantiza que lleguemos a SonarQube pase lo que pase con los test
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh 'mvn test-compile test -f serviciosstd_ws/pom.xml -U -B -q'
+                }
             }
             post {
                 always {
@@ -100,7 +102,9 @@ pipeline {
             when { expression { !params.SKIP_TESTS } }
             steps {
                 echo '=== Ejecutando Pruebas de Integración Reales ==='
-                sh 'mvn verify -f serviciosstd_ws/pom.xml -DskipUnitTests -B -q || true'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh 'mvn verify -f serviciosstd_ws/pom.xml -DskipUnitTests -B -q'
+                }
             }
         }
 
@@ -110,13 +114,17 @@ pipeline {
                 stage('OWASP Dependency Check') {
                     steps {
                         echo '=== Analizando vulnerabilidades en librerias externas ==='
-                        sh 'mvn org.owasp:dependency-check-maven:check -f serviciosstd_ws/pom.xml -Dformat=HTML -B -q || true'
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh 'mvn org.owasp:dependency-check-maven:check -f serviciosstd_ws/pom.xml -Dformat=HTML -B -q'
+                        }
                     }
                 }
                 stage('SpotBugs') {
                     steps {
                         echo '=== Analizando Bugs Estáticos en Código ==='
-                        sh 'mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs -f serviciosstd_ws/pom.xml -B -q || true'
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh 'mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs -f serviciosstd_ws/pom.xml -B -q'
+                        }
                     }
                 }
             }
@@ -128,14 +136,15 @@ pipeline {
                 echo '=== Ejecutando Analisis Mandatorio de SonarQube sobre codigo fuente real ==='
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
-                        // Forzamos el escaneo directo de la salud del codigo fuente sin requerir empaquetamiento previo
+                        // Agregamos -U y -Dmaven.test.failure.ignore=true para que Sonar examine la salud del código plano sin bloquearse por dependencias externas
                         sh """
                         mvn sonar:sonar -f serviciosstd_ws/pom.xml \
                             -Dsonar.projectKey=${APP_NAME} \
                             -Dsonar.projectName=${APP_NAME} \
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.login=$SONAR_TOKEN \
-                            -B -q || true
+                            -Dmaven.test.failure.ignore=true \
+                            -U -B -q
                         """
                     }
                 }
@@ -171,7 +180,7 @@ pipeline {
             steps {
                 echo "=== Pasando control a Ansible para entorno: ${params.ENVIRONMENT.toUpperCase()} ==="
                 withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                    sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_${params.ENVIRONMENT} workspace_path=${WORKSPACE}\" || true"
+                    sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_${params.ENVIRONMENT} workspace_path=${WORKSPACE}\""
                 }
             }
         }
