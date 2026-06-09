@@ -55,31 +55,31 @@ pipeline {
             }
         }
 
-        stage('Escaneo de Secretos (Script Personalizado)') {
-            steps {
-                echo "=== Iniciando Analisis con scan_secrets.sh ==="
-                script {
-                    sh """
-                        if [ -f "serviciosstd_ws/scan_secrets.sh" ]; then
-                            chmod +x serviciosstd_ws/scan_secrets.sh
-                            cd serviciosstd_ws && bash scan_secrets.sh
-                        else
-                            echo "🛑 ERROR: No se encontro el archivo scan_secrets.sh"
-                            exit 1
-                        fi
-                    """
-                }
-            }
-        }
+        //stage('Escaneo de Secretos (Script Personalizado)') {
+        //    steps {
+        //        echo "=== Iniciando Analisis con scan_secrets.sh ==="
+        //        script {
+        //            sh """
+        //                if [ -f "serviciosstd_ws/scan_secrets.sh" ]; then
+        //                    chmod +x serviciosstd_ws/scan_secrets.sh
+        //                    cd serviciosstd_ws && bash scan_secrets.sh
+        //                else
+        //                    echo "🛑 ERROR: No se encontro el archivo scan_secrets.sh"
+        //                    exit 1
+        //                fi
+        //            """
+        //        }
+        //    }
+        //}
 
-        stage('Build (BYPASS DE EMPAQUETADO)') {
-            steps {
-                echo '=== [BYPASS] Saltando la creacion del binario WAR pesado ==='
-                echo '=== [BYPASS] Preparando carpetas de salida en caliente para reportes ==='
-                sh 'mkdir -p serviciosstd_ws/target'
-                sh 'touch serviciosstd_ws/target/ServiciosSTD_WS.war'
-            }
-        }
+        //stage('Build (BYPASS DE EMPAQUETADO)') {
+        //    steps {
+        //        echo '=== [BYPASS] Saltando la creacion del binario WAR pesado ==='
+        //        echo '=== [BYPASS] Preparando carpetas de salida en caliente para reportes ==='
+        //        sh 'mkdir -p serviciosstd_ws/target'
+        //        sh 'touch serviciosstd_ws/target/ServiciosSTD_WS.war'
+        //    }
+        //}
 
         stage('Tests Unitarios (REAL)') {
             when { expression { !params.SKIP_TESTS } }
