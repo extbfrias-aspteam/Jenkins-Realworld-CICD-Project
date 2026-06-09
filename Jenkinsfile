@@ -87,7 +87,7 @@ pipeline {
             when { expression { !params.SKIP_TESTS } }
             // Forzamos a Jenkins a usar tus herramientas configuradas
             tools {
-                jdk "JDK-${params.JAVA_VERSION}"
+                jdk "localJdk8"
                 maven "localMaven"
             }
             steps {
@@ -107,7 +107,7 @@ pipeline {
         stage('Integration Test (REAL)') {
             when { expression { !params.SKIP_TESTS } }
             tools {
-                jdk "JDK-${params.JAVA_VERSION}"
+                jdk "localJdk8"
                 maven "localMaven"
             }
             steps {
@@ -122,7 +122,7 @@ pipeline {
         stage('Análisis de Seguridad (REAL)') {
             when { expression { !params.SKIP_SECURITY } }
             tools {
-                jdk "JDK-${params.JAVA_VERSION}"
+                jdk "localJdk8"
                 maven "localMaven"
             }
             parallel {
