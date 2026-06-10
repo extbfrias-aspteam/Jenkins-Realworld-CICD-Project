@@ -48,7 +48,7 @@ jobs:
           echo "Maven version:"
           mvn -version
 
-      # ── SOLUCIÓN AL ERROR DE DEPENDENCIAS ──
+      # ── SOLUCIÓN AL ERROR DE DEPENDENCIAS kk──
       # Asegúrate de subir los archivos JAR a una carpeta llamada 'add-ons' dentro de 'serviciosstd_ws'
       - name: Install Private Corporate Jars to Local Runner Cache
         working-directory: ${{ env.WORKING_DIR }}
