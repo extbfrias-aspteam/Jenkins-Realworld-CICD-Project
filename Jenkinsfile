@@ -8,11 +8,11 @@ pipeline {
   agent any
   environment {
     //WORKSPACE = "${env.WORKSPACE}"
-    WORKSPACE = "${env.WORKSPACE}/automatizacion-main/automatizacion-main"
+    WORKSPACE = "${env.WORKSPACE}/serviciosstd_ws"
     NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
     NEXUS_USER = "$NEXUS_CREDS_USR"
     NEXUS_PASSWORD = "$NEXUS_CREDS_PSWD"
-    NEXUS_URL = "149.56.241.64:8081"
+    NEXUS_URL = "nexus:8081"
     NEXUS_REPOSITORY = "maven_project"
     NEXUS_REPO_ID    = "maven_project"
     ARTVERSION = "${env.BUILD_ID}"
@@ -25,7 +25,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        dir('automatizacion-main/automatizacion-main/java-app') {
+        dir('serviciosstd_ws/') {
     // Forzamos a Maven a ignorar la validación estricta de SSL para este paso
             sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'           //sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
         }
@@ -40,27 +40,27 @@ pipeline {
       post {
         success {
           echo ' now Archiving '
-          archiveArtifacts artifacts: '**/*.jar'
+          archiveArtifacts artifacts: '**/*.war'
         }
       }
     }
     stage('Unit Test'){
         steps {
-         //dir('realworld-cicd-pipeline-project-main/') {
+         dir('serviciosstd_ws/') {
          sh 'mvn test'
         // }
         }
     }
     stage('Integration Test'){
         steps {
-         //dir('realworld-cicd-pipeline-project-main/') {
+         dir('serviciosstd_ws/') {
           sh 'mvn verify -DskipUnitTests'
         //}
         }
     }
     stage ('Checkstyle Code Analysis'){
         steps {
-           // dir('realworld-cicd-pipeline-project-main/') {
+            dir('serviciosstd_ws/') {
             sh 'mvn checkstyle:checkstyle'
         //}
         }
@@ -78,7 +78,7 @@ pipeline {
                 sh """
                 mvn clean verify sonar:sonar \
                 -Dsonar.projectKey=JavaWebApp-Project \
-                -Dsonar.host.url=http://149.56.241.64:9000 \
+                -Dsonar.host.url=http://sonarqube:9000 \
                 -Dsonar.login=$SONAR_TOKEN
                 """
                 }
@@ -102,7 +102,7 @@ pipeline {
            nexusArtifactUploader(
               nexusVersion: 'nexus3',
               protocol: 'http',
-              nexusUrl: '149.56.241.64:8081',
+              nexusUrl: 'nexus:8081',
               groupId: 'webapp',
               version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
               repository: 'maven-releases',  //"${NEXUS_REPOSITORY}",
@@ -110,8 +110,8 @@ pipeline {
               artifacts: [
                   [artifactId: 'webapp',
                   classifier: '',
-                  file: "${WORKSPACE}/webapp/target/webapp.jar",
-                  type: 'jar']
+                  file: "${WORKSPACE}/serviciosstd_ws/target/*.war",
+                  type: 'war']
               ]
            )
         //}
