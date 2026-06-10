@@ -16,10 +16,9 @@ on:
       - staging
 
 env:
-  # CORREGIDO: Usamos la ruta nativa del runner de GitHub para la caché de Maven si deseas personalizarla
   MAVEN_OPTS: "-Dmaven.repo.local=${{ github.workspace }}/.m2/repository"
-  JAVA_VERSION: "8"               # CORREGIDO: Declaración limpia para Java 8 (1.8)
-  WORKING_DIR: "serviciosstd_ws" # Directorio real de tu app
+  JAVA_VERSION: "8"               
+  WORKING_DIR: "serviciosstd_ws" 
 
 jobs:
   build:
@@ -48,10 +47,19 @@ jobs:
           java -version
           echo "Maven version:"
           mvn -version
+
+      # ── SOLUCIÓN AL ERROR DE DEPENDENCIAS ──
+      # Asegúrate de subir los archivos JAR a una carpeta llamada 'add-ons' dentro de 'serviciosstd_ws'
+      - name: Install Private Corporate Jars to Local Runner Cache
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          echo "Instalando dependencias propietarias en el repositorio local del Runner..."
+          mvn install:install-file -Dfile=add-ons/WS_DATOS.jar -DgroupId=org -DartifactId=WS_DATOS -Dversion=1.0 -Dpackaging=jar -B || echo "Validar si el jar se llama diferente"
+          mvn install:install-file -Dfile=add-ons/WS_PLASTICOS.jar -DgroupId=org -DartifactId=WS_PLASTICOS -Dversion=1.0 -Dpackaging=jar -B
+          mvn install:install-file -Dfile=add-ons/Commons.jar -DgroupId=com.mx -DartifactId=Commons -Dversion=1 -Dpackaging=jar -B
       
       - name: Build App1 (Compile)
         working-directory: ${{ env.WORKING_DIR }}
-        # Mantenemos el -U y quitamos -q temporalmente por si necesitas debugear descargas iniciales
         run: mvn clean compile -DskipTests -U -B
       
       - name: Save build cache
@@ -96,7 +104,6 @@ jobs:
       
       - name: Run unit and integrated tests
         working-directory: ${{ env.WORKING_DIR }}
-        # Como quitaste los "skip" del pipeline de Jenkins, aquí corre TODO de corrido
         run: mvn test verify -B
       
       - name: SonarQube Analysis
@@ -104,8 +111,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        # Nota: Si usas SonarCloud, el host cambia. Si es un SonarQube on-premise, 
-        # asegúrate de pasarle la URL mediante tus secrets.
         run: |
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=ServiciosSTD_WS \
