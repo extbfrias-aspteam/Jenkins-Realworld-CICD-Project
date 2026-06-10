@@ -98,7 +98,7 @@ jobs:
             -Dmaven.test.skip=true \
             -B || echo "Sonar completado"
       
-      # ── CREACIÓN DELs PR DESDE EL ESPEJO "QA" HACIA "STAGING" ──
+      # ── CREACIÓN DELs PR DESDE EL ESPEJO "QA" HACIA "STaAGING" ──
       - name: Create PR from QA Mirror to Staging
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
