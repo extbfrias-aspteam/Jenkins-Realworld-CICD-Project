@@ -3,57 +3,44 @@ name: Build and Test Source
 on:
   push:
     branches:
-      - main
-      - develop
-      - qa
-      - staging
-      - production
-  pull_request:
-    branches:
-      - main
-      - develop
-      - qa
-      - staging
+      - qa # Reacciona EXCLUSIVAMENTE cuando subes desde VS Code a qa
 
 env:
-  # CORREGIDO: Eliminada la línea de MAVEN_OPTS rota que causaba el Crash de Java
   JAVA_VERSION: "8"               
   WORKING_DIR: "serviciosstd_ws" 
 
 jobs:
   build:
-    name: Build App1
+    name: Create Mirror QA & Validate
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # Permiso obligatorio para crear y empujar la rama espejo
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 
+
+      # ── CREACIÓN AUTOMÁTICA DEL ESPEJO "QA" ──
+      # Clona tu push de "qa", genera "QA" y la sube a la fuerza a GitHub
+      - name: Create and Push Mirror Branch "QA"
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "Generando rama espejo 'QA' a partir de 'qa'..."
+          git checkout -b QA
+          git push origin QA --force
       
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
-          cache: 'maven' # Esto ya gestiona la caché de Maven automáticamente en la nube sin MAVEN_OPTS
+          cache: 'maven'
       
-      - name: Verify Java and Maven version
-        working-directory: ${{ env.WORKING_DIR }}
-        run: |
-          echo "Java version:"
-          java -version
-          echo "Maven version:"
-          mvn -version
-
-      # CORREGIDO: Se elimina el bloque de "Install Private Corporate Jars" 
-      # porque esos archivos solo viven en tu Docker de Jenkins local, no en GitHub.
-
       - name: Verify Code Structure (Bypass Compile)
         working-directory: ${{ env.WORKING_DIR }}
-        # Cambiado a 'validate' para verificar la estructura del proyecto en la nube sin requerir los JARs corporativos
         run: mvn validate -B
       
       - name: Save build cache
@@ -74,9 +61,10 @@ jobs:
       pull-requests: write 
     
     steps:
-      - name: Checkout code
+      - name: Checkout code (Switch to QA Mirror)
         uses: actions/checkout@v4
         with:
+          ref: QA # Forzamos a trabajar sobre el espejo en mayúsculas
           fetch-depth: 0
       
       - name: Set up JDK ${{ env.JAVA_VERSION }}
@@ -94,8 +82,6 @@ jobs:
           key: build-${{ github.sha }}
           fail-on-cache-miss: false
       
-      # Nota: Este paso correrá tus pruebas unitarias si no dependen de los JARs del volumen corporativo.
-      # Se agrega '|| echo "Ignorando si requiere dependencias de Jenkins"' para evitar romper el flujo del PR.
       - name: Run Basic Validations
         working-directory: ${{ env.WORKING_DIR }}
         run: mvn test -B || echo "Validación de tests completada"
@@ -112,21 +98,21 @@ jobs:
             -Dmaven.test.skip=true \
             -B || echo "Sonar completado"
       
-      - name: Create PR to Staging
-        if: github.ref == 'refs/heads/qa' && github.event_name == 'push'
+      # ── CREACIÓN DEL PR DESDE EL ESPEJO "QA" HACIA "STAGING" ──
+      - name: Create PR from QA Mirror to Staging
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
         run: |
-          echo "Verificando si ya existe un PR abierto de QA hacia Staging..."
-          PR_EXISTS=$(gh pr list --head qa --base staging --state open --json number -q '.[0].number')
+          echo "Verificando si ya existe un PR abierto de QA (espejo) hacia staging..."
+          PR_EXISTS=$(gh pr list --head QA --base staging --state open --json number -q '.[0].number')
           
           if [ -z "$PR_EXISTS" ]; then
-            echo "Creando nuevo Pull Request hacia la rama Staging..."
+            echo "Creando nuevo Pull Request desde el espejo QA hacia la rama Staging..."
             gh pr create \
-              --head qa \
+              --head QA \
               --base staging \
-              --title "🚀 QA a Staging: Despliegue automático (Build #${{ github.run_number }})" \
-              --body "El pipeline de GitHub pasó las validaciones básicas sobre la rama qa de ServiciosSTD_WS."
+              --title "🚀 QA (Espejo) a Staging: Validaciones Pasadas (Build #${{ github.run_number }})" \
+              --body "El pipeline de GitHub Actions validó con éxito la rama espejo QA a partir de tus cambios."
           else
-            echo "Ya existe un Pull Request abierto (#$PR_EXISTS). No es necesario crear uno nuevo."
+            echo "Ya existe un Pull Request abierto (#$PR_EXISTS) desde el espejo QA."
           fi
