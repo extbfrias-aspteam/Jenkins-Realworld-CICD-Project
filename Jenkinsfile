@@ -16,6 +16,7 @@ pipeline {
     NEXUS_REPOSITORY = "maven_project"
     NEXUS_REPO_ID    = "maven_project"
     ARTVERSION = "${env.BUILD_ID}"
+    MAVEN_OPTS = '-Xmx1024m -Dmaven.repo.local=/var/jenkins_home/.m2/repository'
   }
   tools {
     maven 'localMaven'
