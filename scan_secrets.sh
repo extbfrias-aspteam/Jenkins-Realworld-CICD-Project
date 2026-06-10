@@ -11,7 +11,7 @@ echo "=========================================="
 echo "Scanning for Hardcoded Secrets"
 echo "=========================================="
 
-# Create temporary directory for reportsi
+# Create temporary directory for reports
 REPORT_DIR="/tmp/secret-scan-$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$REPORT_DIR"
 
