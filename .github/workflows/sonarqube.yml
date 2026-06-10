@@ -54,10 +54,11 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           echo "Instalando dependencias propietarias en el repositorio local del Runner..."
-          mvn install:install-file -Dfile=add-ons/WS_DATOS.jar -DgroupId=org -DartifactId=WS_DATOS -Dversion=1.0 -Dpackaging=jar -B || echo "Validar si el jar se llama diferente"
+          mvn install:install-file -Dfile=add-ons/WS_DATOS.jar -DgroupId=org -DartifactId=WS_DATOS -Dversion=1.0 -Dpackaging=jar -B
           mvn install:install-file -Dfile=add-ons/WS_PLASTICOS.jar -DgroupId=org -DartifactId=WS_PLASTICOS -Dversion=1.0 -Dpackaging=jar -B
-          mvn install:install-file -Dfile=add-ons/Commons.jar -DgroupId=com.mx -DartifactId=Commons -Dversion=1 -Dpackaging=jar -B
-      
+          
+          # CORREGIDO: Cambiado de Commons.jar a commons.jar (en minúsculas)
+          mvn install:install-file -Dfile=add-ons/commons.jar -DgroupId=com.mx -DartifactId=Commons -Dversion=1 -Dpackaging=jar -B
       - name: Build App1 (Compile)
         working-directory: ${{ env.WORKING_DIR }}
         run: mvn clean compile -DskipTests -U -B
