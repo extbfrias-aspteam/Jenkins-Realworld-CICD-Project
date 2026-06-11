@@ -34,7 +34,7 @@ pipeline {
             post {
                 success {
                     echo ' now Archiving '
-                    // Busca los entregables dentro de la subcarpeta de forma correcta
+                    // nnnnBusca los entregables dentro de la subcarpeta de forma correcta
                     archiveArtifacts artifacts: 'serviciosstd_ws/target/*.war'
                 }
             }
