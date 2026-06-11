@@ -7,8 +7,6 @@ def COLOR_MAP = [
 pipeline {
     agent any
     environment {
-        //WORKSPACE = "${env.WORKSPACE}"
-        WORKSPACE = "${env.WORKSPACE}/serviciosstd_ws"
         NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
         NEXUS_USER = "$NEXUS_CREDS_USR"
         NEXUS_PASSWORD = "$NEXUS_CREDS_PSWD"
@@ -25,41 +23,39 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                dir('serviciosstd_ws/') {
-                    // Forzamos a Maven a ignorar la validación estricta de SSL para este paso
-                    sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true' //sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
+                dir('serviciosstd_ws') {
+                    // Forzamos a Maven a ignorar la validación estricta de SSL
+                    sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
                 }
-                //dir('automatizacion-main/automatizacion-main/java-app') {
-                //   sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'  //sh 'mvn clean package'
-                //}
-                //dir('realworld-cicd-pipeline-project-main/') {
-                //sh 'mvn clean package'
-                // }
             }
             post {
                 success {
                     echo ' now Archiving '
-                    archiveArtifacts artifacts: '**/*.war'
+                    // Busca los entregables dentro de la subcarpeta de forma correcta
+                    archiveArtifacts artifacts: 'serviciosstd_ws/target/*.war'
                 }
             }
         }
+        
         stage('Unit Test'){
             steps {
-                dir('serviciosstd_ws/') {
+                dir('serviciosstd_ws') {
                     sh 'mvn test'
                 }
             }
         }
+        
         stage('Integration Test'){
             steps {
-                dir('serviciosstd_ws/') {
+                dir('serviciosstd_ws') {
                     sh 'mvn verify -DskipUnitTests'
                 }
             }
         }
+        
         stage ('Checkstyle Code Analysis'){
             steps {
-                dir('serviciosstd_ws/') {
+                dir('serviciosstd_ws') {
                     sh 'mvn checkstyle:checkstyle'
                 }
             }
@@ -69,98 +65,75 @@ pipeline {
                 }
             }
         }
+        
         stage('SonarQube Inspection') {
             steps {
-                dir('realworld-cicd-pipeline-project-main/') {
-                withSonarQubeEnv('SonarQube') { 
-                    withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
-                        sh """
-                        mvn clean verify sonar:sonar \
-                        -Dsonar.projectKey=JavaWebApp-Project \
-                        -Dsonar.host.url=http://sonarqube:9000 \
-                        -Dsonar.login=$SONAR_TOKEN
-                        """
+                dir('serviciosstd_ws') {
+                    withSonarQubeEnv('SonarQube') { 
+                        withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
+                            sh """
+                            mvn clean verify sonar:sonar \
+                            -Dsonar.projectKey=JavaWebApp-Project \
+                            -Dsonar.host.url=http://sonarqube:9000 \
+                            -Dsonar.login=$SONAR_TOKEN
+                            """
+                        }
                     }
                 }
-                }
             }
         }
+        
         stage('SonarQube Quality Gate') {
             steps {
-                // Set a timeout for the quality gate check
                 timeout(time: 1, unit: 'HOURS') {
-                    // Wait for the SonarQube quality gate result and abort the pipeline if it fails
-                    waitForQualityGate(abortPipeline: true)
+                    script {
+                        // Espera el Webhook de SonarQube y aborta si no pasa las métricas
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            currentBuild.result = 'FAILURE'
+                            error "Pipeline abortado: El código no pasó el Quality Gate de SonarQube. Estado: ${qg.status}"
+                        }
+                    }
                 }
             }
         }
+        
         stage("Nexus Artifact Uploader"){
-            steps{
-                // dir('realworld-cicd-pipeline-project-main/') {
-                nexusArtifactUploader(
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    nexusUrl: 'nexus:8081',
-                    groupId: 'webapp',
-                    version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                    repository: 'maven-releases',  //"${NEXUS_REPOSITORY}",
-                    credentialsId: "${NEXUS_CREDENTIAL_ID}",
-                    artifacts: [
-                        [artifactId: 'webapp',
-                        classifier: '',
-                        file: "${WORKSPACE}/serviciosstd_ws/target/*.war",
-                        type: 'war']
-                    ]
-                )
-                //}
-            }
-        }
-        stage('Deploy to Development Env') {
-            environment {
-                HOSTS = 'dev'
-            }
             steps {
-                //dir('realworld-cicd-pipeline-project-main/') {
-                withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                    sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=${WORKSPACE}\""
+                dir('serviciosstd_ws') {
+                    script {
+                        // Encontrar el nombre exacto del archivo .war generado dinámicamente en target/
+                        def warFiles = findFiles(glob: 'target/*.war')
+                        if (warFiles.length == 0) {
+                            error "No se encontró ningún archivo .war en target/"
+                        }
+                        def warPath = warFiles[0].path
+                        
+                        nexusArtifactUploader(
+                            nexusVersion: 'nexus3',
+                            protocol: 'http',
+                            nexusUrl: "${NEXUS_URL}",
+                            groupId: 'webapp',
+                            version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
+                            repository: 'maven-releases',
+                            credentialsId: "${NEXUS_CREDENTIAL_ID}",
+                            artifacts: [
+                                [artifactId: 'webapp',
+                                classifier: '',
+                                file: "${warPath}", 
+                                type: 'war']
+                            ]
+                        )
+                    }
                 }
-                //}
-            }
-        }
-        stage('Deploy to Staging Env') {
-            environment {
-                HOSTS = 'stage'
-            }
-            steps {
-                // dir('realworld-cicd-pipeline-project-main/') {
-                withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                    sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=$WORKSPACE\""
-                }
-                //}
-            }
-        }
-        stage('Quality Assurance Approval') {
-            steps {
-                input('Do you want to proceed?')
-            }
-        }
-        stage('Deploy to Production Env') {
-            environment {
-                HOSTS = 'prod'
-            }
-            steps {
-                //dir('realworld-cicd-pipeline-project-main/') {
-                withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                    sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=$WORKSPACE\""
-                }
-                // }
             }
         }
     }
+    
     post {
         always {
             echo 'Slack Notifications.'
-            slackSend channel: '#prestigious-channel', //update and provide your channel name
+            slackSend channel: '#prestigious-channel',
             color: COLOR_MAP[currentBuild.currentResult],
             message: "*${currentBuild.currentResult}:* Job Name '${env.JOB_NAME}' build ${env.BUILD_NUMBER} \n Build Timestamp: ${env.BUILD_TIMESTAMP} \n Project Workspace: ${env.WORKSPACE} \n More info at: ${env.BUILD_URL}"
         }
