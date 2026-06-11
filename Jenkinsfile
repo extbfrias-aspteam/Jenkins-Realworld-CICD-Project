@@ -68,16 +68,17 @@ pipeline {
         
         stage('SonarQube Inspection') {
             tools {
-        // Jenkins buscará el instalador automático llamado 'jdk11'
-        // Lo descargará en segundo plano (solo la primera vez) y lo usará aquí
+                // Jenkins usará el instalador automático de JDK 11 configurado para el scanner
                 jdk 'jdk11' 
             }
             steps {
                 dir('serviciosstd_ws') {
                     withSonarQubeEnv('SonarQube') { 
                         withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
+                            // CORRECCIÓN: Ejecutamos el scanner directo sin "clean verify" 
+                            // para evitar el fallo con las librerías javax.xml (SOAP) bajo Java 11
                             sh """
-                            mvn clean verify sonar:sonar \
+                            mvn sonar:sonar \
                             -Dsonar.projectKey=ASP-POC \
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.scm.provider=git \
