@@ -45,7 +45,7 @@ pipeline {
                 
                 // Manda a llamar al segundo pipeline de forma asíncrona
                 // REEMPLAZA 'Pipeline-02-Compilacion-CD' por el nombre exacto de tu segundo job
-                build job: 'Pipeline-02-Compilacion-CD', wait: false
+                build job: 'Pipeline-01-Seguridad-PreBuild', wait: false
             }
         }
     }
