@@ -11,7 +11,7 @@ pipeline {
         stage('Secret Scanning') {
             steps {
                 configFileProvider([
-                    configFile(fileId: 'global-secret-scanner', targetLocation: 'scan_secrets.sh')
+                    configFile(fileId: 'scan_secrets.sh', targetLocation: 'scan_secrets.sh')
                 ]) {
                     echo '=========================================='
                     echo 'Ejecutando escáner de seguridad previo...'
