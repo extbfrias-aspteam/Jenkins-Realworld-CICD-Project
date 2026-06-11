@@ -71,7 +71,7 @@ pipeline {
         }
         stage('SonarQube Inspection') {
             steps {
-                // dir('realworld-cicd-pipeline-project-main/') {
+                dir('realworld-cicd-pipeline-project-main/') {
                 withSonarQubeEnv('SonarQube') { 
                     withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
                         sh """
@@ -82,7 +82,7 @@ pipeline {
                         """
                     }
                 }
-                // }
+                }
             }
         }
         stage('SonarQube Quality Gate') {
