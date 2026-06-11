@@ -1,0 +1,1 @@
+mvn install:install-file -DgroupId=mx.com.promesi -DartifactId=CEROFilter -Dversion=1 -Dpackaging=jar -Dfile=CEROFilter-1.jar

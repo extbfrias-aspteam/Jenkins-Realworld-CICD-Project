@@ -1,0 +1,1 @@
+mvn install:install-file -DgroupId=org -DartifactId=WS_PLASTICOS -Dversion=1.0 -Dpackaging=jar -Dfile=WS_PLASTICOS.jar
