@@ -67,6 +67,11 @@ pipeline {
         }
         
         stage('SonarQube Inspection') {
+            tools {
+        // Jenkins buscará el instalador automático llamado 'jdk11'
+        // Lo descargará en segundo plano (solo la primera vez) y lo usará aquí
+                jdk 'jdk11' 
+            }
             steps {
                 dir('serviciosstd_ws') {
                     withSonarQubeEnv('SonarQube') { 
