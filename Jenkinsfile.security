@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Secret Scanning') {
+            steps {
+                configFileProvider([
+                    configFile(fileId: 'global-secret-scanner', targetLocation: 'scan_secrets.sh')
+                ]) {
+                    echo '=========================================='
+                    echo 'Ejecutando escáner de seguridad previo...'
+                    echo '=========================================='
+                    sh '''
+                        chmod +x ./scan_secrets.sh
+                        ./scan_secrets.sh serviciosstd_ws/ --strict
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
+                }
+            }
+        }
+        
+        stage('Trigger Build Pipeline') {
+            steps {
+                echo '¡Seguridad aprobada! Disparando el pipeline de compilación...'
+                // Reemplaza 'Jenkins-Complete-CICD-Pipeline' por el nombre exacto de tu segundo pipeline
+                build job: 'Jenkins-Complete-CICD-Pipeline', wait: false
+            }
+        }
+    }
+}
