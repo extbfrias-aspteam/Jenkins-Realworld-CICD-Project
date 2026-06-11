@@ -24,8 +24,11 @@ pipeline {
         stage('Build') {
             steps {
                 dir('serviciosstd_ws') {
+                    configFileProvider([configFile(fileId: 'maven-local-repo', variable: 'MAVEN_SETTINGS')]) {
                     // Forzamos a Maven a ignorar la validación estricta de SSL
-                    sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
+                    sh 'mvn clean package -s $MAVEN_SETTINGS -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
+                    //sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
+                    }
                 }
             }
             post {
