@@ -17,7 +17,7 @@ pipeline {
     }
     tools {
         maven 'localMaven'
-        jdk 'localJdk8'
+        jdk 'JDK-21'
     }
     
     stages {
@@ -78,7 +78,7 @@ pipeline {
         stage('SonarQube Inspection') {
             tools {
                 // Jenkins usará el instalador automático de JDK 11 configurado para el scanner
-                jdk 'jdk11' 
+                jdk 'JDK-21' 
             }
             steps {
                 dir('serviciosstd_ws') {
