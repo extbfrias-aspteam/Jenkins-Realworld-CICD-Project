@@ -12,17 +12,17 @@
 	<bean id="actualizarAllTokenPStd" class="java.lang.String">
 		<constructor-arg type="java.lang.String"
 						 value="UPDATE BLU.BLALMACEN_TOKEN SET
-			       ESTADO_TOKEN = 'I', 
+			       ESTADO_TOKEN = INJECTED_BY_JENKINS
 			       USUARIO_MODIFICACION = ?,
 			       FECHA_MODIFICACION = CURRENT_TIMESTAMP
-			       WHERE ESTADO_TOKEN = 'A'
+			       WHERE ESTADO_TOKEN = INJECTED_BY_JENKINS
 			       "/>
 	</bean>
 
 	<bean id="actualizarTokenPStd" class="java.lang.String">
 		<constructor-arg type="java.lang.String"
 						 value="UPDATE BLU.BLALMACEN_TOKEN SET
-			       ESTADO_TOKEN = ?, 
+			       ESTADO_TOKEN = INJECTED_BY_JENKINS
 			       USUARIO_MODIFICACION = ?,
 			       FECHA_MODIFICACION = CURRENT_TIMESTAMP
 			       WHERE TRUE 
@@ -39,7 +39,7 @@
 				   ESTADO_TOKEN
 			       FROM BLU.BLALMACEN_TOKEN
 			       WHERE TRUE 
-			       AND ESTADO_TOKEN = ?
+			       AND ESTADO_TOKEN = INJECTED_BY_JENKINS
 			       ORDER BY FECHA_CREACION DESC, ESTADO_TOKEN DESC
 			       LIMIT 1"/>
 	</bean>

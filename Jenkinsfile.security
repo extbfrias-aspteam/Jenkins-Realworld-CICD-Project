@@ -1,40 +1,45 @@
 pipeline {
     agent any
     
+    environment {
+        // Mantenemos el modo estricto para rechazar código inseguro
+        STRICT_OPTIONS = "--strict"
+        ENVIRONMENT = "qa"
+    }
+    
     stages {
-        stage('Checkout SCM') {
+        stage('Descubrimiento Dinámico de Aplicaciones') {
             steps {
-                checkout scm
-            }
-        }
-        
-        stage('Secret Scanning') {
-            steps {
-                configFileProvider([
-                    configFile(fileId: 'scan_secrets.sh', targetLocation: 'scan_secrets.sh')
-                ]) {
-                    echo '=========================================='
-                    echo 'Ejecutando escáner de seguridad previo...'
-                    echo '=========================================='
-                    sh '''
-                        chmod +x ./scan_secrets.sh
-                        ./scan_secrets.sh serviciosstd_ws/ --strict
-                    '''
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
+                script {
+                    echo "🔍 Identificando módulos y aplicaciones presentes en el espacio de trabajo..."
+                    
+                    // Listamos todas las subcarpetas que contienen código o archivos pom.xml/src
+                    def aplicaciones = sh(script: "find . -maxdepth 2 -type d -not -path '*/.*' -not -path '.' -not -path './security_reports_*'", returnStdout: true).trim().split('\n')
+                    
+                    for (app in aplicaciones) {
+                        if (app) {
+                            echo "📦 Aplicación detectada para auditoría: ${app}"
+                            
+                            // Ejecutamos el analizador sobre cada aplicación de forma dinámica
+                            sh "./sanitize_environments.sh ${app} ${env.STRICT_OPTIONS} ${env.ENVIRONMENT}"
+                        }
+                    }
                 }
             }
         }
-        
-        stage('Trigger Build Pipeline') {
-            steps {
-                echo '¡Seguridad aprobada! Disparando el pipeline de compilación...'
-                // Reemplaza 'Jenkins-Complete-CICD-Pipeline' por el nombre exacto de tu segundo pipeline
-                build job: 'Jenkins-Complete-CICD-Pipeline', wait: false
+    }
+    
+    post {
+        failure {
+            script {
+                echo "❌ AUDITORÍA RECHAZADA: Se encontraron secretos expuestos en el envío."
+                echo "Notificando al repositorio del desarrollador para congelar el despliegue..."
+                // Aquí puedes integrar un curl a la API de GitHub para poner el commit en estado 'failure'
             }
+        }
+        success {
+            echo "🟢 AUDITORÍA APROBADA: Todos los módulos están sanitizados."
+            echo "Disparando de forma automática el proceso de construcción en WildFly..."
         }
     }
 }

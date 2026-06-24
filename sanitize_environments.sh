@@ -2,11 +2,12 @@
 
 # =================================================================
 # Script: sanitize_environments.sh
-# Objetivo: Detectar, segmentar y limpiar archivos de propiedades
+# Objetivo: Detectar, extraer y limpiar credenciales en archivos de config
+# Compatible con: Git Bash (Windows) y Linux (Docker/Jenkins)
 # =================================================================
 
 TARGET_DIR=${1:-"serviciosstd_ws"}
-STRICT_MODE=$2 # --strict para romper el pipeline
+STRICT_MODE=$2 # --strict para romper el pipeline si encuentra algo
 ENVIRONMENT=${3:-"qa"} # ambiente por defecto
 
 REPORT_DIR="security_reports_${ENVIRONMENT}"
@@ -16,48 +17,44 @@ echo "=========================================================="
 echo " Iniciando Auditoría y Sanitización para Ambiente: ${ENVIRONMENT^^}"
 echo "=========================================================="
 
-# 1. Buscar archivos de configuración candidatos
+# 1. Buscar archivos de configuración candidatos (Compatibilidad Universal)
 echo "1. Identificando archivos de propiedades y configuración..."
-CONFIG_FILES=$(find "$TARGET_DIR" -type f \( -name "*.properties" -o -name "*.xml" -o -name "*.yml" -o -name "*.yaml" \))
+CONFIG_FILES=$(find "$TARGET_DIR" -type f -name "*.properties" && find "$TARGET_DIR" -type f -name "*.xml")
 
 if [ -z "$CONFIG_FILES" ]; then
-    echo "INFO: No se encontraron archivos de configuración para analizar."
-    exit 0
+    echo "⚠️ ERROR: No se encontraron archivos para analizar en la ruta '$TARGET_DIR'."
+    exit 1
 fi
 
 SECRETS_FOUND=0
 TEMP_REPORT="${REPORT_DIR}/extracted_secrets.txt"
 echo "--- Secretos Extraídos para Resguardo ($ENVIRONMENT) ---" > "$TEMP_REPORT"
 
-# Patrones regex para detectar datos reales vs plantillas vacías
-# Evita alertar si el valor ya es una variable como ${VAR} o TO_BE_INJECTED
-REGEX_SUSPICIOUS="(password|pass|secret|key|user|token|credentials|pwd)\s*=\s*(?!(\\\$\{[A-Za-z0-9_-]+\}|[A-Z0-9_-]+_BY_JENKINS)).*"
+# Expresión regular limpia: Busca claves comunes seguidas de un '=' y texto plano real
+REGEX_SUSPICIOUS="(password|pass|secret|key|user|token|credentials|pwd)\s*=\s*[^$\s]+"
 
 # 2. Analizar archivo por archivo
 for FILE in $CONFIG_FILES; do
-    # Buscamos si el archivo contiene asignaciones sospechosas reales
-    MATCHES=$(grep -E -i "$REGEX_SUSPICIOUS" "$FILE")
+    # Filtramos para ignorar si el valor ya está tokenizado (INJECTED_BY_JENKINS, etc.)
+    MATCHES=$(grep -E -i "$REGEX_SUSPICIOUS" "$FILE" | grep -v -E "INJECTED_BY_JENKINS|VALOR_SEGURO|\{")
     
     if [ -n "$MATCHES" ]; then
         echo "⚠️ ALERTA: Datos sensibles detectados en: $FILE"
         SECRETS_FOUND=1
         
-        # Almacenamos el hallazgo para resguardo de la gerencia/Vault
+        # Guardamos el hallazgo en el reporte de la gerencia antes de borrarlo
         echo "Archivo: $FILE" >> "$TEMP_REPORT"
         echo "$MATCHES" >> "$TEMP_REPORT"
         echo "--------------------------------------" >> "$TEMP_REPORT"
         
-        # 3. EXTRAER Y SANITIZAR (Dejar solo la estructura/plantilla)
-        echo "🧼 Sanitizando archivo $FILE en caliente para el proceso CI/CD..."
-        
-        # Este comando reemplaza el valor real por un Token genérico del ambiente
-        # Ejemplo: PASS_Std = password  ->  PASS_Std = INJECTED_BY_JENKINS
+        # 3. ACCIÓN EN CALIENTE: "Limpiar" el archivo original
+        # Reemplaza el valor real (ej: 'password') por 'INJECTED_BY_JENKINS'
         sed -i -E "s/((password|pass|secret|key|user|token|pwd)\s*=\s*).*/\1INJECTED_BY_JENKINS/gI" "$FILE"
     fi
 done
 
 # =================================================================
-# 4. Evaluación del Filtro de Seguridad (Gatekeeper)
+# 4. Resumen y Decisiones del Pipeline
 # =================================================================
 echo "=========================================================="
 echo " Resumen de Sanitización"
@@ -66,13 +63,13 @@ echo "=========================================================="
 if [ "$SECRETS_FOUND" -eq 1 ]; then
     echo "❌ Se encontraron archivos con datos sensibles expuestos."
     echo "📋 Los secretos fueron extraídos y resguardados en: $TEMP_REPORT"
-    echo "💡 Los archivos originales en el workspace han sido limpiados temporalmente."
+    echo "🧼 Los archivos en el espacio de trabajo han sido LIMPIADOS (ahora son plantillas)."
     
     if [ "$STRICT_MODE" == "--strict" ]; then
-        echo "⛔ MODE STRICT: Abortando pipeline. Corrige tu repositorio de Git antes de continuar."
+        echo "⛔ MODO ESTRICTO: Abortando pipeline para proteger la infraestructura."
         exit 1
     else
-        echo "⚠️ MODE WARNING: Archivos limpiados en memoria. Permitido continuar."
+        echo "⚠️ MODO ADVERTENCIA: Archivos sanitizados en memoria. Permitido continuar."
         exit 0
     fi
 else
