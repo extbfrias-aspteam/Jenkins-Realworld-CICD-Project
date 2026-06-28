@@ -17,7 +17,7 @@ pipeline {
     }
     tools {
         maven 'localMaven'
-        jdk 'localjdk'
+        jdk 'JDK-1.8'
     }
     
     stages {
@@ -88,7 +88,7 @@ pipeline {
                             // para evitar el fallo con las librerías javax.xml (SOAP) bajo Java 11
                             sh """
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=ASP-POC \
+                            -Dsonar.projectKey=JavaWebApp-Project \
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.scm.provider=git \
                             -Dsonar.login=$SONAR_TOKEN
