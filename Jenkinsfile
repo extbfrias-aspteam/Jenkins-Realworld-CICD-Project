@@ -84,14 +84,13 @@ pipeline {
                 dir('serviciosstd_ws') {
                     withSonarQubeEnv('SonarQube') { 
                         withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
-                            // CORRECCIÓN: Ejecutamos el scanner directo sin "clean verify" 
-                            // para evitar el fallo con las librerías javax.xml (SOAP) bajo Java 11
+                            // CORRECCIÓN: Usamos la variable $SONAR_TOKEN limpia y la URL pública correcta
                             sh """
                             mvn sonar:sonar \
                             -Dsonar.projectKey=JavaWebApp-Project \
-                            -Dsonar.host.url=http://sonarqube:9000 \
+                            -Dsonar.host.url=https://sonar.kappa4.com \
                             -Dsonar.scm.provider=git \
-                            -Dsonar.login=$SonarQube-Token
+                            -Dsonar.login=${SONAR_TOKEN}
                             """
                         }
                     }
