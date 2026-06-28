@@ -100,13 +100,15 @@ pipeline {
         
         stage('SonarQube Quality Gate') {
             steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    script {
-                        // Espera el Webhook de SonarQube y aborta si no pasa las métricas
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            currentBuild.result = 'FAILURE'
-                            error "Pipeline abortado: El código no pasó el Quality Gate de SonarQube. Estado: ${qg.status}"
+                // Entramos al mismo subdirectorio para encontrar el archivo 'report-task.txt'
+                dir('serviciosstd_ws') {
+                    timeout(time: 1, unit: 'HOURS') {
+                        script {
+                            def qg = waitForQualityGate()
+                            if (qg.status != 'OK') {
+                                currentBuild.result = 'FAILURE'
+                                error "Pipeline abortado: El código no pasó el Quality Gate de SonarQube. Estado: ${qg.status}"
+                            }
                         }
                     }
                 }
