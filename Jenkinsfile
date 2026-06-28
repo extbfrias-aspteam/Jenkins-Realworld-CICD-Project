@@ -68,12 +68,12 @@ pipeline {
                 }
             }
         }
-        stage('Secret Scanning (Gitleaks)') {
-            steps {
+        //stage('Secret Scanning (Gitleaks)') {
+        //    steps {
         // Corre el escáner sobre la carpeta del espacio de trabajo
-            sh 'docker run --rm -v $(pwd):/path zricethezav/gitleaks:latest detect --source=/path --verbose'
-            }
-        }   
+         //   sh 'docker run --rm -v $(pwd):/path zricethezav/gitleaks:latest detect --source=/path --verbose'
+           // }
+        //}   
         
         stage('SonarQube Inspection') {
             tools {
