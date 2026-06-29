@@ -35,14 +35,14 @@ pipeline {
                 success {
                     echo ' now Archiving '
                     // nnnnBusca los entregables dentro de la subcarpeta de forma correcta
-                    archiveArtifacts artifacts: 'ProcesaRendimientosCero/target/*.war'
+                    archiveArtifacts artifacts: 'serviciosstd_ws/target/*.war'
                 }
             }
         }
         
         stage('Unit Test'){
             steps {
-                dir('ProcesaRendimientosCero') {
+                dir('serviciosstd_ws') {
                     sh 'mvn test'
                 }
             }
@@ -50,7 +50,7 @@ pipeline {
         
         stage('Integration Test'){
             steps {
-                dir('ProcesaRendimientosCero') {
+                dir('serviciosstd_ws') {
                     sh 'mvn verify -DskipUnitTests'
                 }
             }
@@ -58,7 +58,7 @@ pipeline {
         
         stage ('Checkstyle Code Analysis'){
             steps {
-                dir('ProcesaRendimientosCero') {
+                dir('serviciosstd_ws') {
                     sh 'mvn checkstyle:checkstyle'
                 }
             }
