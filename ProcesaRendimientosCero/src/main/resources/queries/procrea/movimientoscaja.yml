@@ -1,0 +1,13 @@
+saldo:
+  actualizarAhorroSaldos: "update ahorro_saldos 
+                           set fecha_deposito = :pp_fecha, fecha_corte = :pp_feccalc, intereses = 0, iva = 0, isr = 0, retenciones = 0, desviacion = 0, 
+                           dias = 0, ide = 0 where cuenta= :cuentaInversion;"
+ahorro_avisos_retiro:
+  actualizaAvisoRetiro: "update ahorro_avisos_retiro 
+                         set estatus = 'X' where estatus != 'E' and cuenta = :pp_cuenta and fecha_retiro <= :pp_fecha;"
+
+funciones:
+  ahorroTransferencia: "select ahorro_transferencia(:cuenta_ori, :cuenta_des, :fecha, :monto, :usuario);"
+
+  cajaDepositoAhorro: "select caja_depositoahorro(:pcaja, :pfecha, :puser, :pcuenta, :pmonto, :pformapago, :pbanco, :pobs, :pcheque, :pmovto, 
+                       :ptransaccion_id, :ptarjeta_operativa_id, :papp, :ptransaccion_version_id, :p_para_conciliar, :p_fecha_deposito);"

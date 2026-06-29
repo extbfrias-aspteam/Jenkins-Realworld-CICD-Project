@@ -1,0 +1,10 @@
+ahorro_contrato:
+  actualizarEstatusAhorroContratoByCuenta: "update ahorro_contrato set estatus = 'C' where cuenta = :p_cuenta;"
+
+ahorro_rendimiento_vigente:
+  actualizarEstatusAhorroRendimientoVigente: "update ahorro_rendimiento_vigente 
+                                              set estatus= 'V' where rendimiento_vigente_id  = :idRendVig;"
+
+  actualizarInteresAhorroRendimientoVigente: "update ahorro_rendimiento_vigente 
+                                              set interes = ahorro_int_aplazo_proyecta_constancia(cuenta) 
+                                              where estatus ='A' and cuenta = :cuentaInversion;"
