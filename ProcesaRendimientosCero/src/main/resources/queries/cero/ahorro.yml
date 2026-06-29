@@ -1,0 +1,14 @@
+ahtraspasos_cuentas:
+  grabarTraspasoCuentas: "insert into ahorro.ahtraspasos_cuentas 
+                          (id, tipo_trasp, cuenta_ori, cuenta_dest, id_retiro, id_deposito, fecha, monto, fecha_creacion, usuario_creacion)
+                          values (:id, :tipo_trasp, :cuenta_ori, :cuenta_dest, :id_retiro, :id_deposito, now(), :monto, now(), 9);"
+
+secuencias:
+  sigSecTraspasoCuentas: "select nextval('ahorro.ahtraspasos_cuentas_id_seq') as id;"
+
+ahorro_log_proceso_rendimiento:
+  insertarLogProcesoRendimiento: "insert into ahorro.ahorro_log_proceso_rendimiento (
+                                  cuenta_inversion, cuenta_padre, proceso, resultado, mensaje,
+                                  usuario_creacion, fecha_creacion, usuario_modificacion, fecha_modificacion) values (
+                                  :cuenta_inversion, :cuenta_padre, :proceso, :resultado, :mensaje,
+                                  :usuario_creacion, :fecha_creacion, :usuario_modificacion, :fecha_modificacion);"

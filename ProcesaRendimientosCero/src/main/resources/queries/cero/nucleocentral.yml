@@ -1,0 +1,10 @@
+ncposicionglobalah:
+  obtenerCuentaPosicionGlobalByCuentaAh: "select pg.tipocuentaah, pg.cuentaah, pg.cuenta_clabe, pg.idpersona, coalesce(cc.cuenta, '') as cuenta_pago,
+                                          coalesce(cc2.cuenta, '') as cuenta_cobro, pg.estatusah,
+                                          coalesce(pg.tarjeta_principal, '') as tarjeta_principal,
+                                          coalesce(pg.tarjeta_adicional, '') as tarjeta_adicional
+                                          from nucleocentral.ncposicionglobalah  pg
+                                          left join codi.registro_codi rc on rc.cuenta = pg.cuentaah 
+                                          left join codi.cuentas_codi cc on cc.tipo_cuenta_codi_id = 1 and cc.registro_codi_id = rc.id
+                                          left join codi.cuentas_codi cc2 on cc2.tipo_cuenta_id = 2 and cc2.registro_codi_id = rc.id
+                                          where pg.cuentaah = :cuentaah;"

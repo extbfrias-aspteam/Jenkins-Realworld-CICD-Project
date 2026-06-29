@@ -1,0 +1,22 @@
+ahorro_conceptos:
+  obtenerConceptoCuentaByClave: "select aco.id, aco.valor from ahorro_contrato ac
+                                 join ahorro_conceptos aco on aco.ahorro_contrato_id = ac.ahorro_contrato_id 
+                                 join cat_conceptos cc on cc.id = aco.cat_conceptos_id 
+                                 where ac.cuenta = :cuentaah and cc.clave = :clave;"
+
+  guardarConceptoCuenta: "insert into ahorro_conceptos
+                          (ahorro_contrato_id, cat_conceptos_id, valor, usuario_creacion, fecha_creacion)
+                          (select ac.ahorro_contrato_id, cc.id as cat_conceptos_id, :valor as valor, 9 as usuario_creacion, 
+                          now() as fecha_creacion from cat_conceptos cc
+                          cross join ahorro_contrato ac
+                          where cc.clave = :clave
+                          and ac.cuenta = :cuentaah);"
+
+  actualizarValorConceptoCuentaById: "update ahorro_conceptos set valor = :valor where id = :id;"
+
+  obtenerListadoConceptosInversionProcreaByCuentaAh: "select cc.clave, aco.id from ahorro_contrato ac
+                                                      join ahorro_conceptos aco on aco.ahorro_contrato_id = ac.ahorro_contrato_id 
+                                                      join cat_conceptos cc on cc.id = aco.cat_conceptos_id 
+                                                      where ac.solicitante_id = :personaId
+                                                      and ac.cuenta = :cuentaah
+                                                      and cc.clave in (:claves);"

@@ -1,0 +1,33 @@
+name: Sync desde QA-repo
+
+on:
+  repository_dispatch:
+    types: [qa-main-updated]  # evento personalizado que enviará QA-repo
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch desarrollo
+        uses: actions/checkout@v4
+        with:
+          ref: desarrollo
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configurar git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Agregar remote QA y sincronizar
+        run: |
+          git remote add qa https://github.com/benjaminjufr-star/QA-repo.git || true
+          git fetch qa main
+          git reset --hard qa/main
+          git push origin desarrollo --force-with-lease
+
+      - name: Resumen del sync
+        run: |
+          echo "✅ Branch 'desarrollo' sincronizado con QA-repo/main"
+          echo "Último commit: $(git log -1 --oneline)"
