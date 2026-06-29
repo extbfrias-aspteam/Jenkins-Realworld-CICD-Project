@@ -1,0 +1,140 @@
+ahorro_rendimientos_cero:
+  obtenerColaRendimientos: "select id, cuenta_inv, cuenta_des, idmov, monto, fecha_rend, estatus
+                            from ahorro_rendimientos_cero 
+                            where estatus = :estatus
+                            order by id asc;"
+
+  actualizaEstatusRendimientoPendById: "update ahorro_rendimientos_cero set estatus = :estatus where id = :id;"
+
+ahorro_reinversiones_cero:
+  obtenerColaReinversiones: "select id, cuenta_inv, cuenta_padre, fecha_plazo, pp_feccalc, estatus
+                             from ahorro_reinversiones_cero 
+                             where estatus = :estatus
+                             order by id asc;"
+
+  actualizaEstatusReinversionPendById: "update ahorro_reinversiones_cero set estatus = :estatus where id = :id;"
+
+plazos:
+  obtenerPorcentajesByPlazo: "select distinct on(arr.plazo)
+                              arr2.porcentaje, arr2.porcentaje_mensual, arr.rendimiento_id
+                              from ahorro_rendimiento arr
+                              join ahorro_rangos_rendimiento arr2 on arr.rendimiento_id = arr2.rendimiento_id
+                              where arr.plazo in (:plazo) 
+                              and arr.tipo_ahorro_id = 1 and arr.estatus = 1
+                              order by arr.plazo, arr2.monto_min;"
+
+modalidades:
+  obtenerModalidadByTipoId: "select acr.tipo_id, acr.descripcion, acr.monto_min, acr.monto_max
+                             from ahorro_capitalizar_rendimientos acr 
+                             where acr.rendimiento_id = 1 and acr.tipo_id in (:tipo_id);"
+
+inversiones:
+  obtenerDetalleInversionByCuenta: "select arv.rendimiento_vigente_id, ac.ahorro_contrato_id, ac.cuenta_padre, ac.cuenta as cuenta_inversion, ac.cuenta_padre,
+                                    coalesce(acc.valor, 'Inversión CTA. '|| ac.cuenta) as titulo,
+                                    arv.plazo, arv.tasa_int, arv.tipo_capitalizar_id as tipo_modalidad_id, arv.capital, arv.fecha_inicio, arv.fecha_final,
+                                    case 
+                                        when arv.tipo_capitalizar_id = 2 then 'Retiro cada 30 días'
+                                        when arv.tipo_capitalizar_id = 4 then 'Retiro al finalizar el plazo'
+                                    end as desc_modalidad,
+                                    case
+                                        when anr.cuenta is not null then false
+                                        else true
+                                    end as reinvertir
+                                    from ahorro_rendimiento_vigente arv 
+                                    join ahorro_contrato ac on ac.cuenta = arv.cuenta
+                                    left join (
+                                        select ac2.ahorro_contrato_id, ac2.valor
+                                        from ahorro_conceptos ac2
+                                        join cat_conceptos cc2 ON ac2.cat_conceptos_id = cc2.id
+                                        where cc2.clave = 'NOM_INVERSION'
+                                    ) acc on acc.ahorro_contrato_id = ac.ahorro_contrato_id
+                                    left join ahorro_no_reinvertir anr on ac.cuenta = anr.cuenta
+                                    where arv.estatus = 'A' and ac.tipo_ahorro_id = 1 
+                                    and ac.cuenta = :cuentaInversion;"
+
+  obtenerInversionesActivas: "select arv.rendimiento_vigente_id, ac.ahorro_contrato_id, ac.cuenta_padre, ac.cuenta as cuenta_inversion, ac.cuenta_padre,
+                              coalesce(acc.valor, 'Inversión CTA. '|| ac.cuenta) as titulo,
+                              arv.plazo, arv.tasa_int, arv.tipo_capitalizar_id as tipo_modalidad_id, arv.capital, arv.fecha_inicio, arv.fecha_final,
+                              case 
+                                  when arv.tipo_capitalizar_id = 2 then 'Retiro cada 30 días'
+                                  when arv.tipo_capitalizar_id = 4 then 'Retiro al finalizar el plazo'
+                              end as desc_modalidad,
+                              case
+                                  when anr.cuenta is not null then false
+                                  else true
+                              end as reinvertir
+                              from ahorro_rendimiento_vigente arv 
+                              join ahorro_contrato ac on ac.cuenta = arv.cuenta
+                              left join (
+                                  select ac2.ahorro_contrato_id, ac2.valor
+                                  from ahorro_conceptos ac2
+                                  join cat_conceptos cc2 ON ac2.cat_conceptos_id = cc2.id
+                                  where cc2.clave = 'NOM_INVERSION'
+                              ) acc on acc.ahorro_contrato_id = ac.ahorro_contrato_id
+                              left join ahorro_no_reinvertir anr on ac.cuenta = anr.cuenta
+                              where arv.estatus = 'A' and ac.tipo_ahorro_id = 1 
+                              and arv.fecha_final = CURRENT_DATE;"
+
+  existeNoReinvertirByCuenta: "select exists(select 1 from ahorro_no_reinvertir where cuenta = :cuentaInversion);"
+
+  insertaAhorroNoReinvertirByCuenta: "insert into ahorro_no_reinvertir 
+                                      (cuenta, observaciones, motivo_id, fecha_creacion, creado_por) 
+                                      values (:cuenta, :observaciones, :motivoId, :fechaCreacion, :usuarioCreacion);"
+
+  actualizarAhorroDatosReinversionByCuenta: "update ahorro_datos_reinversion 
+                                             set activo = false, fecha_modificacion = :fechaModificacion, usuario_modificacion = :usuarioModificacion
+                                             where cuenta_inversion = :cuentaInversion and activo = true;"
+
+  obtenerDatosReinversionByCuenta: "select id_tipo_reinvertir, cuenta_inversion, capital_reinvertir, titulo_reinversion,
+                                    tipo_cuenta_padre, activo
+                                    from ahorro_datos_reinversion 
+                                    where cuenta_inversion = :cuentaInversion and activo = true;"
+
+  obtenerInversionesVencidasByCuentaInv: "select count(cuenta) from ahorro_rendimiento_vigente 
+                                          where cuenta = :cuentaInversion and estatus = 'V';"
+
+bitacora:
+  registraBitacoraInversiones: "insert into bitacora_inversiones
+                                (valor_referencia, clave_cat_eventos_bit, tipo_referencia, observaciones, codigo, usuario_creacion, fecha_creacion, id_proceso_bitacora) values
+                                (:valor_referencia, :clave_cat_eventos_bit, :tipo_referencia, :observaciones, :codigo, 9, now(), :idProcesoBit) returning id;"
+
+  actualizaIdBitacoraInversiones: "update bitacora_inversiones 
+                                   set id_proceso_bitacora = :idProcesoBit
+                                   where id = :id;"
+
+ahorro_rendimiento_vigente:
+  registrarAhorroRendimientoVigente: "insert into ahorro_rendimiento_vigente (rendimiento_vigente_id, cuenta, tipo_ahorro_id, periodicidad, plazo, tipo_tasa, calculo_iva, 
+                                      tasa_int, tasa_id,
+                                      base, formula, tipo_corte, deposito, num_dias, dias_gracia, cta_contable, vigencia_desde, vigencia_hasta, condiciones_retiros,
+                                      condiciones_apertura, creado_por, fecha_creacion, modificado_por, fecha_modificacion, 
+                                      rendimiento_id, gat, tipo_capitalizar_id,
+                                      no_disposicion, estatus, tipo, capital, fecha_inicio, fecha_final, interes)
+                                      select nextval('ahorro_rendimiento_vigente_seq'), :pp_cuenta, tipo_ahorro_id, periodicidad, :vplazo_nuevo, tipo_tasa, calculo_iva, 
+                                      :vtasa_nuevo, :vvtasa_id, base,
+                                      formula, tipo_corte, deposito, num_dias, dias_gracia, cta_contable, vigencia_desde, vigencia_hasta, condiciones_retiros,
+                                      condiciones_apertura, :pp_usuario, current_timestamp, :pp_usuario, current_timestamp, 
+                                      COALESCE(:vrendimiento, rendimiento_id), gat, tipo_capitalizar_id,
+                                      :vdisposicion, 'A', :pp_tipo, :v_mtoreinversion, :pp_feccalc, :v_fecfinal, 0 
+                                      from ahorro_rendimiento_vigente where rendimiento_vigente_id  = :vid_ren;"
+
+ahorro_edocuenta:
+  insertarEdoCuenta: "insert into ahorro_edocuenta (
+                      cuenta, saldo_real, saldo_promedio, saldo_acumulado, iva, isr, retenciones, ide, dias, mes, anio, saldo_disponible,
+                      fecha_creacion, intereses, fecha_corte) values (
+                      :cuenta, :saldoReal, :saldoPromedio, :saldoAcumulado, 0, 0, 0, 0,
+                      :dias, :mes, :anio, :saldoDisponible, CURRENT_TIMESTAMP, 0, :fechaCorte);"
+
+ahorro_saldos:
+  obtenerSaldoRealByCuenta : "select saldo_real from ahorro_saldos where cuenta = :cuentaInversion;"
+
+funciones:
+  simulaInversion: "select simulacion_amortizacion(:monto::float8, :tasa::float8, :plazo::float8,
+                    :tipoModalidadId::int, :base::float8, current_timestamp::date) as resultado;"
+
+  obtenerCuentaSiguiente: "select ahorro_cuenta_siguiente(:cuentaPadre) as resultado;"
+
+  copiarRendimiento: "select ahorro_copiar_rendimiento(:cuentaInversion, :rendimientoId, :interesRendimiento, :usuarioId, :montoApertura);"
+
+  generaReferencia: "select ahorro_genera_referencia(:cuentaInversion, :usuarioId, :cveSucursal) as resultado;"
+
+  obtenerDiaHabil: "select dia_habil(:fechaBase, :tipo) as fecha_resultado"

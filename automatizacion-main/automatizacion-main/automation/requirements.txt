@@ -1,4 +1,0 @@
-requests
-paramiko
-python-dotenv
-boto3

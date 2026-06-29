@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="bitacoraLogStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO NUCLEOCENTRAL.NCBITACORA (TIPO_BITACORA_ID, DATO, OBSERVACIONES, USUARIO_CREACION, FECHA_CREACION)
+					VALUES(	COALESCE((SELECT ID FROM NUCLEOCENTRAL.NCTIPOS_BITACORA WHERE CLAVE = ? LIMIT 1),0), ?, ?, ?, CURRENT_TIMESTAMP)"/>
+	</bean>
+	
+	<bean id="bitacoraTraStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORROAHORRO.AHINFRAESTRUCURA_TERCEROS (
+		     					TIPO_TRANSACCION_ID, PROCESO_ID, PROCESO, CUENTA_ORD, CUENTA_DES, CLAVE_RASTREO, ESTATUS_OPERACION_ID,
+			 					FECHA, MONTO, OBSERVACIONES, DATOS, USUARIO_CREACION, FECHA_CREACION )
+					VALUES( ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, CURRENT_TIMESTAMP )"/>
+	</bean>
+	
+	<bean id="BitacoraLogStdDAO" class="net.std.dao.BitacoraLogStdDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="bitacoraLogStd" ref="bitacoraLogStd"/>
+		<property name="bitacoraTraStd" ref="bitacoraTraStd"/>
+	</bean>
+	
+</beans>

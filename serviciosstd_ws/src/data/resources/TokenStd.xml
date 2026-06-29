@@ -1,0 +1,55 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="insertarTokenPStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="INSERT INTO BLU.BLALMACEN_TOKEN( CLAVE, VALOR, FECHA, TOKEN, ESTADO_TOKEN, USUARIO_CREACION, FECHA_CREACION )
+			       VALUES (?, ?, CURRENT_DATE, ?, ?, ?, CURRENT_TIMESTAMP)"/>
+	</bean>
+
+	<bean id="actualizarAllTokenPStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="UPDATE BLU.BLALMACEN_TOKEN SET
+			       ESTADO_TOKEN = INJECTED_BY_JENKINS
+			       USUARIO_MODIFICACION = ?,
+			       FECHA_MODIFICACION = CURRENT_TIMESTAMP
+			       WHERE ESTADO_TOKEN = INJECTED_BY_JENKINS
+			       "/>
+	</bean>
+
+	<bean id="actualizarTokenPStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="UPDATE BLU.BLALMACEN_TOKEN SET
+			       ESTADO_TOKEN = INJECTED_BY_JENKINS
+			       USUARIO_MODIFICACION = ?,
+			       FECHA_MODIFICACION = CURRENT_TIMESTAMP
+			       WHERE TRUE 
+			       AND CASE WHEN TRUE = ? THEN TRUE ELSE FECHA = CAST(? AS DATE) END"/>
+	</bean>
+
+	<bean id="TokenPStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT
+			       CLAVE,
+			       VALOR,
+				   TO_CHAR(FECHA, 'YYYY-MM-DD') AS FECHA, 
+				   TOKEN, 
+				   ESTADO_TOKEN
+			       FROM BLU.BLALMACEN_TOKEN
+			       WHERE TRUE 
+			       AND ESTADO_TOKEN = INJECTED_BY_JENKINS
+			       ORDER BY FECHA_CREACION DESC, ESTADO_TOKEN DESC
+			       LIMIT 1"/>
+	</bean>
+
+	<bean id="TokenStdDAO" class="net.std.dao.TokenStdDAO">
+		<property name="jdbcTemplateSti" ref="jdbcTemplateSti"/>
+		<property name="insertarTokenPStd" ref="insertarTokenPStd"/>
+		<property name="actualizarTokenPStd" ref="actualizarTokenPStd"/>
+		<property name="actualizarAllTokenPStd" ref="actualizarAllTokenPStd"/>
+		<property name="TokenPStd" ref="TokenPStd"/>
+	</bean>
+
+</beans>

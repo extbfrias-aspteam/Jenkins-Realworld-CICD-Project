@@ -1,0 +1,147 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="INSERT_ExpedienteCeroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORRO.AHEXPEDIENTE( CUENTA_ID, DOCUMENTOS_AHORRO_ID, RUTA_ALFRESCO, ID_ARCHIVO_ALFRESCO,
+						                            OBSERVACIONES, NOMBRE, FECHA_EXPEDICION, FECHA_VIGENCIA, ESTATUS_ID, 
+						                            USUARIO_CREACION, FECHA_CREACION )
+					VALUES (?, ?, ?, ?, ?, ?, CAST(? AS DATE), CAST(? AS DATE), ?, ?, CURRENT_TIMESTAMP)"/>
+	</bean>
+	
+	<bean id="READ_ExpedienteCeroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					EX.ID,
+					EX.CUENTA_ID,
+					CT.CUENTA,
+					TO_CHAR(CT.FECHA_APERTURA, 'YYYY-MM-DD') AS FECHA_APERTURA,
+					EX.DOCUMENTOS_AHORRO_ID,
+					DC.CLAVE AS CVE_DOCUMENTO,
+					DC.DESCRIPCION AS DOCUMENTO,
+					EX.RUTA_ALFRESCO,
+					EX.ID_ARCHIVO_ALFRESCO,
+					EX.OBSERVACIONES,
+					EX.NOMBRE AS NOMBRE_ARCHIVO,
+					TO_CHAR(EX.FECHA_EXPEDICION, 'YYYY-MM-DD') AS FECHA_EXPEDICION,
+					TO_CHAR(EX.FECHA_VIGENCIA, 'YYYY-MM-DD') AS FECHA_VIGENCIA,
+					EX.ESTATUS_ID,
+					ES.DESCRIPCION AS ESTATUS,
+					EX.VERIFICADO,
+					TO_CHAR(EX.FECHA_VERIFICADO, 'YYYY-MM-DD') AS FECHA_VERIFICADO
+					FROM  AHORRO.AHEXPEDIENTE EX
+					LEFT JOIN AHORRO.AHCUENTAS CT ON CT.ID = EX.CUENTA_ID
+					LEFT JOIN NUCLEOCENTRAL.NCESTATUS ES ON ES.ID = EX.ESTATUS_ID
+					LEFT JOIN NUCLEOCENTRAL.NCDOCUMENTOS DC ON DC.ID = EX.DOCUMENTOS_AHORRO_ID 
+					WHERE EX.CUENTA_ID = ?
+					AND EX.ESTATUS_ID NOT IN (SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'BAJA' LIMIT 1)"/>
+	</bean>
+	
+	<bean id="UPDATE_ExpedienteCeroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.AHEXPEDIENTE SET
+					ESTATUS_ID = ?
+					WHERE CUENTA_ID =  ? 
+					AND DOCUMENTOS_AHORRO_ID = ?"/>
+	</bean>
+	
+	<bean id="UPDATE_VerificadoCeroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.AHEXPEDIENTE SET
+					OBSERVACIONES = OBSERVACIONES ||' '|| ?,
+					VERIFICADO = ?,
+					FECHA_VERIFICADO = CAST(? AS DATE)
+					WHERE ID = ? AND CUENTA_ID = ?"/> 
+	</bean>
+	
+	<bean id="INSERT_CuentaRefExpedienteCeroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO AHORRO.ahcuentas_referenciadas_expediente( 
+						SOLICITANTE_ID, 
+						CUENTA_REFERENCIA_ID, 
+						DOCUMENTOS_ID, 
+						RUTA_ARCHIVO, NOMBRE_ARCHIVO,
+						FECHA_EXPEDICION, FECHA_VIGENCIA, 
+						ESTATUS_ID, 
+						USUARIO_CREACION, FECHA_CREACION )
+					VALUES (?, 
+						(SELECT ID FROM AHORRO.AHCUENTAS_REFERENCIADAS WHERE CUENTA_REFERENCIA = ?), 
+						(select d.id from nucleocentral.ncdocumentos d where d.clave = ?), 
+						?, ?,
+						CAST(? AS DATE), CAST(? AS DATE), 
+						(SELECT ID FROM NUCLEOCENTRAL.NCESTATUS WHERE DESCRIPCION = 'ALTA' LIMIT 1), 
+						?, CURRENT_TIMESTAMP)"/>
+	</bean>
+	
+	<bean id="UPDATE_CuentaRefExpedienteCeroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.ahcuentas_referenciadas_expediente SET
+					ESTATUS_ID = ?
+					WHERE CUENTA_REFERENCIA_ID =  ?
+					AND SOLICITANTE_ID = ?
+					AND DOCUMENTOS_ID = ?"/>
+	</bean>
+	
+	<bean id="UPDATE_CuentaRefVerificadoCeroStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE AHORRO.ahcuentas_referenciadas_expediente SET
+					OBSERVACIONES = OBSERVACIONES ||' '|| ?,
+					VERIFICADO = ?,
+					FECHA_VERIFICADO = CAST(? AS DATE)
+					WHERE ID = ? AND CUENTA_REFERENCIA_ID = ?"/> 
+	</bean>
+	
+	<bean id="READ_DocumentosNivelStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT D.CLAVE, NC.REP_LEGAL
+					FROM AHORRO.AHNIVEL_CUENTA_DOCUMENTOS NC
+					LEFT JOIN NUCLEOCENTRAL.NCDOCUMENTOS D ON D.ID = NC.DOCUMENTO_ID
+					LEFT JOIN AHORRO.AHNIVEL_CUENTA_AHORRO A ON A.ID = NC.NIVEL_CUENTA_AHORRO_ID
+					WHERE A.CLAVE = ? AND NC.T_PERSONA = ?;"/>
+	</bean>
+	<!-- GUARDAR EXPEDIENTES DE CLIENTES EN PROCREA -->
+	
+	<bean id="INSERT_ClienteExpedienteStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into doctos_digitalizado (id,referencia,tipo,creado_por,fecha_creacion,
+					observaciones,id_lista_docto,extension)
+					values (nextval('sec_doctos_digit'),?,'P',?,CURRENT_TIMESTAMP,
+					?,?,?);"/>
+	</bean>
+	
+	<bean id="UPDATE_ClienteExpedienteStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE doctos_digitalizado SET EXTENSION = ?,
+						OBSERVACIONES = ?, modificado_por = ?, fecha_modificacion = current_timestamp
+					WHERE REFERENCIA =  ?
+					AND ID_LISTA_DOCTO = ?"/>
+	</bean>
+	
+	<bean id="READ_ClienteExpedienteStd" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT ID FROM doctos_digitalizado 
+					WHERE REFERENCIA =  ?
+					AND ID_LISTA_DOCTO = ?"/>
+	</bean>
+	
+	
+	<bean id="ExpedienteStdDAO" class="net.std.expediente.dao.ExpedienteStdDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="INSERT_ExpedienteCeroStd" ref="INSERT_ExpedienteCeroStd"/>
+		<property name="READ_ExpedienteCeroStd" ref="READ_ExpedienteCeroStd"/>
+		<property name="UPDATE_ExpedienteCeroStd" ref="UPDATE_ExpedienteCeroStd"/>
+		<property name="UPDATE_VerificadoCeroStd" ref="UPDATE_VerificadoCeroStd"/>
+		<property name="READ_DocumentosNivelStd" ref="READ_DocumentosNivelStd"/>
+		<property name="INSERT_CuentaRefExpedienteCeroStd" ref="INSERT_CuentaRefExpedienteCeroStd"/>
+		<property name="UPDATE_CuentaRefExpedienteCeroStd" ref="UPDATE_CuentaRefExpedienteCeroStd"/>
+		<property name="UPDATE_CuentaRefVerificadoCeroStd" ref="UPDATE_CuentaRefVerificadoCeroStd"/>
+		
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="INSERT_ClienteExpedienteStd" ref="INSERT_ClienteExpedienteStd"/>
+		<property name="UPDATE_ClienteExpedienteStd" ref="UPDATE_ClienteExpedienteStd"/>
+		<property name="READ_ClienteExpedienteStd" ref="READ_ClienteExpedienteStd"/>
+	</bean>
+	
+</beans>

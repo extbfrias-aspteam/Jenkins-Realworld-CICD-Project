@@ -1,0 +1,19 @@
+services:
+  procesa-rendimientos-cero:
+    image: procesa-rendimientos-cero:latest
+    container_name: procesa-rendimientos-cero
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - TZ=America/Mexico_City
+    volumes:
+      - ${HOST_CONTAINER}/config/:/app/config/
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "512M"
+        reservations:
+          cpus: "0.1"
+          memory: "320M"

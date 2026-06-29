@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+    
+    environment {
+        AMBIENTE = 'qa' // Define el ambiente a auditar (dev, qa, prod)
+    }
+
+    stages {
+        stage('1. Clonar Repositorio') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('2. Auditoría y Sanitización') {
+            steps {
+                // Inyectamos el script centralizado que creamos en los Managed Files
+                configFileProvider([
+                    configFile(fileId: 'sanitize-environments-script', targetLocation: 'sanitize_environments.sh')
+                ]) {
+                    echo '=========================================='
+                    echo 'Corriendo Filtro de Seguridad Pre-Build...'
+                    echo '=========================================='
+                    
+                    // Ejecutamos en modo estricto (--strict)
+                    // Si el script encuentra texto plano, retornará exit 1 y romperá este pipeline aquí mismo.
+                    sh """
+                        chmod +x ./sanitize_environments.sh
+                        ./sanitize_environments.sh serviciosstd_ws/ --strict ${env.AMBIENTE}
+                    """
+                }
+            }
+            post {
+                always {
+                    // Respaldamos los reportes segmentados por ambiente en la interfaz de Jenkins
+                    archiveArtifacts artifacts: "security_reports_${env.AMBIENTE}/*.txt", allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('3. Autorizar Siguiente Fase') {
+            steps {
+                echo '🎉 ¡Filtro de Seguridad Aprobado!'
+                echo 'Disparando el pipeline de compilación de forma segura...'
+                
+                // Manda a llamar al segundo pipeline de forma asíncrona
+                // REEMPLAZA 'Pipeline-02-Compilacion-CD' por el nombre exacto de tu segundo job
+                build job: 'Pipeline-01-Seguridad-PreBuild', wait: false
+            }
+        }
+    }
+}

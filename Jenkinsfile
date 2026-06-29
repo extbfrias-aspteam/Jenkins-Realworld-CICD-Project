@@ -5,186 +5,154 @@ def COLOR_MAP = [
     'UNSTABLE': 'danger'
 ]
 pipeline {
-  agent any
-  environment {
-    //WORKSPACE = "${env.WORKSPACE}"
-    WORKSPACE = "${env.WORKSPACE}/automatizacion-main/automatizacion-main"
-    NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
-    NEXUS_USER = "$NEXUS_CREDS_USR"
-    NEXUS_PASSWORD = "$NEXUS_CREDS_PSWD"
-    NEXUS_URL = "149.56.241.64:8081"
-    NEXUS_REPOSITORY = "maven_project"
-    NEXUS_REPO_ID    = "maven_project"
-    ARTVERSION = "${env.BUILD_ID}"
-  }
-  tools {
-    maven 'localMaven'
-    jdk 'localJdk'
-  }
-  
-  stages {
-    stage('Build') {
-      steps {
-        dir('automatizacion-main/automatizacion-main/java-app') {
-    // Forzamos a Maven a ignorar la validación estricta de SSL para este paso
-            sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'           //sh 'mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
-        }
-        //dir('automatizacion-main/automatizacion-main/java-app') {
-          //  sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources clean package -Dhttps.protocols=TLSv1.2,TLSv1.3'  //sh 'mvn clean package'
-            //}
-        //dir('realworld-cicd-pipeline-project-main/') {
-        
-        //sh 'mvn clean package'
-       // }
-      }
-      post {
-        success {
-          echo ' now Archiving '
-          archiveArtifacts artifacts: '**/*.jar'
-        }
-      }
+    agent any
+    environment {
+        NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
+        NEXUS_USER = "$NEXUS_CREDS_USR"
+        NEXUS_PASSWORD = "$NEXUS_CREDS_PSWD"
+        NEXUS_URL = "nexus:8081"
+        NEXUS_REPOSITORY = "maven_project"
+        NEXUS_REPO_ID    = "maven_project"
+        ARTVERSION = "${env.BUILD_ID}"
     }
-    stage('Unit Test'){
-        steps {
-         //dir('realworld-cicd-pipeline-project-main/') {
-         sh 'mvn test'
-        // }
-        }
+    tools {
+        maven 'localMaven'
+        jdk 'JDK-1.8'
     }
-    stage('Integration Test'){
-        steps {
-         //dir('realworld-cicd-pipeline-project-main/') {
-          sh 'mvn verify -DskipUnitTests'
-        //}
-        }
-    }
-    stage ('Checkstyle Code Analysis'){
-        steps {
-           // dir('realworld-cicd-pipeline-project-main/') {
-            sh 'mvn checkstyle:checkstyle'
-        //}
-        }
-        post {
-            success {
-                echo 'Generated Analysis Result'
-            }
-        }
-    }
-    stage('SonarQube Inspection') {
-        steps {
-            dir('automatizacion-main/automatizacion-main/java-app') {
-            withSonarQubeEnv('SonarQube') { 
-                withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
-                    sh """
-                    mvn clean verify sonar:sonar \
-                    -Dsonar.projectKey=JavaWebApp-Project \
-                    -Dsonar.host.url=http://sonarqube:9000 \
-                    -Dsonar.login=${SONAR_TOKEN}
-                    """
+    
+    stages {
+        stage('Build') {
+            steps {
+                dir('serviciosstd_ws') {
+                    configFileProvider([configFile(fileId: 'maven-local-repo', variable: 'MAVEN_SETTINGS')]) {
+                    // Forzamos a Maven a ignorar la validación estricta de SSL
+                    sh 'mvn clean package -s $MAVEN_SETTINGS -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
+                    //sh 'mvn clean package -Dmaven.wagon.https.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
+                    }
                 }
             }
+            post {
+                success {
+                    echo ' now Archiving '
+                    // nnnnBusca los entregables dentro de la subcarpeta de forma correcta
+                    archiveArtifacts artifacts: 'serviciosstd_ws/target/*.war'
+                }
             }
         }
-    }
-
-           // dir('realworld-cicd-pipeline-project-main/') {
-            //withSonarQubeEnv('SonarQube') { 
-            //    withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
-            //    sh """
-            //    mvn clean verify sonar:sonar \
-            //    -Dsonar.projectKey=JavaWebApp-Project \
-            //    -Dsonar.host.url=http://149.56.241.64:9000 \
-            //    -Dsonar.login=$SONAR_TOKEN
-            //    """
-            //    }
-            //}
+        
+        stage('Unit Test'){
+            steps {
+                dir('serviciosstd_ws') {
+                    sh 'mvn test'
+                }
+            }
+        }
+        
+        stage('Integration Test'){
+            steps {
+                dir('serviciosstd_ws') {
+                    sh 'mvn verify -DskipUnitTests'
+                }
+            }
+        }
+        
+        stage ('Checkstyle Code Analysis'){
+            steps {
+                dir('serviciosstd_ws') {
+                    sh 'mvn checkstyle:checkstyle'
+                }
+            }
+            post {
+                success {
+                    echo 'Generated Analysis Result'
+                }
+            }
+        }
+        //stage('Secret Scanning (Gitleaks)') {
+        //    steps {
+        // Corre el escáner sobre la carpeta del espacio de trabajo
+         //   sh 'docker run --rm -v $(pwd):/path zricethezav/gitleaks:latest detect --source=/path --verbose'
            // }
-        //}
-    //}
-    stage('SonarQube Quality Gate') {
-        steps {
-          // Set a timeout for the quality gate check
-            timeout(time: 1, unit: 'HOURS') {
-            // Wait for the SonarQube quality gate result and abort the pipeline if it fails
-            waitForQualityGate(abortPipeline: true)
-        }
-    }
-
-    }
-    stage("Nexus Artifact Uploader"){
-        steps{
-          // dir('realworld-cicd-pipeline-project-main/') {
-           nexusArtifactUploader(
-              nexusVersion: 'nexus3',
-              protocol: 'http',
-              nexusUrl: '149.56.241.64:8081',
-              groupId: 'webapp',
-              version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-              repository: 'maven-releases',  //"${NEXUS_REPOSITORY}",
-              credentialsId: "${NEXUS_CREDENTIAL_ID}",
-              artifacts: [
-                  [artifactId: 'webapp',
-                  classifier: '',
-                  file: "${WORKSPACE}/webapp/target/webapp.jar",
-                  type: 'jar']
-              ]
-           )
-        //}
-        }
-    }
-    stage('Deploy to Development Env') {
-        environment {
-            HOSTS = 'dev'
-        }
-        steps {
-            //dir('realworld-cicd-pipeline-project-main/') {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=${WORKSPACE}\""
+        //}   
+        
+        stage('SonarQube Inspection') {
+            tools {
+                // Jenkins usará el instalador automático de JDK 11 configurado para el scanner
+                jdk 'jdk11' 
             }
-          //}
-        }
-
-    }
-    stage('Deploy to Staging Env') {
-        environment {
-            HOSTS = 'stage'
-        }
-        steps {
-           // dir('realworld-cicd-pipeline-project-main/') {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=$WORKSPACE\""
+            steps {
+                dir('serviciosstd_ws') {
+                    withSonarQubeEnv('SonarQube') { 
+                        withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
+                            // CORRECCIÓN: Usamos la variable $SONAR_TOKEN limpia y la URL pública correcta
+                            sh """
+                            mvn sonar:sonar \
+                            -Dsonar.projectKey=JavaWebApp-Project \
+                            -Dsonar.host.url=http://sonarqube:9000 \
+                            -Dsonar.scm.provider=git \
+                            -Dsonar.login=${SONAR_TOKEN}
+                            """
+                        }
+                    }
+                }
             }
-            //}
         }
-    }
-    stage('Quality Assurance Approval') {
-        steps {
-            input('Do you want to proceed?')
-        }
-    }
-    stage('Deploy to Production Env') {
-        environment {
-            HOSTS = 'prod'
-        }
-        steps {
-           //dir('realworld-cicd-pipeline-project-main/') {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=$WORKSPACE\""
+        
+        stage('SonarQube Quality Gate') {
+            steps {
+                // Entramos al mismo subdirectorio para encontrar el archivo 'report-task.txt'
+                dir('serviciosstd_ws') {
+                    timeout(time: 1, unit: 'HOURS') {
+                        script {
+                            def qg = waitForQualityGate()
+                            if (qg.status != 'OK') {
+                                currentBuild.result = 'FAILURE'
+                                error "Pipeline abortado: El código no pasó el Quality Gate de SonarQube. Estado: ${qg.status}"
+                            }
+                        }
+                    }
+                }
             }
-          // }
-          //comment
         }
-         }
-  }
-  post {
-    always {
-        echo 'Slack Notifications.'
-        slackSend channel: '#prestigious-channel', //update and provide your channel name
-        color: COLOR_MAP[currentBuild.currentResult],
-        message: "*${currentBuild.currentResult}:* Job Name '${env.JOB_NAME}' build ${env.BUILD_NUMBER} \n Build Timestamp: ${env.BUILD_TIMESTAMP} \n Project Workspace: ${env.WORKSPACE} \n More info at: ${env.BUILD_URL}"
+        
+        stage("Nexus Artifact Uploader"){
+            steps {
+                dir('serviciosstd_ws') {
+                    script {
+                        // Encontrar el nombre exacto del archivo .war generado dinámicamente en target/
+                        def warFiles = findFiles(glob: 'target/*.war')
+                        if (warFiles.length == 0) {
+                            error "No se encontró ningún archivo .war en target/"
+                        }
+                        def warPath = warFiles[0].path
+                        
+                        nexusArtifactUploader(
+                            nexusVersion: 'nexus3',
+                            protocol: 'http',
+                            nexusUrl: "${NEXUS_URL}",
+                            groupId: 'webapp',
+                            version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
+                            repository: 'maven-releases',
+                            credentialsId: "${NEXUS_CREDENTIAL_ID}",
+                            artifacts: [
+                                [artifactId: 'webapp',
+                                classifier: '',
+                                file: "${warPath}", 
+                                type: 'war']
+                            ]
+                        )
+                    }
+                }
+            }
+        }
     }
-  }
-
-  
+    
+    post {
+        always {
+            echo 'Slack Notifications.'
+            slackSend channel: '#prestigious-channel',
+            color: COLOR_MAP[currentBuild.currentResult],
+            message: "*${currentBuild.currentResult}:* Job Name '${env.JOB_NAME}' build ${env.BUILD_NUMBER} \n Build Timestamp: ${env.BUILD_TIMESTAMP} \n Project Workspace: ${env.WORKSPACE} \n More info at: ${env.BUILD_URL}"
+        }
+    }
 }
-
