@@ -97,11 +97,17 @@ pipeline {
                 }
             }
         }
-
         stage('SonarQube Analysis') {
-            def mvn = tool 'localMaven';
-            withSonarQubeEnv() {
-            sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ"
+            steps {
+                script {
+                    // 1. Declare your variable inside a script block
+                    def mvn = tool 'localMaven'
+                    
+                    // 2. Wrap your maven execution inside the SonarQube environment wrapper
+                    withSonarQubeEnv('SonarQube') { // Match the exact name of your server in Jenkins
+                        sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ"
+                    }
+                }
             }
         }
         
