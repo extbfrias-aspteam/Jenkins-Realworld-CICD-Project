@@ -98,11 +98,8 @@ pipeline {
             }
         }
 
-        stage('SCM') {
-            checkout scm
-        }
         stage('SonarQube Analysis') {
-            def mvn = tool 'Default Maven';
+            def mvn = tool 'localMaven';
             withSonarQubeEnv() {
             sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ"
             }
@@ -130,7 +127,7 @@ pipeline {
                 dir('serviciosstd_ws') {
                     script {
                         // Encontrar el nombre exacto del archivo .war generado dinámicamente en target/
-                        def warFiles = findFiles(glob: 'target/*.war')
+                        def warFiles = findFiles(glob: 'serviciosstd_ws/target/*.war')
                         if (warFiles.length == 0) {
                             error "No se encontró ningún archivo .war en target/"
                         }
