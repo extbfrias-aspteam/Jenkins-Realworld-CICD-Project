@@ -1,0 +1,59 @@
+# Java files
+*.class           # Compiled bytecode files
+*.jar             # Java archive files
+*.war             # Web application archive
+*.ear             # Enterprise archive
+*.jardata         # Data files for Java applications
+
+# Maven related
+/.mvn/            # Maven wrapper directory
+target/           # Maven build output directory
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Log files
+*.log
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+replay_pid*
+
+# Visual Studio Code
+.vscode/
+.code-workspace
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+*.class
+*.lst
