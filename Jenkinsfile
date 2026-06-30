@@ -87,7 +87,7 @@ pipeline {
                             // CORRECCIÓN: Usamos la variable $SONAR_TOKEN limpia y la URL pública correcta
                             sh """
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=JavaWebApp-Project \
+                            -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ" \
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.scm.provider=git \
                             -Dsonar.login=${SONAR_TOKEN}
@@ -95,6 +95,16 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
+
+        stage('SCM') {
+            checkout scm
+        }
+        stage('SonarQube Analysis') {
+            def mvn = tool 'Default Maven';
+            withSonarQubeEnv() {
+            sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ"
             }
         }
         
