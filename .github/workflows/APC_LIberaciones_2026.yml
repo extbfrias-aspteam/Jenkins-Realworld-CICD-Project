@@ -1,4 +1,4 @@
-name: APC_LIberaciones_2026
+name: APC_Liberaciones_2026
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Pipeline Incremental 2026
+    name: APC_Liberaciones_2026
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4  # Actualizado a v4 para evitar advertencias de Node
@@ -45,42 +45,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          PROCESSED_POMS=""
-
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            CURRENT_DIR=$(dirname "$file")
-            
-            # Buscamos el pom.xml más cercano hacia atrás en la estructura
-            while [ "$CURRENT_DIR" != "." ] && [ "$CURRENT_DIR" != "/" ]; do
-              if [ -f "$CURRENT_DIR/pom.xml" ]; then
-                POM_PATH="$CURRENT_DIR/pom.xml"
-                
-                # Evitamos duplicar análisis si se modificaron varios archivos del mismo módulo
-                if [[ "$PROCESSED_POMS" == *"$POM_PATH"* ]]; then
-                  break
-                fi
-
-                MODULE_NAME=$(basename "$CURRENT_DIR")
-                
-                echo "=========================================================="
-                echo "MODIFICACIÓN DETECTADA EN: $MODULE_NAME"
-                echo "Iniciando análisis independiente en SonarQube..."
-                echo "=========================================================="
-                
-                # Ejecuta Maven solo para esta aplicación usando su propio nombre como llave
-                mvn -B -f "$POM_PATH" verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-                  -Dsonar.projectKey="asp-proyecto_${MODULE_NAME}" \
-                  -Dsonar.projectName="${MODULE_NAME}" \
-                  -Dsonar.scm.provider=git
-
-                PROCESSED_POMS="$PROCESSED_POMS $POM_PATH"
-                break
-              fi
-              CURRENT_DIR=$(dirname "$CURRENT_DIR")
-            done
-          done
-
-          if [ -z "$PROCESSED_POMS" ]; then
-            echo "No se encontraron cambios en proyectos Java/Maven. Fin del pipeline."
-          fi
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=APC-Liberaciones_2026
