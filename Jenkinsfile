@@ -132,8 +132,7 @@ pipeline {
             steps {
                 dir('serviciosstd_ws') {
                     script {
-                        // Encontrar el nombre exacto del archivo .war generado dinámicamente en target/
-                        def warFiles = findFiles(glob: 'serviciosstd_ws/target/*.war')
+                        def warFiles = findFiles(glob: 'target/*.war')  // ✅ glob corregido
                         if (warFiles.length == 0) {
                             error "No se encontró ningún archivo .war en target/"
                         }
@@ -146,11 +145,11 @@ pipeline {
                             groupId: 'webapp',
                             version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
                             repository: 'maven-releases',
-                            credentialsId: "${NEXUS_CREDENTIAL_ID}",
+                            credentialsId: "${NEXUS_CREDENTIAL_ID}",  // ✅ debe existir en Jenkins
                             artifacts: [
                                 [artifactId: 'webapp',
                                 classifier: '',
-                                file: "${warPath}", 
+                                file: "${warPath}",
                                 type: 'war']
                             ]
                         )
