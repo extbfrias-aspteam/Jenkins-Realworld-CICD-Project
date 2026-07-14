@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="updateAhorroAlfresco" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into ahorro_expediente(cuenta, documentos_ahorro_id, ruta_alfresco, id_archivo_alfresco, observaciones,
+			nombre, fecha_expedicion, fecha_vigencia, fecha_creacion, usuario_creacion)
+			 values (?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP,9)" />
+	</bean>
+	
+	<bean id="AhorroAlfrescoDAO" class="net.cero.spring.dao.AhorroAlfrescoDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="updateAhorroAlfresco" ref="updateAhorroAlfresco"/>
+	</bean>
+	
+	
+</beans>

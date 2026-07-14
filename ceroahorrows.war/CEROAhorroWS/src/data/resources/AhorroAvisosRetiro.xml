@@ -1,0 +1,56 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="obtenerAvisoRetiroById" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  aviso_id,
+					  cuenta,
+					  fecha_retiro,
+					  monto,
+					  estatus,
+					  autorizado_por,
+					  creado_por,
+					  fecha_creacion,
+					  eliminado_por,
+					  fecha_eliminacion,
+					  sucursal,
+					  region,
+					  modificado_por,
+					  fecha_modificacion,
+					  movimiento_id,
+					  tipo_tran,
+					  fecha_revision
+					FROM 
+					  public.ahorro_avisos_retiro where aviso_id = ?" />
+	</bean>
+	
+	<bean id="actualizaAvisoRetiro" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE 
+					  public.ahorro_avisos_retiro  
+					SET 
+					  cuenta = ?,
+					  monto = ?,
+					  estatus = ?,
+					  sucursal = ?,
+					  region = ?,
+					  modificado_por = ?,
+					  fecha_modificacion = current_timestamp,
+					  movimiento_id = ?,
+					  tipo_tran = ?
+					WHERE 
+					  aviso_id = ?" />
+	</bean>
+	
+	
+	
+	<bean id="AhorroAvisosRetiroDAO" class="net.cero.spring.dao.AhorroAvisosRetiroDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="obtenerAvisoRetiroById" ref="obtenerAvisoRetiroById"/>
+		<property name="actualizaAvisoRetiro" ref="actualizaAvisoRetiro"/>
+	</bean>
+	
+</beans>

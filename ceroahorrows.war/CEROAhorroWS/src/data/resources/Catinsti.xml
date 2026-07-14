@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="actualizaSaldoNullo" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update catinsti set saldo = 0 where cinsinstit = ? and saldo is null" />
+	</bean>
+	
+	<bean id="CatinstiDAO" class="net.cero.spring.dao.CatinstiDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="actualizaSaldoNullo" ref="actualizaSaldoNullo"/>
+	</bean>
+	
+</beans>

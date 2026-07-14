@@ -1,0 +1,61 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/jee 
+	http://www.springframework.org/schema/jee/spring-jee-3.0.xsd"
+	xmlns:jee="http://www.springframework.org/schema/jee">
+	
+	<bean id="consultaSpei" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select empresa_id, cuenta_beneficiario ,banco_emisor, si3.descripcion as inst_ben_nombre , cve_rastreo , 
+            cuenta_ordenante, cuenta_beneficiario, nombre_ordenante, nombre_beneficiario , monto , TO_CHAR(fecha_captura, 'dd-MM-yyyy HH:MI:SS AM') as fecha_captura, si.descripcion as status2,
+             motivo_rechazo, referencia_numerica::varchar, TO_CHAR(fh_operacion, 'dd-MM-yyyy HH:MI:SS AM') as fh_operacion, concepto_pago, 'IN' as tipo_spei, t.status, referencia_cobranza, id_spei_incoming as id_spei  from (
+                    select si.cuenta_ordenante as cuenta_ordenante2, si.empresa_id, si.cuenta_beneficiario as cuenta_beneficiario2, si.nombre_ordenante, si.nombre_beneficiario, si.id_institucion_ord, si2.descripcion as banco_emisor, 
+                        case when si.id_institucion_ben = 0 then 90659 else si.id_institucion_ben end as id_institucion_ben, si.cve_rastreo , si.cuenta_ordenante, si.cuenta_beneficiario , si.monto , si.fecha_captura , si.status as status2,
+                        case when cds.descripcion = 'SIN ASIGNAR' then '' else cds.descripcion  end as motivo_rechazo,
+                        si.referencia_numerica, si.fh_operacion, si.concepto_pago, cast(si.status as  int4), si.referencia_cobranza, si.id_spei_incoming
+                    from spei_incoming si 
+                    join spei_instituciones si2 on si.id_institucion_ord  =  si2.id_institucion
+                    join cat_devoluciones_spei cds on cds.clave  = si.id_devolucion) as T
+                    join spei_instituciones si3 on si3.id_institucion = id_institucion_ben
+                    join cat_estatus_spei_incoming si on si.clave = status2::int ">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaSpeiOut" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select so.cuenta_ordenante, so.empresa_id ,so.cuenta_beneficiario , so.nombre_beneficiario, so.nombre_ordenante, 'ASP' as banco_emisor, 
+si.descripcion as inst_ben_nombre ,so.clave_rastreo as cve_rastreo , so.monto, TO_CHAR(so.fecha_captura, 'dd-MM-yyyy HH:MI:SS AM') as fecha_captura, 
+ceso.descripcion as status2, case when cds.descripcion = 'SIN ASIGNAR' then '' else cds.descripcion  end as motivo_rechazo,
+so.referencia_numerica::varchar, TO_CHAR(so.fh_operacion, 'dd-MM-yyyy HH:MI:SS AM') as fh_operacion, so.concepto_pago, 'OUT' as tipo_spei, cast(so.status as  int4), so.referencia_cobranza, so.id_spei_outgoing as id_spei
+from spei_outgoing so
+join spei_instituciones si on si.id_institucion =  so.id_institucion_ben
+join cat_devoluciones_spei cds on cds.clave  = so.id_devolucion
+join cat_estatus_spei_outgoing ceso on ceso.clave = so.status_operacion::int ">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaInstitucion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select descripcion  from spei_instituciones si where id_institucion  = ?">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaNombreCliente" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select pe.id as id_empresa, nombre as cliente from plasticos.plempresas pe">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="SpeiDao" class="net.cero.spring.dao.SpeiDao">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="jdbcTemplateSti" ref="jdbcTemplateSti"></property>
+		<property name="consultaSpei" ref="consultaSpei"/>	
+		<property name="consultaInstitucion" ref="consultaInstitucion"></property>
+		<property name="consultaSpeiOut" ref="consultaSpeiOut"></property>
+		<property name="consultaNombreCliente" ref="consultaNombreCliente"></property>	
+	</bean>
+
+</beans>

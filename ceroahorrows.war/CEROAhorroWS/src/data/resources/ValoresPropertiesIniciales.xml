@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="obtenerEstatusSwitchOCR" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select valor, id, clave from codi.valores_properties_iniciales  where clave = 'activarValidacionOcr'" />
+	</bean>
+	
+	<bean id="ValoresPropertiesInicialesDAO" class="net.cero.spring.dao.ValoresPropertiesInicialesDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="obtenerEstatusSwitchOCR" ref="obtenerEstatusSwitchOCR"/>
+	</bean>
+	
+</beans>

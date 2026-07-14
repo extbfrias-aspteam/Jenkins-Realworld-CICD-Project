@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="registrarConceptoAhorro" class="java.lang.String">
+		<constructor-arg type="java.lang.String" 
+			value="INSERT INTO AHORRO_CONCEPTOS 
+					(AHORRO_CONTRATO_ID,CAT_CONCEPTOS_ID,VALOR,USUARIO_CREACION)
+					VALUES (?,?,?,?)"/>
+	</bean>
+	
+	<bean id="AhorroConceptosDAO" class="net.cero.spring.dao.AhorroConceptosDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="registrarConceptoAhorro" ref="registrarConceptoAhorro"/>
+	</bean>
+	
+</beans>

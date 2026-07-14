@@ -1,0 +1,127 @@
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/jee 
+	http://www.springframework.org/schema/jee/spring-jee-3.0.xsd"
+	xmlns:jee="http://www.springframework.org/schema/jee">
+	
+	<bean id="bloqueaCuentaAsp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro.ahcuentas set estatus_id = 3 where cuenta like ?">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="desbloqueoCuentaAsp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro.ahcuentas set estatus_id = 1, fecha_modificacion = now() where cuenta like ?">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="buscaCuentaAsp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select id from ahorro.ahcuentas a where a.cuenta like ? ">
+		</constructor-arg>
+	</bean>
+
+	
+	<bean id="consultaBloqueoDesbloqueo" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select estatus_id from ahorro.ahcuentas a where a.cuenta like ? ">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaCatalogoNivelCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select aca.id , aca.clave , aca.monto_max from ahorro.ahnivel_cuenta_ahorro aca">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="actualizaNivel" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro.ahcuentas_ahorro_datos set valor = ?, fecha_modificacion=now() where cuenta_id = ? and valor like 'CTA_%'">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaNivel" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select aca.clave  from ahorro.ahnivel_cuenta_ahorro aca 
+			where aca.clave like ?">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaEstatusCuentaPorMes" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select a.id_bitacora , a.cuenta, a.estatus_id_antes, a.estatus_id_despues, a.producto_ahorro_id ,a.fecha_actualizacion_estatus from ahorro.ahcuentas_bitacoras a
+					join ahorro.ahestatus a2 on a.estatus_id_despues = a2.id
+					where (EXTRACT(month  FROM a.fecha_actualizacion_estatus)) = ?
+						and (EXTRACT(year  FROM a.fecha_actualizacion_estatus)) = ?
+						and a2.descripcion like ?
+						and producto_ahorro_id = ?">
+		</constructor-arg>
+	</bean>
+
+	<bean id="consultaTotalEstatusCuentas" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select (select count(*)  from ahorro.ahcuentas a
+					left join ahorro.ahestatus a2 on a.estatus_id = a2.id
+					where producto_ahorro_id = %d and a2.descripcion like 'VIGENTE') as VIGENTE,
+				(select count(*)  from ahorro.ahcuentas a
+					left join ahorro.ahestatus a2 on a.estatus_id = a2.id
+					where producto_ahorro_id = %d and a2.descripcion like 'CANCELADA') as CANCELADA,
+				(select count(*)  from ahorro.ahcuentas a
+					left join ahorro.ahestatus a2 on a.estatus_id = a2.id
+					where producto_ahorro_id = %d and a2.descripcion like 'BLOQUEADA') as BLOQUEADA">
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="consultaCuentaPorCuentaOClabe" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT ah.id as cuenta_id,ah.cuenta as cuenta,ah.persona_id,ah.producto_ahorro_id,ah.estatus_id
+						 		,ah.clabe_interbancaria,ae.descripcion as estatusDescripcion
+						 	FROM ahorro.ahcuentas ah
+						 		JOIN ahorro.ahestatus ae ON ah.estatus_id = ae.id
+						WHERE ah.cuenta = ? or ah.clabe_interbancaria = ?">
+		</constructor-arg>
+	</bean>
+	<bean id="consultaCuentaPorCuentaOClabeProcrea" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT ah.ahorro_contrato_id as cuenta_id,ah.cuenta as cuenta,ah.solicitante_id as persona_id
+						 		,ah.tipo_ahorro_id as producto_ahorro_id,
+						 		CASE
+                                 	WHEN ah.estatus='V' THEN 1
+						 		 	WHEN ah.estatus='B' THEN 3
+						 		 	WHEN ah.estatus='C' THEN 2
+						 		 	ELSE 0
+						 		END as estatus_id
+						 		,ah.cuenta_clabe as clabe_interbancaria,
+						 		CASE
+                                 	WHEN ah.estatus='V' THEN 'VIGENTE'
+						 		 	WHEN ah.estatus='B' THEN 'BLOQUEADO'
+						 		 	WHEN ah.estatus='C' THEN 'CANCELADO'
+						 		ELSE 'OTRO' END as estatusDescripcion
+						 	FROM ahorro_contrato ah
+						WHERE ah.cuenta = ? or ah.cuenta_clabe = ?">
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="CuentaAspDao" class="net.cero.spring.dao.CuentaAspDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="bloqueaCuentaAsp" ref="bloqueaCuentaAsp"/>
+		<property name="desbloqueoCuentaAsp" ref="desbloqueoCuentaAsp"/>
+		<property name="buscaCuentaAsp" ref="buscaCuentaAsp"/>
+		<property name="consultaBloqueoDesbloqueo" ref="consultaBloqueoDesbloqueo"/>
+		<property name="consultaCatalogoNivelCuenta" ref="consultaCatalogoNivelCuenta"/>
+		<property name="actualizaNivel" ref="actualizaNivel"/>
+		<property name="consultaNivel" ref="consultaNivel"/>
+		<property name="consultaTotalEstatusCuentas" ref="consultaTotalEstatusCuentas"/>
+		<property name="consultaEstatusCuentaPorMes" ref="consultaEstatusCuentaPorMes"/>
+		<property name="consultaCuentaPorCuentaOClabe" ref="consultaCuentaPorCuentaOClabe"/>
+		<property name="consultaCuentaPorCuentaOClabeProcrea" ref="consultaCuentaPorCuentaOClabeProcrea"/>
+	</bean>
+
+</beans>

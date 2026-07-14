@@ -1,0 +1,29 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="buscarAhorroMovimientosById" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  movimiento_id,
+					  descripcion,
+					  operacion,
+					  creado_por,
+					  fecha_creacion,
+					  modificado_por,
+					  fecha_modificacion,
+					  salvo_buen_cobro,
+					  cuenta_contable,
+					  provisionar,
+					  manual
+					FROM 
+					  ahorro_movimientos WHERE movimiento_id = ?" />
+	</bean>
+	
+	<bean id="AhorroMovimientosDAO" class="net.cero.spring.dao.AhorroMovimientosDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="buscarAhorroMovimientosById" ref="buscarAhorroMovimientosById"/>
+	</bean>
+	
+</beans>

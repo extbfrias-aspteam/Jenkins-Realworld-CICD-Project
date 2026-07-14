@@ -1,0 +1,190 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="sigSeqMC" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('movimientos_caja_seq')" />
+	</bean>
+	
+	<bean id="nuevoMC" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO movimientos_caja(movimiento_id,caja_id,cajero_id,fecha,tipo_mov_id,moneda_id,monto,tipo_cambio,forma_pago,cuenta,control,creado_por,fecha_creacion,modificado_por,fecha_modificacion,banco_id,cheque,estatus,obs,poliza,referencia_movimiento_id,banco_origen,fecha_deposito,poliza_provision,transaccion_id,tarjeta_operativa_id,region_id,id_importacion,moneda_valor,moneda_nombre,moneda_fecha_valor,monto_original,monto_destino,moneda_error) 
+			       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)" />
+	</bean>
+	
+	<bean id="findMovimientoByCuentaAndFechas" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select m.movimiento_id,
+					m.caja_id,
+					m.cajero_id,
+					m.fecha,
+					m.tipo_mov_id,
+					m.moneda_id,
+					m.monto,
+					m.tipo_cambio,
+					m.forma_pago,
+					m.cuenta,
+					m.control,
+					m.creado_por,
+					m.fecha_creacion,
+					m.modificado_por,
+					m.fecha_modificacion,
+					m.banco_id,
+					m.cheque,
+					m.estatus,
+					m.obs,
+					m.poliza,
+					m.referencia_movimiento_id,
+					m.banco_origen,
+					m.fecha_deposito,
+					m.poliza_provision,
+					m.transaccion_id,
+					m.tarjeta_operativa_id,
+					m.region_id,
+					m.id_importacion,
+					m.moneda_valor,
+					m.moneda_nombre,
+					m.moneda_fecha_valor,
+					m.monto_original,
+					m.monto_destino,
+					m.moneda_error 
+			from movimientos_caja m,
+			ahorro_movimientos tm,
+			formas_pagos f 
+			where m.tipo_mov_id=tm.movimiento_id and tm.operacion='+' and m.forma_pago=f.forma_pago_id and f.aplicar_automaticamente='S' and m.cuenta = ? and cast(m.fecha as date) &gt;= cast(? as date) and cast(m.fecha as date) &lt;= cast(? as date)" />
+	</bean>
+	
+	<bean id="findMovimientoByReferenciaAndFechas" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select m.movimiento_id,
+					m.caja_id,
+					m.cajero_id,
+					m.fecha,
+					m.tipo_mov_id,
+					m.moneda_id,
+					m.monto,
+					m.tipo_cambio,
+					m.forma_pago,
+					m.cuenta,
+					m.control,
+					m.creado_por,
+					m.fecha_creacion,
+					m.modificado_por,
+					m.fecha_modificacion,
+					m.banco_id,
+					m.cheque,
+					m.estatus,
+					m.obs,
+					m.poliza,
+					m.referencia_movimiento_id,
+					m.banco_origen,
+					m.fecha_deposito,
+					m.poliza_provision,
+					m.transaccion_id,
+					m.tarjeta_operativa_id,
+					m.region_id,
+					m.id_importacion,
+					m.moneda_valor,
+					m.moneda_nombre,
+					m.moneda_fecha_valor,
+					m.monto_original,
+					m.monto_destino,
+					m.moneda_error 
+			from movimientos_caja m			 
+			where m.referencia_movimiento_id = ? and cast(m.fecha as date) &gt;= cast(? as date) and cast(m.fecha as date) &lt;= cast(? as date)" />
+	</bean>
+	
+	<bean id="obtenerIdeAnterior" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select coalesce(sum(case a.operacion when '-' then m.monto when '+' then (m.monto*-1) end),0) as ide_ant
+					from movimientos_caja m, ahorro_movimientos a where m.tipo_mov_id=a.movimiento_id and (m.tipo_mov_id=38 or m.tipo_mov_id=14) and cuenta = ? and cast(m.fecha as date) &gt;= cast(? as date) and cast(m.fecha as date) &lt;= cast(? as date)" />
+	</bean>
+	
+	<bean id="findMovimientoById" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select m.movimiento_id,
+					m.caja_id,
+					m.cajero_id,
+					m.fecha,
+					m.tipo_mov_id,
+					m.moneda_id,
+					m.monto,
+					m.tipo_cambio,
+					m.forma_pago,
+					m.cuenta,
+					m.control,
+					m.creado_por,
+					m.fecha_creacion,
+					m.modificado_por,
+					m.fecha_modificacion,
+					m.banco_id,
+					m.cheque,
+					m.estatus,
+					m.obs,
+					m.poliza,
+					m.referencia_movimiento_id,
+					m.banco_origen,
+					m.fecha_deposito,
+					m.poliza_provision,
+					m.transaccion_id,
+					m.tarjeta_operativa_id,
+					m.region_id,
+					m.id_importacion,
+					m.moneda_valor,
+					m.moneda_nombre,
+					m.moneda_fecha_valor,
+					m.monto_original,
+					m.monto_destino,
+					m.moneda_error 
+			from movimientos_caja m			 
+			where m.referencia_movimiento_id = ?" />
+	</bean>
+	
+	<bean id="obtenerMovimientoId" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select m.movimiento_id as vmovimiento_caja      
+					from movimientos_caja as m      
+					join ahorro_contrato as a on m.cuenta = a.cuenta      
+					join agente as g on a.sucursal_apertura = g.clave      
+					join regiones as r on case when g.sub_sucursal is null then g.region_id = r.clave else g.sub_sucursal = r.clave end      
+					where m.cuenta = ?      and m.estatus is null      and m.monto = ?     
+					and case when EXTRACT(DOW FROM cast(? as date)) &gt; 1 then (           
+					(cast(m.fecha_creacion as date) = cast(? as date) and EXTRACT(HOUR FROM m.fecha_creacion) &lt;  r.corte_ahorro_deposito)           
+					or           
+					(cast(m.fecha_creacion as date) = cast(? as date)-1 and EXTRACT(HOUR FROM m.fecha_creacion) &gt;= r.corte_ahorro_deposito)         
+					) else (           
+					(cast(m.fecha_creacion as date) = cast(? as date) and EXTRACT(HOUR FROM m.fecha_creacion) &lt;  r.corte_ahorro_deposito)           
+					or           
+					(cast(m.fecha_creacion as date) = cast(? as date)-3 and EXTRACT(HOUR FROM m.fecha_creacion) &gt;=  r.corte_ahorro_deposito )           
+					or           (cast(m.fecha_creacion as date) = cast(? as date)-2 )      
+					) end" />
+	</bean>	
+	
+	<bean id="actualizaMovimiento" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update movimientos_caja set estatus = ?, banco_id = ?, banco_origen = ?, fecha_deposito = ?, modificado_por = ?, fecha_modificacion = current_timestamp" />
+	</bean>
+	
+	<bean id="obtenerMovimientoClaveRastreo" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select TO_CHAR(fecha_creacion, 'dd-MM-yyyy HH:MM:SS AM') as fecha_creacion from movimientos_caja where obs like ?" />
+	</bean>
+	
+	
+	
+	<bean id="MovimientosCajaDAO" class="net.cero.spring.dao.MovimientosCajaDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="sigSeqMC" ref="sigSeqMC"/>
+		<property name="nuevoMC" ref="nuevoMC"/>
+		<property name="findMovimientoByCuentaAndFechas" ref="findMovimientoByCuentaAndFechas"/>
+		<property name="findMovimientoByReferenciaAndFechas" ref="findMovimientoByReferenciaAndFechas"/>
+		<property name="obtenerIdeAnterior" ref="obtenerIdeAnterior"/>
+		<property name="obtenerMovimientoId" ref="obtenerMovimientoId"/>
+		<property name="findMovimientoById" ref="findMovimientoById"/>
+		<property name="actualizaMovimiento" ref="actualizaMovimiento"/>
+		<property name="obtenerMovimientoClaveRastreo" ref="obtenerMovimientoClaveRastreo"/>
+	</bean>
+	
+</beans>
