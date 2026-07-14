@@ -21,6 +21,9 @@ pipeline {
     
     stages {
         stage('Build') {
+            tools {
+                jdk 'JDK-1.8' // Asegura que use la descarga de Adoptium Java 8
+            }
             steps {
                 dir('ceroahorrows.war/CEROAhorroWS') {
                     configFileProvider([configFile(fileId: 'maven-local-repo', variable: 'MAVEN_SETTINGS')]) {
@@ -37,6 +40,9 @@ pipeline {
         }
         
         stage('Unit Test'){
+            tools {
+                jdk 'JDK-1.8' // Asegura que use la descarga de Adoptium Java 8
+            }
             steps {
                 dir('ceroahorrows.war/CEROAhorroWS') {
                     sh 'mvn test'
@@ -45,6 +51,9 @@ pipeline {
         }
         
         stage('Integration Test'){
+            tools {
+                jdk 'JDK-1.8' // Asegura que use la descarga de Adoptium Java 8
+            }
             steps {
                 dir('ceroahorrows.war/CEROAhorroWS') {
                     sh 'mvn verify -DskipUnitTests'
@@ -53,6 +62,9 @@ pipeline {
         }
         
         stage ('Checkstyle Code Analysis'){
+            tools {
+                jdk 'JDK-1.8' // Asegura que use la descarga de Adoptium Java 8
+            }
             steps {
                 dir('ceroahorrows.war/CEROAhorroWS') {
                     sh 'mvn checkstyle:checkstyle'
