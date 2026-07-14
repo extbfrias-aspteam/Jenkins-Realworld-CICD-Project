@@ -1,6 +1,6 @@
 {
     "sonarlint.connectedMode.project": {
         "connectionId": "SonarQube local",
-        "projectKey": "JavaWebApp-Project"
+        "projectKey": "APC-Liberaciones_2026"
     }
 }
