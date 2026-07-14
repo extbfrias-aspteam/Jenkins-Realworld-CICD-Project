@@ -81,7 +81,7 @@ pipeline {
                 jdk 'jdk11' 
             }
             steps {
-                dir('ceroahorrows.war/CEROAhorroWS') {
+                dir('ceroahorrows.war/CEROAhorroWS/') {
                     withSonarQubeEnv('SonarQube') { 
                         withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
                             // CORRECCIÓN: Usamos la variable $SONAR_TOKEN limpia y la URL pública correcta
@@ -130,7 +130,7 @@ pipeline {
         
         stage("Nexus Artifact Uploader"){
             steps {
-                dir('ceroahorrows.war') {
+                dir('ceroahorrows.war/CEROAhorroWS') {
                     script {
                         def warFiles = findFiles(glob: 'target/*.war')  // ✅ glob corregido
                         if (warFiles.length == 0) {
