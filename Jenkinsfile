@@ -79,28 +79,46 @@ pipeline {
         
         stage('SonarQube Inspection') {
             tools {
+                // Jenkins usará el instalador automático de JDK 11 configurado para el scanner
                 jdk 'jdk11' 
             }
             steps {
                 dir('ceroahorrows.war/CEROAhorroWS/') {
                     withSonarQubeEnv('SonarQube') { 
                         withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
-                            sh '''
+                            // CORRECCIÓN: Usamos la variable $SONAR_TOKEN limpia y la URL pública correcta
+                            sh """
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ \
+                            -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ" \
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.scm.provider=git \
-                            -Dsonar.token=$SONAR_TOKEN \
-                            -Dsonar.login=$SONAR_TOKEN
-                            '''
+                            -Dsonar.login=${SONAR_TOKEN}
+                            """
                         }
                     }
                 }
             }
-    }
+        }
+        stage('SonarQube Analysis') {
+            tools {
+                jdk 'jdk11' // Asegura que use la descarga de Adoptium Java 11
+            }
+            steps {
+                script {
+                    // 1. Declare your variable inside a script block
+                    def mvn = tool 'localMaven'
+                    
+                    // 2. Wrap your maven execution inside the SonarQube environment wrapper
+                    withSonarQubeEnv('SonarQube') { // Match the exact name of your server in Jenkins
+                        sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ"
+                    }
+                }
+            }
+        }
         
         stage('SonarQube Quality Gate') {
             steps {
+                // Entramos al mismo subdirectorio para encontrar el archivo 'report-task.txt'
                 dir('ceroahorrows.war/CEROAhorroWS') {
                     timeout(time: 1, unit: 'HOURS') {
                         script {
