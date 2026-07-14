@@ -79,25 +79,25 @@ pipeline {
         
         stage('SonarQube Inspection') {
             tools {
-                jdk 'jdk11' // Modern SonarScanner mandates Java 11/17+
+                jdk 'jdk11' 
             }
             steps {
                 dir('ceroahorrows.war/CEROAhorroWS/') {
                     withSonarQubeEnv('SonarQube') { 
                         withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
-                            // FIX: Using single quotes to let bash safely process environment variables
                             sh '''
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=APC-Liberaciones_2026 \
+                            -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ \
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.scm.provider=git \
-                            -Dsonar.token=$SONAR_TOKEN
+                            -Dsonar.token=$SONAR_TOKEN \
+                            -Dsonar.login=$SONAR_TOKEN
                             '''
                         }
                     }
                 }
             }
-        }
+    }
         
         stage('SonarQube Quality Gate') {
             steps {
