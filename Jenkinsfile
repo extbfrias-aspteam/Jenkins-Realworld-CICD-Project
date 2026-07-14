@@ -88,7 +88,7 @@ pipeline {
                             // FIX: Using single quotes to let bash safely process environment variables
                             sh '''
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=extbfrias-aspteam_Jenkins-Realworld-CICD-Project_AZ8Wcm5tMb0D80z0WSTJ \
+                            -Dsonar.projectKey=APC-Liberaciones_2026 \
                             -Dsonar.host.url=http://sonarqube:9000 \
                             -Dsonar.scm.provider=git \
                             -Dsonar.token=$SONAR_TOKEN
