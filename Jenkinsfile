@@ -23,7 +23,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                dir('ceroahorrows.war') {
+                dir('ceroahorrows.war/CEROAhorroWS') {
                     configFileProvider([configFile(fileId: 'maven-local-repo', variable: 'MAVEN_SETTINGS')]) {
                     // Forzamos a Maven a ignorar la validación estricta de SSL
                     sh 'mvn clean package -s $MAVEN_SETTINGS -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true'
@@ -35,14 +35,14 @@ pipeline {
                 success {
                     echo ' now Archiving '
                     // nnnnBusca los entregables dentro de la subcarpeta de forma correcta
-                    archiveArtifacts artifacts: 'ceroahorrows.war/target/*.war'
+                    archiveArtifacts artifacts: 'ceroahorrows.war/CEROAhorroWS/target/*.war'
                 }
             }
         }
         
         stage('Unit Test'){
             steps {
-                dir('ceroahorrows.war') {
+                dir('ceroahorrows.war/CEROAhorroWS') {
                     sh 'mvn test'
                 }
             }
@@ -50,7 +50,7 @@ pipeline {
         
         stage('Integration Test'){
             steps {
-                dir('ceroahorrows.war') {
+                dir('ceroahorrows.war/CEROAhorroWS') {
                     sh 'mvn verify -DskipUnitTests'
                 }
             }
@@ -58,7 +58,7 @@ pipeline {
         
         stage ('Checkstyle Code Analysis'){
             steps {
-                dir('ceroahorrows.war') {
+                dir('ceroahorrows.war/CEROAhorroWS') {
                     sh 'mvn checkstyle:checkstyle'
                 }
             }
@@ -81,7 +81,7 @@ pipeline {
                 jdk 'jdk11' 
             }
             steps {
-                dir('ceroahorrows.war') {
+                dir('ceroahorrows.war/CEROAhorroWS') {
                     withSonarQubeEnv('SonarQube') { 
                         withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
                             // CORRECCIÓN: Usamos la variable $SONAR_TOKEN limpia y la URL pública correcta
@@ -114,7 +114,7 @@ pipeline {
         stage('SonarQube Quality Gate') {
             steps {
                 // Entramos al mismo subdirectorio para encontrar el archivo 'report-task.txt'
-                dir('ceroahorrows.war') {
+                dir('ceroahorrows.war/CEROAhorroWS') {
                     timeout(time: 1, unit: 'HOURS') {
                         script {
                             def qg = waitForQualityGate()
