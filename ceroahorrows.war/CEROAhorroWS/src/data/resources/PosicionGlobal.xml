@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="queryBuscarTipoCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT tipocuentaah FROM nucleocentral.ncposicionglobalah WHERE cuentaah = ?" />
+	</bean>
+
+	<bean id="queryBuscarCuentaPorTarjeta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT cuentaah FROM nucleocentral.ncposicionglobalah WHERE tarjeta_principal = ? OR tarjeta_adicional = ?" />
+	</bean>
+
+	<bean id="queryBuscarCuentaPorClabe" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT cuentaah FROM nucleocentral.ncposicionglobalah WHERE cuenta_clabe = ?" />
+	</bean>
+
+	<bean id="PosicionGlobalDAO" class="net.cero.spring.dao.PosicionGlobalDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="queryBuscarTipoCuenta" ref="queryBuscarTipoCuenta" />
+		<property name="queryBuscarCuentaPorTarjeta" ref="queryBuscarCuentaPorTarjeta" />
+		<property name="queryBuscarCuentaPorClabe" ref="queryBuscarCuentaPorClabe" />
+	</bean>
+</beans>

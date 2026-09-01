@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+
+	<bean id="obtenerCatalogoDomiciliosString" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select
+				cat_domicilio_id as id,
+				cve_sif as clave,
+				descripcion,
+				abreviacion
+					from cat_domicilios
+					order by cve_sif asc;
+		"/>
+	</bean>
+
+
+	<bean id="DomiciliosCatalogDAO" class="net.cero.spring.dao.DomiciliosCatalogDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="obtenerCatalogoDomiciliosString" ref="obtenerCatalogoDomiciliosString" />
+
+	</bean>
+
+</beans>

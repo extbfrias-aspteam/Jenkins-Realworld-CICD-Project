@@ -1,0 +1,43 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="sigSeqAhorroPagare" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_pagares_seq')" />
+	</bean>
+	
+	<bean id="nuevoAhorroPagare" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into ahorro_pagares(pagare_id,cuenta,numero,monto,fecha_inicio,fecha_final,creado_por,fecha_creacion,modificado_por,fecha_modificacion)
+					values(?,?,?,?,?,?,?,?,?,?)" />
+	</bean>
+	
+	<bean id="buscarPagareByCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT PAGARE_ID, CUENTA, NUMERO, MONTO, INTERESES, FECHA_INICIO, FECHA_FINAL, CREADO_POR, FECHA_CREACION, MODIFICADO_POR, FECHA_MODIFICACION
+					FROM AHORRO_PAGARES WHERE CUENTA = ?" />
+	</bean>
+	
+	<bean id="buscarMaxNumPagareByCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select coalesce(max(numero),0) from ahorro_pagares where cuenta= ?" />
+	</bean>
+	
+	<bean id="buscarPagareByCuentaNumero" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT PAGARE_ID, CUENTA, NUMERO, MONTO, INTERESES, FECHA_INICIO, FECHA_FINAL, CREADO_POR, FECHA_CREACION, MODIFICADO_POR, FECHA_MODIFICACION
+					FROM AHORRO_PAGARES WHERE CUENTA = ? AND NUMERO = ?" />
+	</bean>
+	
+	<bean id="AhorroPagareDAO" class="net.cero.spring.dao.AhorroPagareDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="sigSeqAhorroPagare" ref="sigSeqAhorroPagare"/>
+		<property name="nuevoAhorroPagare" ref="nuevoAhorroPagare"/>
+		<property name="buscarPagareByCuenta" ref="buscarPagareByCuenta"/>
+		<property name="buscarMaxNumPagareByCuenta" ref="buscarMaxNumPagareByCuenta"/>
+		<property name="buscarPagareByCuentaNumero" ref="buscarPagareByCuentaNumero"/>
+	</bean>
+	
+</beans>

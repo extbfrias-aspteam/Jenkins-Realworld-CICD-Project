@@ -1,0 +1,17 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="montoGarantia" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select sum(monto_garantia) from ahorro_garantias where cuenta= ? and (estatus='C' or estatus='V')" />
+	</bean>
+	
+	
+	<bean id="AhorroGarantiasDAO" class="net.cero.spring.dao.AhorroGarantiasDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="montoGarantia" ref="montoGarantia"/>
+	</bean>
+	
+</beans>

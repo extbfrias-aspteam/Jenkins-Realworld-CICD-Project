@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="generarPIN" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT genera_pin(?) AS pin" />
+	</bean>
+	
+	<bean id="PINDAO" class="net.cero.spring.dao.PINDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="generarPIN" ref="generarPIN"/>
+	</bean>
+</beans>

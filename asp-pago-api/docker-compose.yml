@@ -1,0 +1,30 @@
+#networks:
+#  asp-pago-api-network:
+#    driver: bridge
+#    ipam:
+#      config:
+#        - subnet: 172.31.0.0/30
+
+services:
+  asp-pago-api:
+    image: asp-pago-api:latest
+    container_name: asp-pago-api
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - TZ=${TZ}
+    ports:
+      - "8013:8013"
+#    networks:
+#      - asp-pago-api-network
+    volumes:
+      - ${HOST_CONTAINER}/config/:/app/config/
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "512M"
+        reservations:
+          cpus: "0.2"
+          memory: "320M"

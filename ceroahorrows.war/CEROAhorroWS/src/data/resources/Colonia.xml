@@ -1,0 +1,116 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="obtenerColoniaByCpNombre" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  clave,
+					  nombre,
+					  cp,
+					  creado_por,
+					  fecha_creacion,
+					  modificado_por,
+					  fecha_modificacion,
+					  agente_id,
+					  localidad_id,
+					  region_id,
+					  exclusiva,
+					  comision_gestor,
+					  bloqueada,
+					  id_subsidio,
+					  clave_cnbv
+					FROM 
+					  public.colonia where nombre = ? and cp = ?" />
+	</bean>
+
+	<bean id="obtenerColoniaByCpNombreCERO" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select * from prcolonia p where p.codigo_postal = ? and p.nombre = ?" />
+	</bean>
+	
+	<bean id="obtenerColoniaCentroByLocalidad" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  clave,
+					  nombre,
+					  cp,
+					  creado_por,
+					  fecha_creacion,
+					  modificado_por,
+					  fecha_modificacion,
+					  agente_id,
+					  localidad_id,
+					  region_id,
+					  exclusiva,
+					  comision_gestor,
+					  bloqueada,
+					  id_subsidio,
+					  clave_cnbv
+					FROM 
+					  public.colonia where nombre = 'CENTRO' and localidad_id = ?" />
+	</bean>
+	<bean id="obtenerDatosColoniasByCp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT
+					  col.clave,
+					  col.nombre as colonia,
+            		  loc.descripcion as localidad,
+            		  mun.cmpionmpio as municipio,
+            		  est.nombre as estado
+					FROM
+					  public.colonia col
+            left join localidades loc on loc.clave=col.localidad_id
+            left join catmpio mun on mun.cmpiompio =loc.catmpio_id
+            left join estatal est on est.clave=mun.estado_id
+            where col.cp = ?" />
+	</bean>
+	<bean id="obtenerDatosCpbyCodigoCp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT
+					  col.cp,
+					  col.nombre as colonia,
+            		  loc.descripcion as localidad,
+            		  mun.cmpionmpio as municipio,
+            		  est.nombre as estado
+					FROM
+					  public.colonia col
+            left join localidades loc on loc.clave=col.localidad_id
+            left join catmpio mun on mun.cmpiompio =loc.catmpio_id
+            left join estatal est on est.clave=mun.estado_id
+            where col.clave = ?" />
+	</bean>
+	<bean id="obtenerSucursalAperturaByColoniaId" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT
+					  clave,
+					  nombre,
+					  cp,
+					  creado_por,
+					  fecha_creacion,
+					  modificado_por,
+					  fecha_modificacion,
+					  agente_id,
+					  localidad_id,
+					  region_id,
+					  exclusiva,
+					  comision_gestor,
+					  bloqueada,
+					  id_subsidio,
+					  clave_cnbv
+					FROM
+					  public.colonia where nombre = 'CENTRO' and localidad_id = ?" />
+	</bean>
+
+	<bean id="ColoniaDAO" class="net.cero.spring.dao.ColoniaDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="obtenerColoniaByCpNombre" ref="obtenerColoniaByCpNombre"/>
+		<property name="obtenerColoniaCentroByLocalidad" ref="obtenerColoniaCentroByLocalidad"/>
+		<property name="obtenerColoniaByCpNombreCERO" ref="obtenerColoniaByCpNombreCERO"/>
+		<property name="obtenerDatosCpbyCodigoCp" ref="obtenerDatosCpbyCodigoCp"/>
+		<property name="obtenerDatosColoniasByCp" ref="obtenerDatosColoniasByCp"/>
+	</bean>
+	
+</beans>

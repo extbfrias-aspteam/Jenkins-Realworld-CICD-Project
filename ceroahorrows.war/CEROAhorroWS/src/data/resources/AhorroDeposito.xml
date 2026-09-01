@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="nuevoAhorroDeposito" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into ahorro_deposito (deposito_id,cuenta,monto,fecha,forma_pago,banco,no_cheque,observaciones,creado_por,fecha_creacion,modificado_por,fecha_modificacion,transaccion_id, tarjeta_operativa_id, app, transaccion_version_id)
+					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)" />
+	</bean>
+	
+	
+	
+	<bean id="AhorroDepositoDAO" class="net.cero.spring.dao.AhorroDepositoDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="nuevoAhorroDeposito" ref="nuevoAhorroDeposito"/>
+	</bean>
+	
+</beans>

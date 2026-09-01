@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+		
+	<bean id="consultaCatalagoMovimientosManuales" class="java.lang.String">
+		<constructor-arg type="java.lang.String" 
+			value="select
+				aht.clave_trans_dock as clave_movimiento,
+				aht.descripcion as descripcion_movimiento,
+				aht.operacion as tipo_movimiento
+			  from ahorro.ahtipos_transacciones aht
+			where COALESCE(aht.clave_trans_dock,'') &lt;&gt;'' AND COALESCE(aht.visible,true)=true
+  		order by aht.descripcion"/>
+	</bean>
+	
+	<bean id="MovimientosDAO"  class="net.cero.spring.dao.MovimientosDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />	
+		<property name="consultaCatalagoMovimientosManuales" ref="consultaCatalagoMovimientosManuales"/>
+	</bean>
+</beans>

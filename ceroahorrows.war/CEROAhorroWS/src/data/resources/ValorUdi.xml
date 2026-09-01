@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="obtenerValorUdi" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT VALOR_UDI()"/>
+	</bean>
+	
+	<bean id="ValorUdiDAO" class="net.cero.spring.dao.ValorUdiDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="obtenerValorUdi" ref="obtenerValorUdi"/>
+	</bean>
+	
+</beans>

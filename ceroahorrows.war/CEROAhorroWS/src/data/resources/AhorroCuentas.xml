@@ -1,0 +1,55 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- Consulta en PROCREA para obtener la información del cliente, empresa, 
+		así como sucursal a la que pertenece, dada una cuenta de ahorro. -->
+	<bean id="queryDatosClienteCuentaAhorro" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT s.numero,a.cuenta,s.nombre, s.celular, g.region_id, g.empresa FROM ahorro_contrato AS a 
+			JOIN solicitante AS s ON a.solicitante_id = s.numero
+			JOIN agente AS g ON a.sucursal_apertura = g.clave
+			WHERE cuenta = ?" />
+	</bean>
+
+	<!-- Consulta en CERO que obtiene personaid, así como los datos de la empresa 
+		y sucursal a la que pertenece dada una cuenta que no es de ahorro. -->
+	<bean id="queryDatosPersonaCuentaNoAhorro"
+		class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT a.persona_id,a.cuenta, a.sucursal_id, s.idempresa FROM ahorro.ahcuentas AS a 
+			JOIN nucleocentral.ncsucursal AS s ON a.sucursal_id = s.id
+			WHERE a.cuenta = ?" />
+	</bean>
+
+	<!-- Consulta en CERO que obtiene personaid, así como los datos de la empresa 
+		y sucursal a la que pertenece dada una cuenta que no es de ahorro. -->
+	<bean id="obtenerMovimientoIdSpei"
+		class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select TO_CHAR(tc.fecha_creacion, 'dd-MM-yyyy HH:MM:SS AM') as fecha_creacion from ahorro.ahtransacciones_cuentas tc
+					inner join ahorro.ahtipos_transacciones tt on tt.id = tc.tipo_transaccion_id
+					where id_spei = ? and tt.operacion = ?" />
+	</bean>
+
+
+	<bean id="obtenerCuentasCero"
+		  class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT c.cuenta, pa.descripcion as producto FROM ahorro.ahcuentas c
+								inner join productos.prproductos_ahorro pa on pa.id = c.producto_ahorro_id
+								where c.persona_id = ?" />
+	</bean>
+
+	<bean id="AhorroCuentasDAO"
+		class="net.cero.spring.dao.AhorroCuentasDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="queryDatosClienteCuentaAhorro"
+			ref="queryDatosClienteCuentaAhorro" />
+		<property name="queryDatosPersonaCuentaNoAhorro"
+			ref="queryDatosPersonaCuentaNoAhorro" />
+		<property name="obtenerCuentasCero"  ref="obtenerCuentasCero" />
+	</bean>
+</beans>

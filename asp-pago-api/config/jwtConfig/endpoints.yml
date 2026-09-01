@@ -1,0 +1,36 @@
+jwt:
+  endpoints:
+    excluidos:
+      # asp-pago-onb
+      - registroDeCuentaSimplificada
+      - validacionDeCorreo
+      - validaCorreoPHP
+      - altaBeneficiariosV2
+      - validaFotoIne
+      # asp-pago-management
+      - consultarCP
+      - validaCurpNub
+      - validaTelefono
+      - enviarCodigo
+      - validaCurpCecoban
+      - registrarTokenHuella
+      # asp-pago-access
+      - obtenerDatosInicialesV
+      - cambioPasswordV2
+      - validarTokenCambioPass
+      - peticionCambioPassV2
+      - cierraSesion
+      - validaVersionApp
+      # asp-pago-documents
+      - registraImagenesCuentaSimplificada
+      - /onb/storage/
+      # asp-pago-services-v2
+      - finalizarSesionIncodeManual
+      - validaCurpCuenta
+      # asp-pago-jwt
+      - login-auth
+      - refresh-token
+      - validaJWTToken
+    externos:
+      # asp-pago-payments
+      - generarAbono

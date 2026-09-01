@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="sigSeqIde" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_ide_valores_seq')" />
+	</bean>
+	
+	<bean id="nuevoAhorroIdeValores" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO ahorro_ide_valores(ahorro_ide_valores_id,fecha_inicio,fecha_final,monto,porcentaje,creado_por,fecha_creacion,modificado_por,fecha_modificacion) 
+				   VALUES(?,?,?,?,?,?,?,?,?)" />
+	</bean>
+	
+	<bean id="findValorByFechas" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT ahorro_ide_valores_id, fecha_inicio, fecha_final, monto, porcentaje, creado_por, fecha_creacion, modificado_por, fecha_modificacion 
+					FROM  ahorro_ide_valores WHERE cast(fecha_inicio as date) &lt;= cast(? as date) and cast(fecha_final as date) &gt;= cast(? as date)" />
+	</bean>
+	
+	<bean id="AhorroIdeValoresDAO" class="net.cero.spring.dao.AhorroIdeValoresDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="sigSeqIde" ref="sigSeqIde"/>
+		<property name="nuevoAhorroIdeValores" ref="nuevoAhorroIdeValores"/>
+		<property name="findValorByFechas" ref="findValorByFechas"/>
+	</bean>
+	
+</beans>

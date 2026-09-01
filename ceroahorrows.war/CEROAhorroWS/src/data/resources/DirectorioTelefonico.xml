@@ -1,0 +1,64 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="sigSecDirTel" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('directorio_telefonico_id_directorio_telefonico_seq'::regclass)" />
+	</bean>
+	
+	<bean id="nuevoDirectorioTelefonico" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO public.directorio_telefonico(id_directorio_telefonico,id_solicitante,id_cat_telefono,id_compania_tel,telefono,extension,observaciones,creado_por,fecha_creacion) 
+					VALUES (?,?,?,?,?,?,?,?,current_timestamp);" />
+	</bean>
+	
+	<bean id="actualizaDirectorioTelefonico" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE 
+					  public.directorio_telefonico  
+					SET 
+					  telefono = ?,
+					  modificado_por = ?,
+					  fecha_modificacion = current_timestamp
+					WHERE 
+					  id_directorio_telefonico = ?" />
+	</bean>
+	
+	<bean id="obtenerTelfonoCelularCoDi" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  id_directorio_telefonico,
+					  id_solicitante,
+					  id_cat_telefono,
+					  id_compania_tel,
+					  telefono,
+					  extension,
+					  observaciones,
+					  creado_por,
+					  fecha_creacion,
+					  modificado_por,
+					  fecha_modificacion,
+					  portado
+					FROM 
+					  public.directorio_telefonico where id_solicitante = ? and id_cat_telefono = 7" />
+	</bean>
+
+	<bean id="obtenerSolicitantePorTelefono" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select id_solicitante  from directorio_telefonico
+								where telefono = ?
+								and id_cat_telefono = 7" />
+	</bean>
+	
+	<bean id="DirectorioTelefonicoDAO" class="net.cero.spring.dao.DirectorioTelefonicoDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="sigSecDirTel" ref="sigSecDirTel"/>
+		<property name="nuevoDirectorioTelefonico" ref="nuevoDirectorioTelefonico"/>
+		<property name="actualizaDirectorioTelefonico" ref="actualizaDirectorioTelefonico"/>
+		<property name="obtenerTelfonoCelularCoDi" ref="obtenerTelfonoCelularCoDi"/>
+		<property name="obtenerSolicitantePorTelefono" ref="obtenerSolicitantePorTelefono"/>
+	</bean>
+	
+</beans>

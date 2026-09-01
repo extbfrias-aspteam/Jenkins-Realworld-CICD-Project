@@ -1,0 +1,1 @@
+mvn install:install-file -DgroupId=org -DartifactId=WsAsp_client01 -Dversion=1.0 -Dpackaging=jar -Dfile=WsAsp_client01.jar
