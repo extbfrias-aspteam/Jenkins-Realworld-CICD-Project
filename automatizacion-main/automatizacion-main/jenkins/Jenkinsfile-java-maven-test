@@ -51,7 +51,7 @@ pipeline {
         PATH       = "${MAVEN_HOME}/bin:${env.PATH}"
 
         // Directorio del proyecto Maven dentro del repo
-        APP_DIR    = 'java-app'
+        APP_DIR    = '.'
 
         // Nexus (disponible en la red test-network del compose)
         NEXUS_URL  = 'http://nexus:8081'
