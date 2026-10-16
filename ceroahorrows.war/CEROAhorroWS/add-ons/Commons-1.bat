@@ -1,0 +1,1 @@
+mvn install:install-file -DgroupId=com.mx -DartifactId=Commons -Dversion=1 -Dpackaging=jar -Dfile=Commons-1.jar

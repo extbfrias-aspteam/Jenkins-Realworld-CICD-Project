@@ -1,0 +1,8 @@
+suffixes:
+  canales:
+    permitidos:
+      - iOS
+      - Android
+      - EiYu
+      - PRO-TRASP-EiYu
+      - PRO-REND-INV

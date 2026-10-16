@@ -1,0 +1,17 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="ahorroTipocuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select coalesce(ar.deposito,'N') as tipo_cuenta from ahorro_rendimiento ar where ar.rendimiento_id =?" />
+	</bean>
+	
+	
+	<bean id="AhorroRendimientoDAO" class="net.cero.spring.dao.AhorroRendimientoDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="ahorroTipocuenta" ref="ahorroTipocuenta"/>
+	</bean>
+	
+</beans>

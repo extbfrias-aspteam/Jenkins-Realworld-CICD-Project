@@ -1,0 +1,15 @@
+trace:
+  aspp:
+    suffixes:
+      api: ASPP-API
+      payments: ASPP-PAY
+      onb: ASPP-ONB
+      access: ASPP-ACC
+      management: ASPP-MAN
+      documents: ASPP-DOC
+      notification: ASPP-NOTI
+      investments: ASPP-INV
+      utility: ASPP-UTI
+      jwt: ASPP-JWT
+      codi: ASPP-CoDi
+      servicesV2: ASPP-SV2

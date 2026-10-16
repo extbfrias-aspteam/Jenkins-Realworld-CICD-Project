@@ -1,0 +1,17 @@
+# This is a CODEOWNERS file.
+# Lines starting with '#' are comments.
+# Each line is a file pattern followed by one or more owners.
+
+# The '*' pattern refers to all files in the repository.
+*       @aspintegraopciones/revisores
+
+# Specify owners for specific directories
+#/src/   @aspintegraopciones/revisores
+#/tests/ @aspintegraopciones/revisores
+
+# Specify owners for specific file types
+#*.java  @aspintegraopciones/revisores
+#*.md    @aspintegraopciones/revisores
+
+# Specify owners for specific files
+#README.md @aspintegraopciones/revisores

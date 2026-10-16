@@ -1,0 +1,362 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+		
+	<bean id="buscarCuentasXClienteTipoAhorro" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT cuenta, contrato, tipo_ahorro_id, rendimiento_id, fecha_apertura, fecha_deposito, solicitante_id, titular_id, moneda_id, sucursal_apertura,
+  					asociacion_id, domicilio, numero_casa, colonia_id, cta_contable, estatus, saldo, referencia, oficial_id, creado_por, fecha_creacion, modificado_por,
+  					fecha_modificacion, fecha_cancelacion, cuenta_padre, cuenta_destino_cap, cuenta_destino_ren, ahorro_contrato_id, pin, pin_fecha_cambio, pin_usuario_cambio,
+  					monto_apertura, externa_cuenta, externa_clabe, externa_tarjeta, externa_banco, meta_monto, meta_fecha, meta_aportacion, meta_periodo, meta_destino_id,
+  					meta_motivo, gat, correo_edocuenta, cuenta_clabe, id_como_entero, pin_auto, centro_trabajo, puesto, monto_max_ahorro, ingresos, prov_rec_id, prov_rec_rel_id,
+  					prov_rec_monto_max_ahorro, prov_rec_ingresos, prov_centro_trabajo, prov_puesto, actividad_id, giro_id, ocupacion_id, prov_ocupacion_id, cve_destino,
+  					errores, status_bloqueo, hora_primer_error, hora_bloqueo, num_bloqueo, requiere_identificador, respaldo_md5
+					FROM  ahorro_contrato where solicitante_id = ? and tipo_ahorro_id = ?" />
+	</bean>
+	
+	<bean id="buscarCuentasXCliente" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT cuenta, contrato, tipo_ahorro_id, rendimiento_id, fecha_apertura, fecha_deposito, solicitante_id, titular_id, moneda_id, sucursal_apertura,
+  					asociacion_id, domicilio, numero_casa, colonia_id, cta_contable, estatus, saldo, referencia, oficial_id, creado_por, fecha_creacion, modificado_por,
+  					fecha_modificacion, fecha_cancelacion, cuenta_padre, cuenta_destino_cap, cuenta_destino_ren, ahorro_contrato_id, pin, pin_fecha_cambio, pin_usuario_cambio,
+  					monto_apertura, externa_cuenta, externa_clabe, externa_tarjeta, externa_banco, meta_monto, meta_fecha, meta_aportacion, meta_periodo, meta_destino_id,
+  					meta_motivo, gat, correo_edocuenta, cuenta_clabe, id_como_entero, pin_auto, centro_trabajo, puesto, monto_max_ahorro, ingresos, prov_rec_id, prov_rec_rel_id,
+  					prov_rec_monto_max_ahorro, prov_rec_ingresos, prov_centro_trabajo, prov_puesto, actividad_id, giro_id, ocupacion_id, prov_ocupacion_id, cve_destino,
+  					errores, status_bloqueo, hora_primer_error, hora_bloqueo, num_bloqueo, requiere_identificador, respaldo_md5
+					FROM  ahorro_contrato where solicitante_id = ?" />
+	</bean>
+	
+	<bean id="buscarCuentaXReferencia" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT cuenta, contrato, tipo_ahorro_id, rendimiento_id, fecha_apertura, fecha_deposito, solicitante_id, titular_id, moneda_id, sucursal_apertura,
+  					asociacion_id, domicilio, numero_casa, colonia_id, cta_contable, estatus, saldo, referencia, oficial_id, creado_por, fecha_creacion, modificado_por,
+  					fecha_modificacion, fecha_cancelacion, cuenta_padre, cuenta_destino_cap, cuenta_destino_ren, ahorro_contrato_id, pin, pin_fecha_cambio, pin_usuario_cambio,
+  					monto_apertura, externa_cuenta, externa_clabe, externa_tarjeta, externa_banco, meta_monto, meta_fecha, meta_aportacion, meta_periodo, meta_destino_id,
+  					meta_motivo, gat, correo_edocuenta, cuenta_clabe, id_como_entero, pin_auto, centro_trabajo, puesto, monto_max_ahorro, ingresos, prov_rec_id, prov_rec_rel_id,
+  					prov_rec_monto_max_ahorro, prov_rec_ingresos, prov_centro_trabajo, prov_puesto, actividad_id, giro_id, ocupacion_id, prov_ocupacion_id, cve_destino,
+  					errores, status_bloqueo, hora_primer_error, hora_bloqueo, num_bloqueo, requiere_identificador, respaldo_md5
+  					from ahorro_contrato where rerefencia = ?" />
+	</bean>
+	
+	<!-- 
+	<bean id="buscarCuentaByCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT SOLICITANTE_ID,CUENTA, CONTRATO, TIPO_AHORRO_ID, RENDIMIENTO_ID, FECHA_APERTURA, FECHA_DEPOSITO, SOLICITANTE_ID, TITULAR_ID, MONEDA_ID, SUCURSAL_APERTURA,
+  					ASOCIACION_ID, DOMICILIO, NUMERO_CASA, COLONIA_ID, CTA_CONTABLE, ESTATUS, SALDO, REFERENCIA, OFICIAL_ID, CREADO_POR, FECHA_CREACION, MODIFICADO_POR,
+  					FECHA_MODIFICACION, FECHA_CANCELACION, CUENTA_PADRE, CUENTA_DESTINO_CAP, CUENTA_DESTINO_REN, AHORRO_CONTRATO_ID, PIN, PIN_FECHA_CAMBIO, PIN_USUARIO_CAMBIO,
+  					MONTO_APERTURA, EXTERNA_CUENTA, EXTERNA_CLABE, EXTERNA_TARJETA, EXTERNA_BANCO, META_MONTO, META_FECHA, META_APORTACION, META_PERIODO, META_DESTINO_ID,
+  					META_MOTIVO, GAT, CORREO_EDOCUENTA, CUENTA_CLABE, ID_COMO_ENTERO, PIN_AUTO, CENTRO_TRABAJO, PUESTO, MONTO_MAX_AHORRO, INGRESOS, PROV_REC_ID, PROV_REC_REL_ID,
+  					PROV_REC_MONTO_MAX_AHORRO, PROV_REC_INGRESOS, PROV_CENTRO_TRABAJO, PROV_PUESTO, ACTIVIDAD_ID, GIRO_ID, OCUPACION_ID, PROV_OCUPACION_ID, CVE_DESTINO,
+  					ERRORES, STATUS_BLOQUEO, HORA_PRIMER_ERROR, HORA_BLOQUEO, NUM_BLOQUEO, REQUIERE_IDENTIFICADOR, RESPALDO_MD5
+  					FROM AHORRO_CONTRATO WHERE CUENTA = ?"/>
+	</bean>
+	-->
+	
+	<bean id="buscarCuentaByCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT C.SOLICITANTE_ID,C.CUENTA,C.CONTRATO,C.TIPO_AHORRO_ID,C.RENDIMIENTO_ID,C.FECHA_APERTURA,C.FECHA_DEPOSITO,C.SOLICITANTE_ID,C.TITULAR_ID,C.MONEDA_ID,C.SUCURSAL_APERTURA,C.
+					ASOCIACION_ID,C.DOMICILIO,C.NUMERO_CASA,C.COLONIA_ID,C.CTA_CONTABLE,C.ESTATUS,C.SALDO,C.REFERENCIA,C.OFICIAL_ID,C.CREADO_POR,C.FECHA_CREACION,C.MODIFICADO_POR,C.
+					FECHA_MODIFICACION,C.FECHA_CANCELACION,C.CUENTA_PADRE,C.CUENTA_DESTINO_CAP,C.CUENTA_DESTINO_REN,C.AHORRO_CONTRATO_ID,C.PIN,C.PIN_FECHA_CAMBIO,C.PIN_USUARIO_CAMBIO,C.
+					MONTO_APERTURA,C.EXTERNA_CUENTA,C.EXTERNA_CLABE,C.EXTERNA_TARJETA,C.EXTERNA_BANCO,C.META_MONTO,C.META_FECHA,C.META_APORTACION,C.META_PERIODO,C.META_DESTINO_ID,C.
+					META_MOTIVO,C.GAT,C.CORREO_EDOCUENTA,C.CUENTA_CLABE,C.ID_COMO_ENTERO,C.PIN_AUTO,C.CENTRO_TRABAJO,C.PUESTO,C.MONTO_MAX_AHORRO,C.INGRESOS,C.PROV_REC_ID,C.PROV_REC_REL_ID,C.
+					PROV_REC_MONTO_MAX_AHORRO,C.PROV_REC_INGRESOS,C.PROV_CENTRO_TRABAJO,C.PROV_PUESTO,C.ACTIVIDAD_ID,C.GIRO_ID,C.OCUPACION_ID,C.PROV_OCUPACION_ID,C.CVE_DESTINO,C.
+					ERRORES,C.STATUS_BLOQUEO,C.HORA_PRIMER_ERROR,C.HORA_BLOQUEO,C.NUM_BLOQUEO,C.REQUIERE_IDENTIFICADOR,C.RESPALDO_MD5,
+					R.CLAVE AS SUCURSAL_ID, COALESCE(S.RFC1 || S.RFC2 || S.RFC3, 'AAAA999999') AS RFC,S.NOMBRE 
+					FROM AHORRO_CONTRATO C
+					JOIN AGENTE A ON A.CLAVE = C.SUCURSAL_APERTURA
+					JOIN REGIONES R ON R.CLAVE = A.REGION_ID
+					JOIN SOLICITANTE S ON S.NUMERO = C.SOLICITANTE_ID
+					WHERE C.CUENTA = ?"/>
+	</bean>
+	
+	<bean id="actualizarAhorroContrato" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro_contrato set saldo = ? where cuenta = ?" />
+	</bean>
+	
+	<bean id="obtenerNumeroCelular" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select s.celular
+					from ahorro_contrato ac
+					join solicitante s on s.numero = ac.solicitante_id
+					where ac.cuenta = ?" />
+	</bean>
+	
+	<bean id="obtenerSecuenciaCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_seq') as sec"/>
+	</bean>
+	
+	<bean id="obtenerCuentaContable" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select coalesce(cuenta_contable,'') from ahorro_capitalizar_rendimientos where tipo_id= ? and rendimiento_id = ?"/>
+	</bean>
+	
+	<bean id="obtenerSecuenciaContrato" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_contrato_seq') as sec"/>
+	</bean>
+	
+	<bean id="ahorroGeneraReferencia" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select ahorro_genera_referencia(?,?,?) as referencia_ahorro"/>
+	</bean>
+	
+	<bean id="calculoGatByCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT calculo_gat(?) as gat"/>
+	</bean>
+	
+	<bean id="actualizaGatAhorroContrato" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro_contrato set gat = ? where cuenta = ?"/>
+	</bean>
+	
+	<bean id="nuevoAhorroContrato" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO 
+					  public.ahorro_contrato
+					(
+					  ahorro_contrato_id,
+					  cuenta,
+					  contrato,
+					  tipo_ahorro_id,
+					  rendimiento_id,
+					  fecha_apertura,
+					  fecha_deposito,
+					  solicitante_id,
+					  titular_id,
+					  moneda_id,
+					  sucursal_apertura,
+					  asociacion_id,
+					  domicilio,
+					  numero_casa,
+					  colonia_id,
+					  cta_contable,
+					  estatus,
+					  saldo,
+					  referencia,
+					  oficial_id,
+					  creado_por,					  					  
+					  fecha_cancelacion,
+					  cuenta_padre,
+					  cuenta_destino_cap,
+					  cuenta_destino_ren,
+					  pin,
+					  pin_fecha_cambio,
+					  pin_usuario_cambio,
+					  monto_apertura,
+					  externa_cuenta,
+					  externa_clabe,
+					  externa_tarjeta,
+					  externa_banco,
+					  meta_monto,
+					  meta_fecha,
+					  meta_aportacion,
+					  meta_periodo,
+					  meta_destino_id,
+					  meta_motivo,
+					  gat,
+					  correo_edocuenta,
+					  cuenta_clabe,
+					  id_como_entero,
+					  pin_auto,
+					  centro_trabajo,
+					  puesto,
+					  monto_max_ahorro,
+					  ingresos,
+					  prov_rec_id,
+					  prov_rec_rel_id,
+					  prov_rec_monto_max_ahorro,
+					  prov_rec_ingresos,
+					  prov_centro_trabajo,
+					  prov_puesto,
+					  actividad_id,
+					  giro_id,
+					  ocupacion_id,
+					  prov_ocupacion_id,
+					  cve_destino,
+					  errores,
+					  status_bloqueo,
+					  hora_primer_error,
+					  hora_bloqueo,
+					  num_bloqueo,
+					  requiere_identificador,
+					  respaldo_md5,
+					  fecha_creacion
+					) 
+					VALUES (
+					    ?,
+					    ?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						current_timestamp
+					);"/>
+	</bean>
+	
+	<bean id="sigSecAhorroContrato" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_contrato_ahorro_contrato_id_seq'::regclass)" />
+	</bean>
+	
+	<bean id="borraAhorroContrato" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="  DELETE FROM 
+					  public.ahorro_contrato 
+					WHERE 
+					  ahorro_contrato_id = ?" />
+	</bean>
+	
+	<bean id="ahorroCopiaRendimientos" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT ahorro_copiar_rendimiento(cast(? as varchar), cast(? as integer), cast(? as double precision), cast(? as integer), cast(? as numeric))" />
+	</bean>
+	
+	<bean id="actualizaAhorroRendimientosVigntes" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro_rendimiento_vigente set fecha_modificacion=CURRENT_TIMESTAMP,modificado_por = ?, tipo_capitalizar_id = ? where cuenta = ? AND no_disposicion=1 " />
+	</bean>
+	
+	<bean id="actualizaCuentaClabe" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro_contrato set cuenta_clabe = ? where ahorro_contrato_id = ?" />
+	</bean>
+	
+	<bean id="sigSecAcceso" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('accesos_id_seq') as sec" />
+	</bean>
+	
+	<bean id="generaTarjetaAhorro" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select ahorro_imprime_tarjeta(?,?,?)" />
+	</bean>
+	
+	<bean id="actualizarNipAhorroContrato" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro_contrato set pin = ?, pin_fecha_cambio = current_timestamp where cuenta = ?" />
+	</bean>
+	
+	<bean id="buscarCuentasSimplificadasAll" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT C.SOLICITANTE_ID,C.CUENTA,C.CONTRATO,C.TIPO_AHORRO_ID,C.RENDIMIENTO_ID,C.FECHA_APERTURA,C.FECHA_DEPOSITO,C.SOLICITANTE_ID,C.TITULAR_ID,C.MONEDA_ID,C.SUCURSAL_APERTURA,C.
+					ASOCIACION_ID,C.DOMICILIO,C.NUMERO_CASA,C.COLONIA_ID,C.CTA_CONTABLE,C.ESTATUS,C.SALDO,C.REFERENCIA,C.OFICIAL_ID,C.CREADO_POR,C.FECHA_CREACION,C.MODIFICADO_POR,C.
+					FECHA_MODIFICACION,C.FECHA_CANCELACION,C.CUENTA_PADRE,C.CUENTA_DESTINO_CAP,C.CUENTA_DESTINO_REN,C.AHORRO_CONTRATO_ID,C.PIN,C.PIN_FECHA_CAMBIO,C.PIN_USUARIO_CAMBIO,C.
+					MONTO_APERTURA,C.EXTERNA_CUENTA,C.EXTERNA_CLABE,C.EXTERNA_TARJETA,C.EXTERNA_BANCO,C.META_MONTO,C.META_FECHA,C.META_APORTACION,C.META_PERIODO,C.META_DESTINO_ID,C.
+					META_MOTIVO,C.GAT,C.CORREO_EDOCUENTA,C.CUENTA_CLABE,C.ID_COMO_ENTERO,C.PIN_AUTO,C.CENTRO_TRABAJO,C.PUESTO,C.MONTO_MAX_AHORRO,C.INGRESOS,C.PROV_REC_ID,C.PROV_REC_REL_ID,C.
+					PROV_REC_MONTO_MAX_AHORRO,C.PROV_REC_INGRESOS,C.PROV_CENTRO_TRABAJO,C.PROV_PUESTO,C.ACTIVIDAD_ID,C.GIRO_ID,C.OCUPACION_ID,C.PROV_OCUPACION_ID,C.CVE_DESTINO,C.
+					ERRORES,C.STATUS_BLOQUEO,C.HORA_PRIMER_ERROR,C.HORA_BLOQUEO,C.NUM_BLOQUEO,C.REQUIERE_IDENTIFICADOR,C.RESPALDO_MD5,
+					R.CLAVE AS SUCURSAL_ID, COALESCE(S.RFC1 || S.RFC2 || S.RFC3, 'AAAA999999') AS RFC,S.NOMBRE 
+					FROM AHORRO_CONTRATO C
+					JOIN AGENTE A ON A.CLAVE = C.SUCURSAL_APERTURA
+					JOIN REGIONES R ON R.CLAVE = A.REGION_ID
+					JOIN SOLICITANTE S ON S.NUMERO = C.SOLICITANTE_ID
+					WHERE TIPO_AHORRO_ID = 6"/>
+	</bean>
+
+	<bean id="obtenerSaldoAcumuladoCuentaSimplificada" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select asm.saldo_acumulado::double precision, ((select (cast(valor as double precision)*valor_udi()) from parametros_generales where clave='SEG_MTO_MAX_AHO_SIMP') - asm.saldo_acumulado)::double precision as disponible_mensual
+				from ahorro_saldos_mensual asm
+				where asm.cuenta = ?"/>
+	</bean>
+
+	<bean id="obtenerCuentasProcrea" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select ac.cuenta, ta.descripcion as producto from ahorro_contrato ac
+								inner join tipos_ahorro ta on ta.tipo_ahorro_id = ac.tipo_ahorro_id
+								where ac.solicitante_id = ?"/>
+	</bean>
+	
+	<bean id="AhorroContratoDAO" class="net.cero.spring.dao.AhorroContratoDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="buscarCuentasXClienteTipoAhorro" ref="buscarCuentasXClienteTipoAhorro"/>
+		<property name="buscarCuentasXCliente" ref="buscarCuentasXCliente"/>
+		<property name="buscarCuentaXReferencia" ref="buscarCuentaXReferencia"/>
+		<property name="buscarCuentaByCuenta" ref="buscarCuentaByCuenta"/>
+		<property name="actualizarAhorroContrato" ref="actualizarAhorroContrato"/>
+		<property name="obtenerNumeroCelular" ref="obtenerNumeroCelular"/>
+		<property name="obtenerSecuenciaCuenta" ref="obtenerSecuenciaCuenta"/>
+		<property name="obtenerCuentaContable" ref="obtenerCuentaContable"/>
+		<property name="obtenerSecuenciaContrato" ref="obtenerSecuenciaContrato"/>
+		<property name="calculoGatByCuenta" ref="calculoGatByCuenta"/>
+		<property name="actualizaGatAhorroContrato" ref="actualizaGatAhorroContrato"/>
+		<property name="nuevoAhorroContrato" ref="nuevoAhorroContrato"/>
+		<property name="ahorroGeneraReferencia" ref="ahorroGeneraReferencia"/>
+		<property name="sigSecAhorroContrato" ref="sigSecAhorroContrato"/>
+		<property name="borraAhorroContrato" ref="borraAhorroContrato"/>
+		<property name="ahorroCopiaRendimientos" ref="ahorroCopiaRendimientos"/>
+		<property name="actualizaAhorroRendimientosVigntes" ref="actualizaAhorroRendimientosVigntes"/>
+		<property name="actualizaCuentaClabe" ref="actualizaCuentaClabe"/>		
+		<property name="sigSecAcceso" ref="sigSecAcceso"/>
+		<property name="generaTarjetaAhorro" ref="generaTarjetaAhorro"/>
+		<property name="actualizarNipAhorroContrato" ref="actualizarNipAhorroContrato"/>
+		<property name="buscarCuentasSimplificadasAll" ref="buscarCuentasSimplificadasAll"/>
+		<property name="obtenerSaldoAcumuladoCuentaSimplificada" ref="obtenerSaldoAcumuladoCuentaSimplificada"/>
+		<property name="obtenerCuentasProcrea" ref="obtenerCuentasProcrea"/>
+	</bean>
+	
+</beans>

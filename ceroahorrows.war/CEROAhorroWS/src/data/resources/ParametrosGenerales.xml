@@ -1,0 +1,40 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="validacionCuentaSimplificada" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT valor FROM parametros_generales AS pg WHERE pg.clave = 'VAL_CUE_AHO'" />
+	</bean>
+	
+	<bean id="fondeaCuentaSimplificada" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT valor FROM parametros_generales AS pg WHERE pg.clave = 'FNDA_CTA_SIMP'" />
+	</bean>
+	
+	<bean id="montoFondeoCuentaSimplificada" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT valor FROM parametros_generales AS pg WHERE pg.clave = 'MTO_FNDO_CTA'" />
+	</bean>
+	
+	<bean id="cuentaOrigenFondeoCuentaSimplificada" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT valor FROM parametros_generales AS pg WHERE pg.clave = 'CTA_ORI_FNDO'" />
+	</bean>
+	
+	<bean id="montoMaxAhorroCuentaSimplificada" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT valor FROM parametros_generales AS pg WHERE pg.clave = 'MTO_MAX_AHO_SIMP'" />
+	</bean>
+	
+	<bean id="ParametrosGeneralesDAO" class="net.cero.spring.dao.ParametrosGeneralesDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="validacionCuentaSimplificada" ref="validacionCuentaSimplificada"/>
+		<property name="fondeaCuentaSimplificada" ref="fondeaCuentaSimplificada"/>
+		<property name="montoFondeoCuentaSimplificada" ref="montoFondeoCuentaSimplificada"/>
+		<property name="cuentaOrigenFondeoCuentaSimplificada" ref="cuentaOrigenFondeoCuentaSimplificada"/>
+		<property name="montoMaxAhorroCuentaSimplificada" ref="montoMaxAhorroCuentaSimplificada"/>
+	</bean>
+	
+</beans>

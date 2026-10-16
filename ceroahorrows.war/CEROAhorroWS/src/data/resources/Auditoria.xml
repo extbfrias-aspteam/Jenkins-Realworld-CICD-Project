@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="queryInsertAuditoria" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value=" INSERT INTO ahorro_bit_autoriza (cuenta, usuario_aut, tipo, fecha_mov,
+					creado_por, fecha_creacion, habilita_des, monto, nombre_pc)
+					VALUES(?, 9, '122', current_timestamp, 9, current_timestamp, 'D', 0, ?);" />
+	</bean>
+
+	<bean id="registrarAuditoria" class="java.lang.String">
+        <constructor-arg type="java.lang.String"
+                         value="insert into bit_autoriza(control, usuario_aut, tipo, fecha_mov, creado_por, fecha_creacion, ip, actual, nuevo, observaciones)
+                                values(?, ?, ?, current_timestamp, ?, current_timestamp, ?, ?, ?, ?)" />
+    </bean>
+
+	<bean id="AuditoriaDAO" class="net.cero.spring.dao.AuditoriaDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="queryInsertAuditoria" ref="queryInsertAuditoria" />
+		<property name="registrarAuditoria" ref="registrarAuditoria" />
+	</bean>
+	
+</beans>

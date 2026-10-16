@@ -1,0 +1,24 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="sigSecAhorroDisp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_disposiciones_id_seq'::regclass)" />
+	</bean>
+
+	<bean id="nuevoAhorroDisposicion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into ahorro_disposiciones (id,cuenta,fecha,monto,forma_pago_id,banco_id,cheque,movimiento_id,creado_por, fecha_creacion, transaccion_id, tarjeta_operativa_id, app, transaccion_version_id,aviso_id)
+					values(?,?,?,?,?,?,?,?,?,current_timestamp,?,?,?,?,?)" />
+	</bean>
+	
+	
+	<bean id="AhorroDisposicionesDAO" class="net.cero.spring.dao.AhorroDisposicionesDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="sigSecAhorroDisp" ref="sigSecAhorroDisp"/>
+		<property name="nuevoAhorroDisposicion" ref="nuevoAhorroDisposicion"/>
+	</bean>
+	
+</beans>

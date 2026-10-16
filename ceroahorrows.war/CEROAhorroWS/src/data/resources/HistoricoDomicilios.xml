@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+
+
+
+	<bean id="insertarHistoricoDom" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into historico_domicilios
+			(numero, domicilio, colonia, numero_casa, creado_por, fecha_creacion)
+				select
+				numero,
+				domicilio,
+				colonia,
+				numero_casa,
+				creado_por,
+				NOW()
+					from solicitante s
+					where numero = ?"/>
+	</bean>
+
+	<bean id="HistoricoDomiciliosDAO" class="net.cero.spring.dao.HistoricoDomiciliosDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="insertarHistoricoDom" ref="insertarHistoricoDom" />
+
+	</bean>
+
+</beans>

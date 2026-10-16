@@ -1,0 +1,22 @@
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/jee 
+	http://www.springframework.org/schema/jee/spring-jee-3.0.xsd"
+	xmlns:jee="http://www.springframework.org/schema/jee">
+	
+	<bean id="consultaUsuario" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select usuario_id , usuario, nombre , puesto  from public.usuarios u where u.usuario like ?">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="ContrasenaLDAPDAO" class="net.cero.spring.dao.ContrasenaLDAPDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="consultaUsuario" ref="consultaUsuario" />
+	</bean>
+
+</beans>

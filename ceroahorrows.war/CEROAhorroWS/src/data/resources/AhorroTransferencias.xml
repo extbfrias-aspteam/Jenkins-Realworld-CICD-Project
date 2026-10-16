@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="sigSeqAT" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_transferencias_id_seq'::regclass)" />
+	</bean>
+	
+	<bean id="nuevoAT" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO public.ahorro_transferencias(id,cuenta_ori,cuenta_des,fecha,monto,movimiento_id,creado_por,deposito_id,disposicion_id,fecha_creacion) 
+					VALUES (?,?,?,?,?,?,?,?,?,current_timestamp);" />
+	</bean>
+	
+	<bean id="AhorroTransferenciasDAO" class="net.cero.spring.dao.AhorroTransferenciasDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="sigSeqAT" ref="sigSeqAT"/>
+		<property name="nuevoAT" ref="nuevoAT"/>
+	</bean>
+	
+</beans>

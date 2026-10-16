@@ -1,0 +1,61 @@
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/jee 
+	http://www.springframework.org/schema/jee/spring-jee-3.0.xsd"
+	   xmlns:jee="http://www.springframework.org/schema/jee">
+
+	<bean id="consultaSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select dt.telefono, ct.descripcion, dt.id_solicitante  from directorio_telefonico dt
+			left join cat_telefonos ct on ct.id_cat_telefono = dt.id_cat_telefono
+			where telefono = ? and dt.id_cat_telefono = 7">
+		</constructor-arg>
+	</bean>
+
+	<bean id="bloqueoDesbloqueoApp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="update codi.registro_codi set fecha_modificacion = now(), bloqueado = ?, fecha_bloqueo = now() where solicitante_id like ?">
+		</constructor-arg>
+	</bean>
+
+	<bean id="desbloqueoTotalCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="update codi.registro_codi set fecha_modificacion = now(), bloqueado = ?, intentos = 0, bloqueos_temporales = 0 where solicitante_id like ?">
+		</constructor-arg>
+	</bean>
+	<bean id="desbloqueoTotalCuentaId" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="update codi.registro_codi set fecha_modificacion = now(), bloqueado = ?, intentos = 0, bloqueos_temporales = 0 where solicitante_id = ? and cuenta = ? ">
+		</constructor-arg>
+	</bean>
+
+	<bean id="consultaBloqueoDesbloqueoApp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select bloqueado from codi.registro_codi where solicitante_id  like ?">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaBloqueoDesbloqueoAppCta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select bloqueado from codi.registro_codi where solicitante_id  = ? and cuenta = ? and activo = true ">
+		</constructor-arg>
+	</bean>
+	<bean id="consultaRegistroCodiPorCuentaYSolicitantes" class="java.lang.String">
+    	<constructor-arg type="java.lang.String"
+                     value="select solicitante_id from codi.registro_codi where cuenta = ? and solicitante_id in (%s)"/>
+	</bean>
+	<bean id="BloqueoDesbloqueoAppDao" class="net.cero.spring.dao.BloqueoDesbloqueoAppDao">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="consultaSolicitante" ref="consultaSolicitante" />
+		<property name="bloqueoDesbloqueoApp" ref="bloqueoDesbloqueoApp" />
+		<property name="consultaBloqueoDesbloqueoApp" ref="consultaBloqueoDesbloqueoApp" />
+		<property name="consultaBloqueoDesbloqueoAppCta" ref="consultaBloqueoDesbloqueoAppCta" />
+		<property name="desbloqueoTotalCuenta" ref="desbloqueoTotalCuenta" />
+		<property name="desbloqueoTotalCuentaId" ref="desbloqueoTotalCuentaId" />
+		<property name="consultaRegistroCodiPorCuentaYSolicitantes" ref="consultaRegistroCodiPorCuentaYSolicitantes" />
+	</bean>
+</beans>

@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="buscarCampaniaCodigo" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT CAMPANIA,INFLUENCER_ID,COSTO,META,INCENTIVO,VIGENCIA,ACUMULADOS,CUENTA_AHORRO  
+					FROM CAMPANIAS AS C 
+					WHERE CAMPANIA=? AND ESTATUS=1 
+					AND VIGENCIA &gt;= CURRENT_DATE 
+					AND META-ACUMULADOS &gt; 0" />
+	</bean>
+	
+	<bean id="actualizarAcumuladoCampania" class="java.lang.String">
+		<constructor-arg type="java.lang.String" 
+			value="UPDATE CAMPANIAS SET ACUMULADOS=? WHERE CAMPANIA=?"/>
+	</bean>
+	
+	<bean id="CampaniaDAO" class="net.cero.spring.dao.CampaniaDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="buscarCampaniaCodigo" ref="buscarCampaniaCodigo"/>
+		<property name="actualizarAcumuladoCampania" ref="actualizarAcumuladoCampania"/>
+	</bean>
+
+</beans>

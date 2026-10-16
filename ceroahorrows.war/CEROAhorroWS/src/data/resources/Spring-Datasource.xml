@@ -1,0 +1,68 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="ds"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		 
+		<!-- 
+		<property name="username" value="apps" />
+		<property name="password" value="apps" />
+		-->
+		<property name="username" value="appsom" />
+		<property name="password" value="of1m0v17" />
+		<property name="url" value="jdbc:postgresql://pg-cero.integraopciones.mx:5432/cero?ApplicationName=CeroAhorroWS" />
+	</bean>
+	
+	<bean id="dsPr"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://pg-procrea.integraopciones.mx:5432/procrea?ApplicationName=CeroAhorroWS" />
+		<property name="username" value="apps" />
+		<property name="password" value="apps" />
+	</bean>
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="ds" />
+	</bean>
+			
+	<bean id="jdbcTemplatePr" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dsPr" />
+	</bean>
+
+  	<bean id="namedJdbcTemplate"
+		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg ref="ds" />
+	</bean>
+
+	<bean id="namedJdbcTemplatePr"
+		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg ref="dsPr" />
+	</bean>
+
+	<bean id="dsSti"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+			value="org.postgresql.Driver" />
+		<!-- <property name="url" value="jdbc:postgresql://pg-izelsti.integraopciones.mx:5432/izelSTI"
+			/> <property name="username" value="apps" /> <property name="password" value="apps"
+			/> -->
+
+		<property name="url"
+			value="jdbc:postgresql://pg-izelsti.integraopciones.mx:5432/izelSTI?ApplicationName=CeroAhorroWS" />
+		<property name="username" value="apps" />
+		<property name="password" value="apps" />
+	</bean>
+
+	<bean id="jdbcTemplateSti"
+		class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dsSti" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dsSti"></property>
+	</bean>
+</beans>

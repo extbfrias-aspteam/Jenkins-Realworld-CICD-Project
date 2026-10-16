@@ -1,0 +1,790 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+
+	<bean id="obtenerCorreo" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select correo from solicitante where numero = ?"></constructor-arg>
+	</bean>
+
+	<bean id="getDocumentacionObligatoria" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select id,documento from ahorro_doctos_expedientes where tipo_ahorro_id = ? and obligatorio = 'S' and (tipo_persona = ? or tipo_persona = 'AMBOS') and nivel_cuenta = ?
+		order by id asc"></constructor-arg>
+	</bean>
+	<bean id="getDocumentacionCargada" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select ae.documentos_ahorro_id, ae.nombre from ahorro_doctos_expedientes ad  
+            left join ahorro_expediente ae on ad.id = ae.documentos_ahorro_id where ad.obligatorio = 'S' and (tipo_persona= ? or tipo_persona ='AMBOS') and nivel_cuenta = ?
+            and ae.cuenta = ? order by ae.documentos_ahorro_id asc"></constructor-arg>
+	</bean>
+
+	<bean id="altaPersonaF" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into solicitante(numero,t_persona,nombre,nombre_p,apellidos,apellido_m,rfc1,rfc2,rfc3,curp,domicilio,cat_domicilio1,descripcion_domicilio1,cat_domicilio4,descripcion_domicilio4,
+	    cat_domicilio5,descripcion_domicilio5,colonia,celular,correo,sexo,edo_nac_id,cve_nacionalidad,cve_ocupacion,telefono,ubicacion_geografica,fecha_creacion,creado_por,numero_casa,tipo_cliente_id,originario,puesto,cat_domicilio2,descripcion_domicilio2,cat_domicilio3,descripcion_domicilio3) 
+		values (nextval('solicitante_s'),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,current_date,?,?,1,?,?,?,?,?,?) returning numero;" />
+	</bean>
+	<bean id="guardarIdConsulta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into conceptos_solicitantes(id_solicitante,cat_conceptos_id,valor,usuario_creacion,fecha_creacion) values (?,193,?,9,CURRENT_TIMESTAMP)"></constructor-arg>
+	</bean>
+	<bean id="buscarClaveEstadoPorCurp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select clave from estatal where curp=?"></constructor-arg>
+	</bean>
+	<bean id="obtenerPais" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select id_pais  from nacionalidades where clave=?"></constructor-arg>
+	</bean>
+	<bean id="obtenerNombrePais" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select p.descripcion from nacionalidades n left join paises p on n.id_pais = p.id where n.clave=?"></constructor-arg>
+	</bean>
+	<bean id="altaPersonaM" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into solicitante(numero,t_persona,nombre,rfc1,rfc2,rfc3,domicilio,cat_domicilio1,descripcion_domicilio1,numero_casa,colonia,celular,correo,cve_ocupacion,
+		telefono,ubicacion_geografica,fecha_creacion,creado_por,cat_domicilio4,descripcion_domicilio4,cat_domicilio5,descripcion_domicilio5,empresa,domicilio_em,numero_casa_em,colonia_em,cve_nacionalidad,originario,cat_domicilio2,descripcion_domicilio2,cat_domicilio3,descripcion_domicilio3) values (nextval('solicitante_s'),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,current_date,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) returning numero;" />
+	</bean>
+	<bean id="altaSerieFirma" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into conceptos_solicitantes(id_solicitante,cat_conceptos_id,valor,usuario_creacion) values (?,183,?,?)"></constructor-arg>
+	</bean>
+	<bean id="altaPais" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into conceptos_solicitantes(id_solicitante,cat_conceptos_id,valor,usuario_creacion) values (?,122,?,?)"></constructor-arg>
+	</bean>
+	
+	<bean id="altaConcepto" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into conceptos_solicitantes(id_solicitante,cat_conceptos_id,valor,usuario_creacion) values (?,?,?,?)"></constructor-arg>
+	</bean>
+	
+	<bean id="borraConceptoXIdSolIdCat" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="delete from conceptos_solicitantes where id_solicitante = ? and cat_conceptos_id = ? "></constructor-arg>
+	</bean>
+	<bean id="altaCanalAtencion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into conceptos_solicitantes(id_solicitante,cat_conceptos_id,valor,usuario_creacion) values (?,191,?,?)"></constructor-arg>
+	</bean>
+	<bean id="buscarSiExiste" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select count(*) from solicitante where curp =?" />
+	</bean>
+	<bean id="buscarSiExisteMoral" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select count(*) from solicitante where rfc1 =? and rfc2=? and rfc3=?" />
+	</bean>
+	<bean id="buscarIdColonia" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select * from colonia where nombre=? and cp=?" />
+	</bean>
+	<bean id="buscarIdColoniaPr" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select * from prcolonia where nombre=? and codigo_postal=?" />
+	</bean>
+	<bean id="buscarInfoSolicitanteF" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select * from solicitante where curp=?"></constructor-arg>
+	</bean>
+	<bean id="buscarInfoSolicitanteM" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select * from solicitante where rfc1 =? and rfc2=? and rfc3=?" />
+	</bean>
+	<bean id="infoDomicilio" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select col.nombre as colonia,
+			loc.descripcion as localidad,
+			mun.cmpionmpio as municipio, est.nombre as estado from colonia as col
+			left join localidades as loc on loc.clave=col.localidad_id 
+			left join catmpio as mun on mun.cmpiompio =loc.catmpio_id
+			left join estatal as est on est.clave=mun.estado_id
+			where col.clave=?"></constructor-arg>
+	</bean>
+	<bean id="infoDomicilioPr" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select e.descripcion as estado, m.nombre as municipio, l.nombre as localidad, c.nombre as colonia
+					from prestado e
+					left join prmunicipio m on m.estado_id = e.estado_id
+					left join prlocalidad l on l.municipio_id = m.prmunicipio_municipio_ix
+					left join prcolonia c on c.localidad_id = l.prlocalidad_localidad_ix
+					where c.prcolonia_colonia_ix = ?"></constructor-arg>
+	</bean>
+	<bean id="concatenarDomicilio" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select generar_domicilio(?,?,?,?,?,?,?,?,?,?,?)"></constructor-arg>
+	</bean>
+	<bean id="buscarIdEstado" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select clave from estatal where nombre=?"></constructor-arg>
+	</bean>
+
+	<bean id="buscarEstado" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select curp from estatal where clave=?" />
+	</bean>
+	<bean id="altaConIne" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update solicitante set credencial_ife=? where numero=?" />
+	</bean>
+
+	<bean id="insertIdentificacion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into solicitante_identificaciones(id,id_solicitante,id_tipo_identificacion,valor) values (nextval('solicitante_identificaciones_id_seq'),?,?,?)" />
+	</bean>
+	<bean id="buscarSolicitanteByCurp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select numero,nombre from solicitante where curp=?" />
+	</bean>
+	<bean id="buscarSolicitanteByRfc" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select numero,nombre from solicitante where rfc1=? and rfc2=? and rfc3=?" />
+	</bean>
+
+	<bean id="buscarSolicitanteByNumero" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  control, nombre, rfc1, rfc2, rfc3, edo_civil, sexo, domicilio, colonia, celular, telefono, originario, estudios, aestudios, testudios, nombre_p,
+					  apellidos, creado_por, fecha_creacion, modificado_por, fecha_modificacion, numero, numero_casa, apellido_m, curp, credencial_ife, 
+					  cve_nacionalidad, cve_ocupacion, numero_hijos, num_sec, referencia, grupo_id, monto_inicial, responsab, puesto, agente_id, empresa,
+					  t_persona, personalidad, id_conyuge, lugar_trabajo, fecha_ingreso, ingreso_mensual, estudios_id, edo_nac_id, domicilio_em, numero_casa_em,
+					  colonia_em, telefono_em, vivienda_id, renta_casa, propietario_casa, tiempo_casa, atencion_semana, tipo_lugar_emp, renta_emp, giro,
+					  actividad, parentesco, bloqueado, correo, fecha_cliente_desde, cat_domicilio1, cat_domicilio2, cat_domicilio3, cat_domicilio4, cat_domicilio5,
+					  descripcion_domicilio1, descripcion_domicilio2, descripcion_domicilio3, descripcion_domicilio4, descripcion_domicilio5, domicilo_observaciones,
+					  curp_validar
+					FROM 
+					  public.solicitante where numero = ?" />
+	</bean>
+	
+	<bean id="obtenerNombreSolicitanteByNumero" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT nombre_p, apellidos, apellido_m FROM public.solicitante where numero = ?;" />
+	</bean>
+
+	<bean id="buscarSolicitenteExistenteByRfcCurp" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  control, nombre, rfc1, rfc2, rfc3, edo_civil, sexo, domicilio, colonia, celular, telefono, originario, estudios, aestudios, testudios, nombre_p,
+					  apellidos, creado_por, fecha_creacion, modificado_por, fecha_modificacion, numero, numero_casa, apellido_m, curp, credencial_ife, 
+					  cve_nacionalidad, cve_ocupacion, numero_hijos, num_sec, referencia, grupo_id, monto_inicial, responsab, puesto, agente_id, empresa,
+					  t_persona, personalidad, id_conyuge, lugar_trabajo, fecha_ingreso, ingreso_mensual, estudios_id, edo_nac_id, domicilio_em, numero_casa_em,
+					  colonia_em, telefono_em, vivienda_id, renta_casa, propietario_casa, tiempo_casa, atencion_semana, tipo_lugar_emp, renta_emp, giro,
+					  actividad, parentesco, bloqueado, correo, fecha_cliente_desde, cat_domicilio1, cat_domicilio2, cat_domicilio3, cat_domicilio4, cat_domicilio5,
+					  descripcion_domicilio1, descripcion_domicilio2, descripcion_domicilio3, descripcion_domicilio4, descripcion_domicilio5, domicilo_observaciones,
+					  curp_validar
+					FROM 
+					  public.solicitante where rfc1 || rfc2 || rfc3 = ? or curp = ?" />
+	</bean>
+
+	<bean id="sigSecSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('solicitante_s')" />
+	</bean>
+
+	<bean id="nuevoSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO SOLICITANTE(NOMBRE, NUMERO, NOMBRE_P, APELLIDOS, APELLIDO_M, DOMICILIO, COLONIA, CELULAR, TELEFONO, SEXO, EDO_CIVIL, RFC1, RFC2, RFC3, CURP,T_PERSONA, CORREO, NUMERO_CASA,EDO_NAC_ID, CREADO_POR, FECHA_CREACION, CVE_OCUPACION, GIRO, PUESTO)
+					VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_DATE,?,?,?)" />
+	</bean>
+	
+	<bean id="nuevoSolicitanteV2" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO SOLICITANTE(NOMBRE, NUMERO, NOMBRE_P, APELLIDOS, APELLIDO_M, DOMICILIO, COLONIA, CELULAR, TELEFONO, SEXO, EDO_CIVIL, RFC1, RFC2, RFC3, CURP,T_PERSONA, CORREO, NUMERO_CASA,EDO_NAC_ID, CREADO_POR, FECHA_CREACION, CVE_OCUPACION, GIRO, PUESTO, COD_AUTORIZACION, ACEPTA_TERMINOS, ACEPTA_USO_BIOMETRICO)
+					VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_DATE,?,?,?,?,?,?)" />
+	</bean>
+
+	<bean id="actualizaSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE SOLICITANTE SET
+					CELULAR = ?,
+					CORREO = ?
+					WHERE NUMERO = ?" />
+	</bean>
+	
+	<bean id="actualizaSolicitanteV2" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE SOLICITANTE SET NOMBRE = ?, NOMBRE_P = ?, APELLIDOS = ?, APELLIDO_M = ?, DOMICILIO = ?, 
+                    COLONIA = ?, CELULAR = ?, TELEFONO = ?, SEXO = ?, EDO_CIVIL = ?,
+                    RFC1 = ?, RFC2 = ?, RFC3 = ?, CURP = ?, T_PERSONA = ?,
+                    CORREO = ?, NUMERO_CASA = ?, EDO_NAC_ID = ?, MODIFICADO_POR = ?, FECHA_MODIFICACION = CURRENT_DATE,
+                    CVE_OCUPACION = ?, GIRO = ?, PUESTO = ?, COD_AUTORIZACION = ?, ACEPTA_TERMINOS = ?, ACEPTA_USO_BIOMETRICO = ?
+                    WHERE NUMERO = ?" />
+	</bean>
+
+	<bean id="obtenerEdoNacByCveCURP" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select clave from estatal where curp = ?" />
+	</bean>
+
+	<bean id="registrarSolicitanteCuentaSimplificada" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO solicitante_cuenta_simplificada 
+				(numero, fecha_creacion, usuario_creacion)
+				VALUES(?, current_timestamp, 9);" />
+	</bean>
+	
+	<bean id="longitudSubirNivel" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into conceptos_solicitantes(id_solicitante,cat_conceptos_id,valor,usuario_creacion) values (?,162,?,?)"></constructor-arg>
+	</bean>
+	
+	<bean id="latitudSubirNivel" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into conceptos_solicitantes(id_solicitante,cat_conceptos_id,valor,usuario_creacion) values (?,163,?,?)"></constructor-arg>
+	</bean>
+	
+	<bean id="actualizaSolicitanteSubirNivelCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE SOLICITANTE SET
+					RFC2= ?,
+					CELULAR = ?,
+					EDO_NAC_ID = ?,
+					MODIFICADO_POR = ?,
+					FECHA_MODIFICACION = CURRENT_TIMESTAMP
+					WHERE NUMERO = ?" />
+	</bean>
+	<bean id="copiaDatosCeroProcrea" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select ap.monto_max_aho mmh, ap.ingresos_men ing, a41.valor as ct, puesto, cast(a39.valor as int) as ocu from ahorro.ahcuentas a
+                    left join ahorro.ahcuentas_pld as ap on ap.cuenta_id = a.id
+                    left join ahorro.ahconceptos_pld as a39 on a39.conceptos_id = 39 and a39.cuenta_id = ap.cuenta_id
+                    left join ahorro.ahconceptos_pld as a41 on a41.conceptos_id = 41 and a41.cuenta_id = ap.cuenta_id
+                    where a.persona_id = ? limit 1" />
+	</bean>
+	<bean id="setDatosCeroProcrea" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update solicitante 
+					set
+					monto_max_ahorro = ?,
+					ingresos = ?,
+					puesto = ?,
+					centro_trabajo = ?,
+					cve_ocupacion = ?
+					where numero = ?" />
+	</bean>
+	<bean id="obtenerDomicilio" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select (coalesce(s.descripcion_domicilio1 || ' ', '') || coalesce(s.descripcion_domicilio2 || ' ', '') || coalesce(s.descripcion_domicilio3 || ' ', '') || coalesce(s.descripcion_domicilio4 || ' ', '') || coalesce(s.descripcion_domicilio5, '') || c.cp || ' ' || c.nombre || ' ' || cm.cmpionmpio || ' ' || e.nombre) as domicilio
+					from solicitante s
+					join colonia c on s.colonia = c.clave
+					join localidades l on c.localidad_id  = l.clave
+					join catmpio cm on l.catmpio_id = cm.cmpiompio 
+					join estatal e on cm.estado_id = e.clave 
+					where s.numero = ? " />
+	</bean>
+	<bean id="consultaPersonaId" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select persona_id from ahorro.ahcuentas
+					where persona_id = ?
+					limit 1" />
+	</bean>
+	<bean id="consultaPersonaIdPorCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select persona_id from ahorro.ahcuentas
+					where cuenta = ?" />
+	</bean>
+
+	<bean id="consultaSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select s.nombre_p as nombre, s.apellidos as apellido_paterno,
+					s.apellido_m as apellido_materno, s.sexo as sexo, (s.rfc1 || s.rfc2 || s.rfc3) as rfc,
+					s.domicilio as domicilio, cm.cmpionmpio as municipio, e.nombre as estado, s.curp as curp, 
+					c.nombre as colonia, e.nombre as estado, c.cp as cp, s.celular as celular, s.correo as correo
+					from solicitante s
+					join colonia c on s.colonia = c.clave 
+					join localidades l on c.localidad_id = l.clave 
+					join catmpio cm on l.catmpio_id = cm.cmpiompio 
+					join estatal e on cm.estado_id = e.clave 
+					where s.numero = ?" />
+	</bean>
+	
+	<bean id="buscarCuentaPorPersona_id" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select cuenta from ahorro.ahcuentas where persona_id = ?" />
+	</bean>
+	
+	<bean id="obtenerRutaIne" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select documentos_ahorro_id, ruta_alfresco, nombre from ahorro_expediente 
+					where cuenta = ?
+					and documentos_ahorro_id in (6, 7)
+					order by documentos_ahorro_id" />
+	</bean>
+	
+	<bean id="consultaEntrega" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT cuenta, calle, calle2, num_exterior, num_interior, cp, referencia, colonia, municipio, estado, tipo_entrega, reportado 
+					FROM plasticos.pldirecciones_entrega 
+					where numero_tarjeta_fisica = ?
+					and solicitante_id = ? limit 1" />
+	</bean>
+
+	<bean id="consultaMediosAcceso" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select persona_id,
+                        cuenta_asp,
+                        pan,
+                        nombre_proveedor,
+                        tipo_producto,
+                        estatus,
+                        tipo_tarjeta,
+                        folio_id,
+                        card_id
+                from (
+                    select
+                        ah.persona_id,
+                        ah.cuenta as cuenta_asp,
+                        pp.pan,
+                        p.nombre as nombre_proveedor,
+                        pa.descripcion as tipo_producto,
+                        coalesce(a.descripcion, pe.descripcion) as estatus,
+                        'FISICA' as tipo_tarjeta,
+                        pp.folio_id,
+                        pp.dock_id AS card_id
+                    from
+                        plasticos.pladministracion_pan pp
+                    join plasticos.plestatus_pan pe on
+                        pp.estatus_id = pe.id
+                    left join plasticos.plproveedores p on p.proveedor_id = pp.proveedor_id
+                    left join plasticos.plcuenta_pan pc on
+                        pp.id = pc.pan_id
+                    left join ahorro.ahestatus a on
+                        pc.estatus_id = a.id
+                    left join ahorro.ahcuentas ah on
+                        pc.cuenta_id = ah.id
+                    left join productos.prproductos_ahorro pa on
+                        pa.id = ah.producto_ahorro_id
+                    union
+                    select
+                        ah.persona_id,
+                        ah.cuenta,
+                        pt.numero_tarjeta as pan,
+                        p.nombre as nombre_proveedor,
+                        pa.descripcion as tipo_producto,
+                        ps.descripcion as estatus,
+                        'VIRTUAL' as tipo_tarjeta,
+                        '' as folio_id,
+                        pt.dock_id AS card_id
+                    from
+                        plasticos.pladministracion_tarjetas pt
+                    join plasticos.plestatus_tarjetas ps on
+                        pt.estatus_tarjetas_id = ps.estatus_tarjetas_id
+                    left join plasticos.plproveedores p on p.proveedor_id = pt.proveedor_id
+                    join ahorro.ahcuentas ah on
+                        ah.id = pt.id_cuenta
+                    left join productos.prproductos_ahorro pa on
+                        pa.id = ah.producto_ahorro_id
+                ) as T" />
+	</bean>
+
+
+	<bean id="referenciaCuentaAmbiente" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select 
+						s.numero,
+						(s.rfc1 || s.rfc2 || s.rfc3 ) as RFC, 
+						s.curp , 
+						dt.telefono ,
+						s.nombre,
+						s.domicilio,
+						s.correo,
+						s.edo_nac_id as estado_nacimiento,
+						s.cve_ocupacion as ocupacion,
+						s.sexo
+					from solicitante s
+					left join directorio_telefonico dt
+						on dt.id_solicitante = s.numero and dt.id_cat_telefono = 7 ">
+		</constructor-arg>
+	</bean>
+
+	<bean id="consultaBeneficiario" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select ab.nombre_beneficiario ,
+										abd.fecha_nacimiento ,
+										abd.colonia,
+										ab.relacion_id,
+										abd.id,
+										abd.domicilio ,
+										abd.cp,
+										abd.no_interior ,
+										abd.no_exterior ,
+										abd.calle ,
+										abd.ciudad ,
+										ab.correo,
+										p4.descripcion entidad_federativa,
+										p3.nombre municipio,
+										abd.numero_celular
+								from ahorro.ahcuentas_beneficiarios ab
+								left join ahorro.ahcuentas_beneficiarios_detalle abd on ab.id = abd.id_beneficiario
+								left join ahorro.ahcuentas a on a.id = ab.cuenta_id
+								left join public.prcolonia p on p.codigo_postal = abd.cp
+								left join public.prlocalidad p2 on p2.localidad_id = p.localidad_id
+								left join public.prmunicipio p3 on p3.municipio_id = p2.municipio_id
+								left join public.prestado p4 on p4.estado_id = p3.estado_id
+								where a.persona_id = ?">
+		</constructor-arg>
+	</bean>
+
+	<bean id="consultaListaParentesco" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select id, descripcion
+						 		from cat_relacion
+								where id = ?">
+		</constructor-arg>
+	</bean>
+
+	<bean id="consultaOcupaciones" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select 
+						o.descripcion 
+					from ocupaciones o
+					where o.clave = ?">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaEstadoNac" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select 
+						e.nombre 
+					from estatal e
+					where e.clave = ?">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="nivelCuentaAmbiente" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+						aa.valor as nivel 
+					FROM ahorro.ahcuentas ah
+				    JOIN ahorro.ahcuentas_ahorro_datos aa ON ah.id = aa.cuenta_id
+				    JOIN nucleocentral.ncconceptos nc ON aa.concepto_id = nc.id
+					WHERE nc.clave = 'AHO_NIVEL_CUENTA' and ah.persona_id = ? limit 1">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaDetalleCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select 
+							a.cuenta,
+							a.persona_id ,
+							a.clabe_interbancaria ,
+							ae.descripcion  as estatus  
+				   from ahorro.ahcuentas a
+				   join ahorro.ahestatus ae on a.estatus_id  = ae.id">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="consultaAspCuentas" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select 
+						a.cuenta,
+						a.persona_id ,
+						a.clabe_interbancaria ,
+						ae.descripcion  as  estatus,
+						pa.descripcion as producto
+					from ahorro.ahcuentas a
+					inner join productos.prproductos_ahorro pa on pa.id = a.producto_ahorro_id
+				    join ahorro.ahestatus ae on a.estatus_id  = ae.id">
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="consultaAspCuentasProcrea" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select
+									ac.cuenta,
+									ac.solicitante_id as persona_id ,
+									ac.cuenta_clabe as clabe_interbancaria ,
+									ce.descripcion as estatus,
+									ta.descripcion as producto
+								from ahorro_contrato ac
+								inner join tipos_ahorro ta on ta.tipo_ahorro_id = ac.tipo_ahorro_id
+								inner join cat_estatus_ahorro ce on ce.clave = ac.estatus ">
+		</constructor-arg>
+	</bean>
+	
+	<bean id="validarCodigoAutorizacion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT cod_autorizacion 
+					FROM public.solicitante 
+					WHERE cod_autorizacion = ? AND numero = ?" />
+	</bean>
+	
+	<bean id="validarCodigoAutorizacionBiometrico" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT cad.valor, cad.id, nc.clave, ac.persona_id 
+					FROM ahorro.ahcuentas ac  
+					LEFT JOIN ahorro.ahcuentas_ahorro_datos cad on cad.cuenta_id = ac.id
+					LEFT JOIN nucleocentral.ncconceptos nc on nc.id = cad.concepto_id
+					WHERE cad.valor = ? AND ac.persona_id = ? AND nc.clave = ?" />
+	</bean>
+	
+	<bean id="insertarBitacoraCodigoAutorizacion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO public.bitacora_codigo_autorizacion (id_servicio, id_usuario, cod_autorizacion, estatus, observaciones) 
+			VALUES (?,?,?,?::bit, ?)" />
+	</bean>
+	
+	<bean id="buscarSiExisteServicio" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT id 
+					FROM public.servicios_asppago
+					WHERE id = ?" />
+	</bean>
+	
+	<bean id="insertarConceptoSolicitanteBeneficiario" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="insert into public.conceptos_solicitantes (id_solicitante, cat_conceptos_id, valor, usuario_creacion) values (?,?,?,?)" />
+	</bean>
+	<bean id="cambiarCodigoAutorizacion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update solicitante  
+				   set cod_autorizacion  = ? 
+				   where cod_autorizacion = ? 
+				   and numero = ?" />
+	</bean>
+	<bean id="cambiarCodigoAutorizacionBiometrico" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="update ahorro.ahcuentas_ahorro_datos    
+				   set valor  = ? 
+				   where id = ?" />
+	</bean>
+
+
+	<bean id="consultaSaldoDisponibleMiAhorro" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="SELECT id, tipocuentaah , cuentaah , cuenta_clabe , saldodisponibleah, estatusah as estatus
+						 FROM nucleocentral.ncposicionglobalah
+						 WHERE estatusah = 'VIG'
+						 	and tipocuentaah like 'AHORRO'
+						 	and idpersona = ?" />
+
+	</bean>
+	<bean id="consultaCuentaPorProducto" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select a.cuenta
+									from ahorro.ahcuentas a
+									join ahorro.ahestatus ae on a.estatus_id  = ae.id
+									join productos.prproductos_ahorro pa on pa.id = a.producto_ahorro_id
+								   where pa.clave = ? and a.cuenta = ?" />
+	</bean>
+
+	<bean id="consultaCuentaPorProductoProcrea" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select ac.cuenta from ahorro_contrato ac
+								inner join tipos_ahorro ta on ta.tipo_ahorro_id = ac.tipo_ahorro_id
+								where ac.cuenta = ?" />
+	</bean>
+
+	<bean id="consultaCuentaPorProductoYSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select c.cuenta from ahorro.ahcuentas c
+								inner join productos.prproductos_ahorro pa on c.producto_ahorro_id = pa.id
+								where c.persona_id = ? and pa.clave = ?" />
+	</bean>
+
+	<bean id="consultaCuentaPorProductoYSolicitanteProcrea" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select ac.cuenta from ahorro_contrato ac
+								inner join tipos_ahorro ta on ta.tipo_ahorro_id = ac.tipo_ahorro_id
+								where ac.solicitante_id = ? and ta.tipo_ahorro_id = ?" />
+	</bean>
+
+	<bean id="obtenerSolicitantePorCorreo" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select numero as id_solicitante from solicitante
+								where correo = ?" />
+	</bean>
+
+	<bean id="obtenerCurpRfcPorSolicitanteId" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select curp, rfc1 || rfc2 || rfc3 as rfc, nombre, correo from solicitante
+					  		where numero = ?" />
+	</bean>
+
+	<bean id="actualizarCurp" class="java.lang.String">
+        <constructor-arg type="java.lang.String"
+                         value="update solicitante set curp = ?
+                                where numero = ?" />
+    </bean>
+
+    <bean id="actualizarRfc" class="java.lang.String">
+        <constructor-arg type="java.lang.String"
+                         value="update solicitante set rfc1 = ?, rfc2 = ?, rfc3 = ?
+                                where numero = ?" />
+    </bean>
+
+    <bean id="obtenerCurpRfc" class="java.lang.String">
+        <constructor-arg type="java.lang.String"
+                         value="select curp, rfc1 || rfc2 || rfc3 as rfc from solicitante
+                                where numero = ?" />
+    </bean>
+
+	<bean id="actualizarCorreo" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="update solicitante set correo = ?
+								where numero = ?" />
+	</bean>
+	<bean id="obtenerConceptoDomicilio" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select valor from conceptos_solicitantes cs where cat_conceptos_id = (select id from cat_conceptos where clave = 'SOLIC_COLONIA') and cs.id_solicitante = ?" />
+	</bean>
+	<bean id="infoDomicilioV2" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select pre.descripcion as estado, prm.nombre as municipio, prl.nombre as localidad, prc.nombre as colonia, prc.codigo_postal as cp
+					from prestado pre
+					join prmunicipio prm on pre.estado_id = prm.estado_id
+					join prlocalidad prl on prm.municipio_id = prl.municipio_id
+					join prcolonia prc on prl.localidad_id = prc.localidad_id
+					where prc.colonia_id  = ?"></constructor-arg>
+	</bean>
+	<bean id="insertarConceptoSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="INSERT INTO public.conceptos_solicitantes
+					(id_solicitante, cat_conceptos_id, valor, opctext1, usuario_creacion, fecha_creacion)
+					VALUES(?,(select id from cat_conceptos where clave = 'SOLIC_COLONIA'),?,?,9, now());" />
+	</bean>
+	<bean id="actualizarConceptoColoniaSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="update conceptos_solicitantes cs set valor = ?, usuario_modificacion = ?, fecha_modificacion = current_timestamp
+					where cat_conceptos_id = (select id from cat_conceptos where clave = 'SOLIC_COLONIA')
+					and cs.id_solicitante = ?;
+					" />
+	</bean>
+	<bean id="actualizarDomicilioSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="update solicitante set
+									 domicilio = ? ,
+									 modificado_por  = ?,
+									 colonia = ?,
+									 fecha_modificacion = current_timestamp,
+									 cat_domicilio1 = ?,
+									 cat_domicilio2 = ?,
+									 cat_domicilio3 = ?,
+									 cat_domicilio4 = ?,
+									 cat_domicilio5 = ?,
+									 descripcion_domicilio1 = ?,
+									 descripcion_domicilio2 = ?,
+									 descripcion_domicilio3 = ?,
+									 descripcion_domicilio4 = ?,
+									 descripcion_domicilio5 = ?,
+									 domicilo_observaciones = ?
+										where numero = ?;" />
+	</bean>
+	<bean id="obtenerDomicilioSolicitante" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+						 value="select domicilio,
+										modificado_por,
+										colonia,
+										cat_domicilio1,
+										cat_domicilio2,
+										cat_domicilio3,
+										cat_domicilio4,
+										cat_domicilio5,
+										descripcion_domicilio1,
+										descripcion_domicilio2,
+										descripcion_domicilio3,
+										descripcion_domicilio4,
+										descripcion_domicilio5,
+										domicilo_observaciones
+						 from solicitante
+						 where numero = ?;" />
+	</bean>
+
+
+
+
+	<bean id="SolicitanteDAO" class="net.cero.spring.dao.SolicitanteDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr" />
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="buscarSolicitanteByNumero" ref="buscarSolicitanteByNumero" />
+		<property name="obtenerNombreSolicitanteByNumero" ref="obtenerNombreSolicitanteByNumero" />
+		<property name="buscarSolicitenteExistenteByRfcCurp" ref="buscarSolicitenteExistenteByRfcCurp" />
+		<property name="sigSecSolicitante" ref="sigSecSolicitante" />
+		<property name="nuevoSolicitante" ref="nuevoSolicitante" />
+		<property name="nuevoSolicitanteV2" ref="nuevoSolicitanteV2" />
+		<property name="actualizaSolicitante" ref="actualizaSolicitante" />
+		<property name="actualizaSolicitanteV2" ref="actualizaSolicitanteV2" />
+		<property name="obtenerEdoNacByCveCURP" ref="obtenerEdoNacByCveCURP" />
+		<property name="registrarSolicitanteCuentaSimplificada" ref="registrarSolicitanteCuentaSimplificada" />
+		<property name="insertIdentificacion" ref="insertIdentificacion" />
+		<property name="altaPersonaF" ref="altaPersonaF" />
+		<property name="altaPersonaM" ref="altaPersonaM" />
+		<property name="altaConIne" ref="altaConIne" />
+		<property name="buscarSiExiste" ref="buscarSiExiste" />
+		<property name="buscarEstado" ref="buscarEstado" />
+		<property name="buscarIdColonia" ref="buscarIdColonia" />
+		<property name="buscarSolicitanteByCurp" ref="buscarSolicitanteByCurp" />
+		<property name="buscarSolicitanteByRfc" ref="buscarSolicitanteByRfc" />
+		<property name="buscarSiExisteMoral" ref="buscarSiExisteMoral"></property>
+		<property name="infoDomicilio" ref="infoDomicilio"></property>
+		<property name="altaCanalAtencion" ref="altaCanalAtencion"></property>
+		<property name="altaSerieFirma" ref="altaSerieFirma"></property>
+		<property name="altaPais" ref="altaPais"></property>
+		<property name="buscarIdEstado" ref="buscarIdEstado"></property>
+		<property name="concatenarDomicilio" ref="concatenarDomicilio"></property>
+		<property name="buscarClaveEstadoPorCurp" ref="buscarClaveEstadoPorCurp"></property>
+		<property name="obtenerPais" ref="obtenerPais"></property>
+		<property name="guardarIdConsulta" ref="guardarIdConsulta"></property>
+		<property name="buscarInfoSolicitanteF" ref="buscarInfoSolicitanteF"></property>
+		<property name="buscarInfoSolicitanteM" ref="buscarInfoSolicitanteM"></property>
+		<property name="obtenerNombrePais" ref="obtenerNombrePais"></property>
+		<property name="obtenerCorreo" ref="obtenerCorreo"></property>
+		<property name="getDocumentacionObligatoria" ref="getDocumentacionObligatoria"></property>
+		<property name="getDocumentacionCargada" ref="getDocumentacionCargada"></property>
+		<property name="longitudSubirNivel" ref="longitudSubirNivel"></property>
+		<property name="latitudSubirNivel" ref="latitudSubirNivel"></property>
+		<property name="actualizaSolicitanteSubirNivelCuenta" ref="actualizaSolicitanteSubirNivelCuenta"></property>
+		<property name="altaConcepto" ref="altaConcepto"></property>
+		<property name="copiaDatosCeroProcrea" ref="copiaDatosCeroProcrea"></property>
+		<property name="setDatosCeroProcrea" ref="setDatosCeroProcrea"></property>
+		<property name="borraConceptoXIdSolIdCat" ref="borraConceptoXIdSolIdCat"></property>
+		<property name="obtenerDomicilio" ref="obtenerDomicilio"/>
+		<property name="consultaPersonaId" ref="consultaPersonaId"/>
+		<property name="consultaPersonaIdPorCuenta" ref="consultaPersonaIdPorCuenta"/>
+		<property name="consultaSolicitante" ref="consultaSolicitante"/>
+		<property name="buscarCuentaPorPersona_id" ref="buscarCuentaPorPersona_id"/>
+		<property name="obtenerRutaIne" ref="obtenerRutaIne"/>
+		<property name="consultaEntrega" ref="consultaEntrega"/>
+		<property name="referenciaCuentaAmbiente" ref="referenciaCuentaAmbiente"></property>
+		<property name="nivelCuentaAmbiente" ref="nivelCuentaAmbiente"></property>
+		<property name="consultaMediosAcceso" ref="consultaMediosAcceso"></property>
+		<property name="consultaDetalleCuenta" ref="consultaDetalleCuenta"></property>
+		<property name="consultaAspCuentas" ref="consultaAspCuentas"></property>
+		<property name="validarCodigoAutorizacion" ref="validarCodigoAutorizacion" />
+		<property name="insertarBitacoraCodigoAutorizacion" ref="insertarBitacoraCodigoAutorizacion" />
+		<property name="buscarSiExisteServicio" ref="buscarSiExisteServicio" />
+		<property name="validarCodigoAutorizacionBiometrico" ref="validarCodigoAutorizacionBiometrico" />
+		<property name="buscarIdColoniaPr" ref="buscarIdColoniaPr" />
+		<property name="infoDomicilioPr" ref="infoDomicilioPr" />
+		<property name="insertarConceptoSolicitanteBeneficiario" ref="insertarConceptoSolicitanteBeneficiario" />
+		<property name="consultaOcupaciones" ref="consultaOcupaciones"></property>
+		<property name="consultaEstadoNac" ref="consultaEstadoNac"></property>
+		<property name="cambiarCodigoAutorizacion" ref="cambiarCodigoAutorizacion" />
+		<property name="cambiarCodigoAutorizacionBiometrico" ref="cambiarCodigoAutorizacionBiometrico" />
+		<property name="consultaBeneficiario" ref="consultaBeneficiario" />
+		<property name="consultaListaParentesco" ref="consultaListaParentesco" />
+		<property name="consultaSaldoDisponibleMiAhorro" ref="consultaSaldoDisponibleMiAhorro" />
+		<property name="consultaCuentaPorProducto" ref="consultaCuentaPorProducto" />
+		<property name="consultaAspCuentasProcrea" ref="consultaAspCuentasProcrea" />
+		<property name="consultaCuentaPorProductoYSolicitante" ref="consultaCuentaPorProductoYSolicitante" />
+		<property name="consultaCuentaPorProductoYSolicitanteProcrea" ref="consultaCuentaPorProductoYSolicitanteProcrea" />
+		<property name="consultaCuentaPorProductoProcrea" ref="consultaCuentaPorProductoProcrea" />
+		<property name="obtenerSolicitantePorCorreo" ref="obtenerSolicitantePorCorreo" />
+		<property name="obtenerCurpRfcPorSolicitanteId" ref="obtenerCurpRfcPorSolicitanteId" />
+		<property name="actualizarCurp" ref="actualizarCurp" />
+        <property name="actualizarRfc" ref="actualizarRfc" />
+        <property name="obtenerCurpRfc" ref="obtenerCurpRfc" />
+		<property name="actualizarCorreo" ref="actualizarCorreo" />
+		<property name="obtenerConceptoDomicilio" ref="obtenerConceptoDomicilio" />
+		<property name="infoDomicilioV2" ref="infoDomicilioV2" />
+		<property name="insertarConceptoSolicitante" ref="insertarConceptoSolicitante" />
+		<property name="actualizarConceptoColoniaSolicitante" ref="actualizarConceptoColoniaSolicitante" />
+		<property name="actualizarDomicilioSolicitante" ref="actualizarDomicilioSolicitante" />
+		<property name="obtenerDomicilioSolicitante" ref="obtenerDomicilioSolicitante" />
+	</bean>
+
+</beans>

@@ -1,0 +1,54 @@
+clave:
+  app:
+    error:
+      rutas:
+        asp-pago-api: API
+        asp-pago-documents: ASPP-DOC
+        asp-pago-access: ASPP-ACC
+        asp-pago-management: ASPP-MNG
+        asp-pago-onb: ASPP-ONB
+        asp-pago-jwt: ASPP-JWT
+        asp-pago-payments: ASPP-PAY
+        asp-pago-investments: ASPP-INV
+        asp-pago-services-v2: ASPP-SV2
+        asp-pago-notification: ASPP-NOT
+        admin-plasticos-services: ASPP-PLS
+        admin-plasticos-logistics: ASPP-PLL
+
+      exclusiones:
+        - servicio: asp-pago-jwt
+          endpoint: /validaJWT
+          codigos:
+            - -4
+
+        - servicio: asp-pago-jwt
+          endpoint: /login-auth
+          codigos:
+            - -4
+
+        - servicio: asp-pago-jwt
+          endpoint: /refresh-token
+          codigos:
+            - -4
+
+        - servicio: asp-pago-access
+          endpoint: /loginV
+          codigos:
+            - -4
+
+        - servicio: asp-pago-access
+          endpoint: /validaVersionApp
+          codigos:
+            - -100
+
+        - servicio: asp-pago-payments
+          endpoint: /procesamientoSpeiSimpleV
+          codigos:
+            - -128
+            - -131
+            - -132
+
+        - servicio: asp-pago-management
+          endpoint: /registraFavoritoV2
+          codigos:
+            - 1

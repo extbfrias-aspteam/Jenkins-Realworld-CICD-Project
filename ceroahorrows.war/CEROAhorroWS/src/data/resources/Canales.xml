@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="consultarCanal" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT clave FROM cat_canales WHERE id = ?" />
+	</bean>
+	
+	<bean id="CanalesDAO" class="net.cero.spring.dao.CanalesDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="consultarCanal" ref="consultarCanal"/>
+	</bean>
+		
+</beans>

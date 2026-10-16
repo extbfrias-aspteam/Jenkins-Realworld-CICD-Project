@@ -1,0 +1,36 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="obtenerSucursalIdByColoniaId" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select
+					  r.clave,
+					  r.nombre,
+					  r.creado_por,
+					  r.fecha_creacion,
+					  r.modificado_por,
+					  r.fecha_modificacion,
+					  r.depende_region_id,
+					  r.plazo_max_avio,
+					  r.plazo_max_refa,
+					  r.coordinacion_id,
+					  r.cuenta,
+					  r.subcuenta,
+					  r.ip,
+					  r.zona,
+					  r.domicilio,
+					  r.telefono,
+					  r.ciudad  
+					from regiones r
+					join colonia c on c.region_id = r.clave
+					where c.clave = ?" />
+	</bean>
+	
+	<bean id="RegionesDAO" class="net.cero.spring.dao.RegionesDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="obtenerSucursalIdByColoniaId" ref="obtenerSucursalIdByColoniaId"/>
+	</bean>
+	
+</beans>

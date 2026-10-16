@@ -1,0 +1,28 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="obtenerSucursalAperturaByRegion" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  clave,
+					  rfc,
+					  nombre,
+					  domicilio,
+					  colonia,
+					  telefono,
+					  responsa,
+					  puesto,
+					  correo
+					FROM 
+					  public.agente 
+					where region_id = ? and empresa = 2" />
+	</bean>
+	
+	<bean id="AgenteDAO" class="net.cero.spring.dao.AgenteDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="obtenerSucursalAperturaByRegion" ref="obtenerSucursalAperturaByRegion"/>
+	</bean>
+	
+</beans>

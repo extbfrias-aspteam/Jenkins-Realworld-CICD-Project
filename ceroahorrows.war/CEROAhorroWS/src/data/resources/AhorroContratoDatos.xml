@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="sigSecAhorroContratoDatos" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_contrato_datos_id_seq'::regclass)" />
+	</bean>
+		
+	<bean id="nuevoAhorroContratoDatos" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO ahorro_contrato_datos(id,cuenta,como_entero_desc,usuario_creacion,fecha_creacion,resp_referencia,resp_sucursal,id_prospectado_por) 
+					VALUES (?,?,?,?,current_date,?,?,?)" />
+	</bean>
+	
+	<bean id="AhorroContratoDatosDAO" class="net.cero.spring.dao.AhorroContratoDatosDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="sigSecAhorroContratoDatos" ref="sigSecAhorroContratoDatos"/>
+		<property name="nuevoAhorroContratoDatos" ref="nuevoAhorroContratoDatos"/>
+	</bean>
+	
+</beans>

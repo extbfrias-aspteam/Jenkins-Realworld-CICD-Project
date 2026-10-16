@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<bean id="buscarRegistroCodi" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT ID,CUENTA,FOLIO_CONTRATO,ESTATUS
+					FROM CODI.REGISTRO_CODI 
+					WHERE CUENTA=?"/>
+	</bean>
+	
+	<bean id="actualizarRegistroCodi" class="java.lang.String">
+		<constructor-arg type="java.lang.String" 
+			value="UPDATE CODI.REGISTRO_CODI 
+					SET FOLIO_CONTRATO=?,ESTATUS=? WHERE ID=?"/>
+	</bean>
+	
+	<bean id="guardarRegistroCodi" class="java.lang.String">
+		<constructor-arg type="java.lang.String" 
+			value="INSERT INTO CODI.REGISTRO_CODI 
+					(CUENTA,FOLIO_CONTRATO,ESTATUS,SOLICITANTE_ID) 
+					VALUES (?,?,?,?)"/>
+	</bean>
+	
+	<bean id="RegistroCodiDAO" class="net.cero.spring.dao.RegistroCodiDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="buscarRegistroCodi" ref="buscarRegistroCodi"/>
+		<property name="actualizarRegistroCodi" ref="actualizarRegistroCodi"/>
+		<property name="guardarRegistroCodi" ref="guardarRegistroCodi"/>
+	</bean>
+	
+</beans>

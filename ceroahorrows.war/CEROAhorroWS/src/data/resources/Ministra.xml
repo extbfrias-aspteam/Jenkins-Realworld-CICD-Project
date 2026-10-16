@@ -1,0 +1,52 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="obtenerMinistraByControlFechaMin" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT 
+					  control,
+					  fec_min,
+					  mto_min,
+					  numero,
+					  creado_por,
+					  fecha_creacion,
+					  modificado_por,
+					  fecha_modificacion,
+					  cheque,
+					  banco,
+					  cheque_ret,
+					  banco_ret,
+					  fecha_deposito,
+					  banco_deposito,
+					  monto_deposito,
+					  poliza,
+					  ministra_id,
+					  poliza_reg,
+					  transaccion_id,
+					  tarjeta_operativa_id,
+					  app,
+					  transaccion_version_id
+					FROM 
+					  public.ministra where control = ? and fec_min = cast(? as date)" />
+	</bean>
+	
+	<bean id="actualizaMinistraChequeBanco" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE 
+					  public.ministra  
+					SET					  
+					  cheque = :cheque,
+					  banco = :banco					  					 
+					WHERE 
+					  control = ? and banco = ? and cheque = ?" />
+	</bean>
+	
+	<bean id="MinistraDAO" class="net.cero.spring.dao.MinistraDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="obtenerMinistraByControlFechaMin" ref="obtenerMinistraByControlFechaMin"/>
+		<property name="actualizaMinistraChequeBanco" ref="actualizaMinistraChequeBanco"/>
+	</bean>
+	
+</beans>

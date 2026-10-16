@@ -1,0 +1,78 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="sigSeqARV" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="select nextval('ahorro_rendimiento_vigente_seq')" />
+	</bean>
+	
+	<bean id="nuevoARV" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="INSERT INTO ahorro_rendimiento_vigente(rendimiento_vigente_id,cuenta,tipo_ahorro_id,periodicidad,plazo,tipo_tasa,calculo_iva,tasa_int,tasa_id,base,formula,tipo_corte,deposito,num_dias,dias_gracia,cta_contable,vigencia_desde,vigencia_hasta,condiciones_retiros,condiciones_apertura,
+  					creado_por,fecha_creacion,modificado_por,fecha_modificacion,rendimiento_id,gat,tipo_capitalizar_id,no_disposicion,estatus,tipo,capital,
+  					fecha_inicio,fecha_final,interes,fecha_deposito) 
+  					VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)" />
+	</bean>
+	
+	<bean id="buscarRendimientoByCuenta" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT rendimiento_vigente_id,cuenta,tipo_ahorro_id,periodicidad,coalesce(plazo,0) as plazo,tipo_tasa,calculo_iva,tasa_int,tasa_id,base,formula,tipo_corte,deposito,num_dias,dias_gracia,cta_contable,vigencia_desde,vigencia_hasta,condiciones_retiros,condiciones_apertura,
+  							creado_por,fecha_creacion,modificado_por,fecha_modificacion,rendimiento_id,gat,tipo_capitalizar_id,no_disposicion,estatus,tipo,capital,
+  							fecha_inicio,fecha_final,interes,fecha_deposito
+					FROM ahorro_rendimiento_vigente WHERE cuenta = ?" />
+	</bean>
+	
+	<bean id="actualizarARV" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="UPDATE 
+					  ahorro_rendimiento_vigente  
+					SET 
+					  cuenta = ?,
+					  tipo_ahorro_id = ?,
+					  periodicidad = ?,
+					  plazo = ?,
+					  tipo_tasa = ?,
+					  calculo_iva = ?,
+					  tasa_int = ?,
+					  tasa_id = ?,
+					  base = ?,
+					  formula = ?,
+					  tipo_corte = ?,
+					  deposito = ?,
+					  num_dias = ?,
+					  dias_gracia = ?,
+					  cta_contable = ?,
+					  vigencia_desde = ?,
+					  vigencia_hasta = ?,
+					  condiciones_retiros = ?,
+					  condiciones_apertura = ?,
+					  creado_por = ?,
+					  fecha_creacion = ?,
+					  modificado_por = ?,
+					  fecha_modificacion = ?,
+					  rendimiento_id = ?,
+					  gat = ?,
+					  tipo_capitalizar_id = ?,
+					  no_disposicion = ?,
+					  estatus = ?,
+					  tipo = ?,
+					  capital = ?,
+					  fecha_inicio = ?,
+					  fecha_final = ?,
+					  interes = ?,
+					  fecha_deposito = ?
+					WHERE 
+					  rendimiento_vigente_id = ?" />
+	</bean>
+	
+	<bean id="AhorroRendimientoVigenteDAO" class="net.cero.spring.dao.AhorroRendimientoVigenteDAO">
+		<property name="jdbcTemplatePr" ref="jdbcTemplatePr"/>
+		<property name="sigSeqARV" ref="sigSeqARV"/>
+		<property name="nuevoARV" ref="nuevoARV"/>
+		<property name="buscarRendimientoByCuenta" ref="buscarRendimientoByCuenta"/>
+		<property name="actualizarARV" ref="actualizarARV"/>
+	</bean>
+	
+</beans>

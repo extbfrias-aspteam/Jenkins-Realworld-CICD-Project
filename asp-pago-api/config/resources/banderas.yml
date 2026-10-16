@@ -1,0 +1,14 @@
+banderas:
+  endpoints:
+    deshabilitados:
+      /asignarCuenta: "Lo sentimos, la solicitud de tarjetas no se encuentra disponible. Intenta mas tarde."
+      /asignarTarjetaFisica: "Lo sentimos, la solicitud de tarjetas no se encuentra disponible. Intenta mas tarde."
+      /reasignarTarjeta: "Lo sentimos, la solicitud de tarjetas no se encuentra disponible. Intenta mas tarde."
+      /asignarOtraTarjeta: "Lo sentimos, la solicitud de tarjetas no se encuentra disponible. Intenta mas tarde."
+      /solicitarReposicion: "Lo sentimos, la solicitud de tarjetas no se encuentra disponible. Intenta mas tarde."
+      /solicitarTarjetaFisica: "Lo sentimos, la solicitud de tarjetas no se encuentra disponible. Intenta mas tarde."
+      /solicitarReposicionTarjetaFisica: "Lo sentimos, la solicitud de tarjetas no se encuentra disponible. Intenta mas tarde."
+      /desbloquearTarjeta: "Lo sentimos por el momento no es posible desbloquear tu tarjeta. Intenta más tarde."
+      /peticionCambioPassV2: "Servicio no disponible."
+      /cambioPasswordV2: "Servicio no disponible."
+      /validarTokenCambioPass: "Servicio no disponible."

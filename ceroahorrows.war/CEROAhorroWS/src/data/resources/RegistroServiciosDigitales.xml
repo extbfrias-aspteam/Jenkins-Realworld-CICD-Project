@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	
+	<bean id="buscarRegistroServiciosDigitales" class="java.lang.String">
+		<constructor-arg type="java.lang.String"
+			value="SELECT ID,CUENTA,USUARIO,PASSWORD,FOLIO_CONTRATO,ESTATUS,
+					NOMBRE_DOCUMENTO,ALFRESCO_ID,TIPO_ARCHIVO_ID 
+					FROM CODI.REGISTRO_SERVICIOS_DIGITALES 
+					WHERE CUENTA=?"/>
+	</bean>
+	
+	<bean id="actualizarRegistroServiciosDigitales" class="java.lang.String">
+		<constructor-arg type="java.lang.String" 
+			value="UPDATE CODI.REGISTRO_SERVICIOS_DIGITALES 
+					SET FOLIO_CONTRATO=?,PASSWORD=?,ESTATUS=?,NOMBRE_DOCUMENTO=?,ALFRESCO_ID=?,TIPO_ARCHIVO_ID=? 
+					WHERE ID=?"/>
+	</bean>
+	
+	<bean id="guardarRegistroServiciosDigitales" class="java.lang.String">
+		<constructor-arg type="java.lang.String" 
+			value="INSERT INTO CODI.REGISTRO_SERVICIOS_DIGITALES 
+					(CUENTA,FOLIO_CONTRATO,ESTATUS,NOMBRE_DOCUMENTO,ALFRESCO_ID,TIPO_ARCHIVO_ID) 
+					VALUES
+					(?,?,?,?,?,?)"/>
+	</bean>
+	
+	<bean id="RegistroServiciosDigitalesDAO" class="net.cero.spring.dao.RegistroServiciosDigitalesDAO">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="buscarRegistroServiciosDigitales" ref="buscarRegistroServiciosDigitales"/>
+		<property name="actualizarRegistroServiciosDigitales" ref="actualizarRegistroServiciosDigitales"/>
+		<property name="guardarRegistroServiciosDigitales" ref="guardarRegistroServiciosDigitales"/>
+	</bean>
+	
+</beans>
